@@ -1,4 +1,4 @@
-import express, {json} from 'express'
+import express, {json, urlencoded} from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
 import { userRouter } from './users/users.router';
@@ -15,12 +15,14 @@ connectToDB()
 app.use(morgan('dev'))
 app.use(cors())
 app.use(json())
+app.use(urlencoded())
+
 
 app.use('/users', userRouter)
 app.use('/goals', checkToken, goalRouter)
 
-
 app.use(routerNotFoundHandler)
 app.use(errorHandler)
+
 
 app.listen(3000, () => console.log('Server listening on Port 3000'))

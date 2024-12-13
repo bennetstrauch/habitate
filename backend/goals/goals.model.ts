@@ -1,18 +1,18 @@
 import { Schema, model, InferSchemaType } from 'mongoose';
 
 
-const habbitSchema = new Schema({
+const habitSchema = new Schema({
     name: { type: String, required: true},
     description: String
 })
 
 
 // #type
-const habbitsValidator = { 
+const habitsValidator = { 
     validator: function(v) {
         return v.length <= 3
     },
-    message: () => `You should not have more than 3 habbits per goal to keep it simple. Delete one to add a new one.`
+    message: () => `You should not have more than 3 habits per goal to keep it simple. Delete one to add a new one.`
 }
 
 
@@ -22,7 +22,7 @@ const goalSchema = new Schema({
 
     createdByUserWithId: Schema.Types.ObjectId,
 
-    habbits: { type: [habbitSchema], validate: habbitsValidator }
+    habits: { type: [habitSchema], validate: habitsValidator }
 })
 
 

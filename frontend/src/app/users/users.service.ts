@@ -1,0 +1,25 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { User } from '@backend/users/users.model'
+import { StandardResponse } from '@backend/types/standardResponse'
+import { Token } from '@backend/types/token'
+import { environment } from 'frontend/src/environments/environment.development';
+import { LoginRequest } from '@backend/types/login/loginRequest';
+import { LoginResponse } from '@backend/types/login/loginResponse';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UsersService {
+
+  #http = inject(HttpClient)
+
+  register(user: User) {
+    return this.#http.post<StandardResponse<string>>(environment.SERVER_URL + '/users/register', user)
+  }
+
+  login(user: LoginRequest) {
+    return this.#http.post<LoginResponse>(environment.SERVER_URL + '/users/login', user)
+
+  }
+}

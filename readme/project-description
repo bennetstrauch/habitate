@@ -1,28 +1,28 @@
 PROJECT DESCRIPTION - BENNET
 
 OVERALL INTENTION:
-An application that helps the user to cultivate healthy, life-supporting habbits, in an easy & natural way.
+An application that helps the user to cultivate healthy, life-supporting habits, in an easy & natural way.
 
 
 ' GOAL - SETTING ' 
 The user defines one+ goal(s) he has.
-Then he chooses habbit(s) to work towards that goal on a daily basis.
-AI will log the habbits of every user in one vector database,
-to give the user recommendations / ideas for new habbits if desired.
+Then he chooses habit(s) to work towards that goal on a daily basis.
+AI will log the habits of every user in one vector database,
+to give the user recommendations / ideas for new habits if desired.
 
 
-' HABBIT - REFLECTION ' 
+' habit - REFLECTION ' 
 He chooses a convenient time / point in his routine where he logs his progress (daily).
-He checks which habbits he completed and which not, 
+He checks which habits he completed and which not, 
 and also logs wether it was easy or he struggled with it.
 
 (If he found himself to struggle,
-he can choose to talk to an 'AI-Habbit-Coach' that supports him in making 
-small adjustment in his habbit or the way he approaches it, 
+he can choose to talk to an 'AI-habit-Coach' that supports him in making 
+small adjustment in his habit or the way he approaches it, 
 to make it more easy and natural.)*
 
 
-' HABBIT - LOG '
+' habit - LOG '
 The user has the ability at any time to see the progress he made in the past week
 in a simple overview. 
 

@@ -1,9 +1,12 @@
 import { RequestHandler } from 'express'
-import { ErrorWithStatus, StandardResponse } from '../utils/classes'
-import { User, UserModel } from '../database/schemas/users.model'
+import { ErrorWithStatus } from '../utils/classes'
+import { User, UserModel } from './users.model'
+import { StandardResponse } from '../types/standardResponse';
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { LoginResponse } from '../types/login/loginResponse';
+import { LoginRequest } from '../types/login/loginRequest';
 
 
 type RegisterReqHandler = RequestHandler<unknown, StandardResponse<string>, User, unknown>
@@ -32,9 +35,6 @@ export const register: RegisterReqHandler = async (req, res, next) => {
 
 
 
-type LoginResponse = { success: boolean, token?: string }
-type LoginRequest = { email: string, password: string }
-
 type LoginReqHandler = RequestHandler<unknown, LoginResponse, LoginRequest, unknown>
 
 export const login: LoginReqHandler = async (req, res, next) => {
@@ -55,13 +55,13 @@ export const login: LoginReqHandler = async (req, res, next) => {
         }
 
         // Generate token
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.SECRET_KEY_FOR_SIGNING_TOKEN, {
+        const token = jwt.sign({ id: user._id, username: user.username, email: user.email }, process.env.SECRET_KEY_FOR_SIGNING_TOKEN, {
             expiresIn: '1h',
         });
 
 
         // Send token
-        res.status(200).json({ success: true, token });
+        res.status(200).json({ success: true, data: {token} });
 
     } catch (err) {
         next(err);

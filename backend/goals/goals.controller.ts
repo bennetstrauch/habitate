@@ -1,14 +1,15 @@
-import { Goal, GoalModel } from "../database/schemas/goals.model";
+import { Goal, GoalModel } from "./goals.model";
 import { RequestHandler } from 'express'
-import { ErrorWithStatus, StandardResponse } from '../utils/classes'
+import { ErrorWithStatus } from '../utils/classes'
+import { StandardResponse } from "../types/standardResponse";
 
 
+type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
 
-export const getGoals: RequestHandler<unknown, StandardResponse<Goal[]>> = async (req, res, next) => {
+export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
    
     try {
-        const results = await GoalModel.find({ user_id: req.user?._id })
-
+        const results = await GoalModel.find({ user_id: req.userId })
         res.json({ success: true, data: results });
     } catch (err) {
         next(err);
@@ -16,12 +17,14 @@ export const getGoals: RequestHandler<unknown, StandardResponse<Goal[]>> = async
 };
 
 
-export const getGoal: RequestHandler<{ goal_id: string; }, StandardResponse<Goal | null>> = async (req, res, next) => {
+type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Goal | null>>
+
+export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 
     try {
         const { goal_id } = req.params;
 
-        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.user?._id });
+        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId });
 
         res.json({ success: true, data: goal });
 
@@ -36,7 +39,7 @@ export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, Goal> = a
     try {
         const result = await GoalModel.create({
             ...req.body,
-            user_id: req.user?._id
+            user_id: req.userId
         });
 
         res.json({ success: true, data: result });
@@ -54,7 +57,7 @@ export const putGoal: PutGoalReqHandler = async (req, res, next) => {
     try {
         const { goal_id } = req.params;
         const result = await GoalModel.updateOne(
-            { _id: goal_id, user_id: req.user?._id },
+            { _id: goal_id, user_id: req.userId },
             { $set: req.body }
         );
 
@@ -71,7 +74,7 @@ export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<n
     try {
         const { goal_id } = req.params;
 
-        const result = await GoalModel.deleteOne({ _id: goal_id, user_id: req.user?._id });
+        const result = await GoalModel.deleteOne({ _id: goal_id, user_id: req.userId });
 
         res.status(200).json({ success: true, data: result.deletedCount });
 

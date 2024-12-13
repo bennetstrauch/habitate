@@ -4,7 +4,4 @@ export class ErrorWithStatus extends Error {
     }
 }
 
-export class StandardResponse<T>{
-    success: boolean;
-    data: T
-}
+
