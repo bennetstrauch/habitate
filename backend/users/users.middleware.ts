@@ -1,0 +1,30 @@
+import { RequestHandler } from "express";
+import { verify } from "jsonwebtoken";
+import { ErrorWithStatus } from "../utils/classes";
+import { Token } from "../utils/types";
+
+
+export const checkToken: RequestHandler = async (req, res, next) => {
+    
+    try {
+
+        const authHeader = req.headers['authorization'];
+
+        if (!authHeader) throw new ErrorWithStatus('No Token Found', 401);
+
+        const token = (authHeader as string).split(" ")[1];
+
+
+        if (!process.env.SECRET_KEY_FOR_SIGNING_TOKEN) throw new ErrorWithStatus('Secret not found', 401);
+
+        // const payload = verify(token, process.env.SECRET_KEY_FOR_SIGNING_TOKEN);
+        const payload = verify(token, process.env.SECRET_KEY_FOR_SIGNING_TOKEN) as Token;
+        req.userId = payload._id;
+
+        console.log('payload', payload)
+        next();
+
+    } catch (e) {
+        next(e);
+    }
+};

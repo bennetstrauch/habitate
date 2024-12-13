@@ -1,0 +1,29 @@
+GET http://localhost:3000/goals
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWI0NDE5MzgzY2UzZDg4YTA3NzY5NiIsImVtYWlsIjoic3RyYXVjaGJlZXJlQHdlYi5kZSIsImlhdCI6MTczNDA1MzMzMiwiZXhwIjoxNzM0MDU2OTMyfQ.6sW3wRR_oN01SHkoCYamp_K-L-hN-ozB5HQEDlrH_nY
+###
+
+POST http://localhost:3000/goals
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWI0NDE5MzgzY2UzZDg4YTA3NzY5NiIsImVtYWlsIjoic3RyYXVjaGJlZXJlQHdlYi5kZSIsImlhdCI6MTczNDA1MzMzMiwiZXhwIjoxNzM0MDU2OTMyfQ.6sW3wRR_oN01SHkoCYamp_K-L-hN-ozB5HQEDlrH_nY
+
+{
+    "name": "Hello",
+    "description": "My first goal"
+}
+
+###
+
+GET http://localhost:3000/goals/6753396129439fb13d8f9381
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWI0NDE5MzgzY2UzZDg4YTA3NzY5NiIsImVtYWlsIjoic3RyYXVjaGJlZXJlQHdlYi5kZSIsImlhdCI6MTczNDA1MzMzMiwiZXhwIjoxNzM0MDU2OTMyfQ.6sW3wRR_oN01SHkoCYamp_K-L-hN-ozB5HQEDlrH_nY###
+
+PUT http://localhost:3000/goals/6753396129439fb13d8f9381
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWI0NDE5MzgzY2UzZDg4YTA3NzY5NiIsImVtYWlsIjoic3RyYXVjaGJlZXJlQHdlYi5kZSIsImlhdCI6MTczNDA1MzMzMiwiZXhwIjoxNzM0MDU2OTMyfQ.6sW3wRR_oN01SHkoCYamp_K-L-hN-ozB5HQEDlrH_nY
+{
+    "title": "Hello 1",
+    "description": "My very first diary"
+}
+###
+
+DELETE http://localhost:3000/goals/6753396129439fb13d8f9381
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWI0NDE5MzgzY2UzZDg4YTA3NzY5NiIsImVtYWlsIjoic3RyYXVjaGJlZXJlQHdlYi5kZSIsImlhdCI6MTczNDA1MzMzMiwiZXhwIjoxNzM0MDU2OTMyfQ.6sW3wRR_oN01SHkoCYamp_K-L-hN-ozB5HQEDlrH_nY###
