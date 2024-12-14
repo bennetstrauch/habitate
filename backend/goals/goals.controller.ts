@@ -1,10 +1,10 @@
-import { Goal, GoalModel } from "./goals.model";
+import { GoalBase, GoalModel } from "./goals.model";
 import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
 
 
-type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
+type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<GoalBase[]>>
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
    
@@ -17,7 +17,7 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 };
 
 
-type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Goal | null>>
+type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<GoalBase | null>>
 
 export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 
@@ -34,7 +34,7 @@ export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 };
 
 
-export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, Goal> = async (req, res, next) => {
+export const postGoal: RequestHandler<unknown, StandardResponse<GoalBase>, GoalBase> = async (req, res, next) => {
 
     try {
         const result = await GoalModel.create({
@@ -50,7 +50,7 @@ export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, Goal> = a
 };
 
 
-type PutGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<number>, Goal>
+type PutGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<number>, GoalBase>
 
 export const putGoal: PutGoalReqHandler = async (req, res, next) => {
     

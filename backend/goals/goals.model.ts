@@ -17,6 +17,7 @@ const habitsValidator = {
 
 
 const goalSchema = new Schema({
+
     name: { type: String, required: true},
     description: String,
 
@@ -27,7 +28,12 @@ const goalSchema = new Schema({
 
 
 
-export type Goal = InferSchemaType<typeof goalSchema>
+export type GoalBase = InferSchemaType<typeof goalSchema>
 
-export const GoalModel = model<Goal>('goal', goalSchema)
+export const GoalModel = model<GoalBase>('goal', goalSchema)
+
+
+export interface Goal extends GoalBase {
+    _id: string; // MongoDB ObjectId as a string for the frontend
+  }
 

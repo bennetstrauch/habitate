@@ -7,7 +7,7 @@ export type GlobalState = {
   jwtToken: string
 }
 
-export const intitialState = {
+export const intitialState : GlobalState = {
   username: '',
   email: '',
   _id: '',
@@ -21,5 +21,9 @@ export const intitialState = {
 export class StateService {
 
   $state = signal<GlobalState>(intitialState)
+
+  isLoggedIn() {
+    return this.$state()._id ? true : false;
+  }
 
 }

@@ -46,9 +46,10 @@ export class LoginComponent {
       const token = response.data.token
     
       const payloadDecoded = jwtDecode(token) as Token
+      console.log(payloadDecoded)
 
       this.#stateService.$state.set({
-
+        
         _id: payloadDecoded._id,
         username: payloadDecoded.username,
         email: payloadDecoded.email,
@@ -56,7 +57,6 @@ export class LoginComponent {
       })
 
       this.#router.navigate(['', 'goals'])
-      console.log('done')
     })
 
   }

@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { intitialState, StateService } from '../state.service';
+import { AuthenticationComponent } from "./authentication.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, AuthenticationComponent],
   template: `
     <h1>Welcome to {{title}}!</h1>
 
-    <a [routerLink]= "['', 'login']"> Login </a>
-    <a [routerLink]= "['', 'register']"> Register </a>
-
+    <app-authentication />
     <router-outlet />
+
   `,
   styles: [],
 })
 export class AppComponent {
   title = 'Habitate';
+
+ 
 }
