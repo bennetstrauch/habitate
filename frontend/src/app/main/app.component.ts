@@ -7,13 +7,24 @@ import { AuthenticationComponent } from "./authentication.component";
   selector: 'app-root',
   imports: [RouterOutlet, AuthenticationComponent],
   template: `
-    <h1>Welcome to {{title}}!</h1>
+
+    <div class="main-container">
 
     <app-authentication />
     <router-outlet />
 
+    </div>
+
   `,
-  styles: [],
+  styles: [
+    `.main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f4f4f4;
+    }
+    `
+  ],
 })
 export class AppComponent {
   title = 'Habitate';

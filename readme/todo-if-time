@@ -10,3 +10,7 @@ structure:
 - remove package.json, etc.. in outer ? see if env still works
 - convert to mono-repo structure
 (Using Nx - setting it up / typical structure)
+
+
+design:
+- convert to sarss and have gloabl mat-car-buttons...

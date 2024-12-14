@@ -1,4 +1,6 @@
 import { Component, inject } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { validationRules } from '@global/auth/validationRules'
 import { UsersService } from './users.service';
@@ -8,13 +10,15 @@ import { Router } from '@angular/router';
 
 
 @Component({
-  selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
+
   template: `
 
     <form [formGroup]='form' (ngSubmit)='register()'>
 
-      <input placeholder="username" [formControl]='form.controls.username'>
+    <mat-form-field>
+      <input mat-input placeholder="username" [formControl]='form.controls.username'>
+    </mat-form-field>
       <br>
       <input placeholder="email" [formControl]='form.controls.email'>
       <br>

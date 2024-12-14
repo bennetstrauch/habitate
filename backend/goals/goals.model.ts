@@ -9,8 +9,8 @@ const habitSchema = new Schema({
 
 // #type
 const habitsValidator = { 
-    validator: function(v) {
-        return v.length <= 3
+    validator: function(habits : Habit[]) {
+        return habits.length <= 3
     },
     message: () => `You should not have more than 3 habits per goal to keep it simple. Delete one to add a new one.`
 }
@@ -27,6 +27,8 @@ const goalSchema = new Schema({
 })
 
 
+
+export type Habit = InferSchemaType<typeof habitSchema>
 
 export type GoalBase = InferSchemaType<typeof goalSchema>
 
