@@ -1,14 +1,14 @@
 import { effect, Injectable, signal } from '@angular/core';
 
 export type GlobalState = {
-  username: string,
+  name: string,
   email: string,
   _id: string,
   jwtToken: string
 }
 
 export const intitialState : GlobalState = {
-  username: '',
+  name: '',
   email: '',
   _id: '',
   jwtToken: ''

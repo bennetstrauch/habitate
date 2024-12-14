@@ -11,7 +11,6 @@ import { LoginRequest } from '../types/login/loginRequest';
 
 type RegisterReqHandler = RequestHandler<unknown, StandardResponse<string>, User, unknown>
 
-// # check for uniqueness of username - case-insensitive
 export const register: RegisterReqHandler = async (req, res, next) => {
     try {
 
@@ -55,7 +54,7 @@ export const login: LoginReqHandler = async (req, res, next) => {
         }
 
         // Generate token
-        const token = jwt.sign({ _id: user._id, username: user.username, email: user.email }, process.env.SECRET_KEY_FOR_SIGNING_TOKEN, {
+        const token = jwt.sign({ _id: user._id, name: user.name, email: user.email }, process.env.SECRET_KEY_FOR_SIGNING_TOKEN, {
             expiresIn: '1h',
         });
 

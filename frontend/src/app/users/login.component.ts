@@ -1,17 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { validators } from './register.component';
+import { validators } from './register/register.component';
 import { UsersService } from './users.service';
 import { LoginRequest } from '@backend/types/login/loginRequest'
 import { StateService } from '../state.service';
 import { jwtDecode } from 'jwt-decode'
 import { Token } from '@backend/types/token';
 import { Router } from '@angular/router';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
-  template: `
+  imports: [ReactiveFormsModule, MatButton],
+  template: ` Login: 
 
     <form [formGroup]='form' (ngSubmit)='login()'>
      
@@ -20,7 +21,7 @@ import { Router } from '@angular/router';
       <input placeholder="password" [formControl]='form.controls.password'>
       <br>
 
-      <button [disabled]="form.invalid"> Login </button>
+      <button mat-button [disabled]="form.invalid"> Login </button>
     </form>
   `,
   styles: ``
@@ -51,7 +52,7 @@ export class LoginComponent {
       this.#stateService.$state.set({
         
         _id: payloadDecoded._id,
-        username: payloadDecoded.username,
+        name: payloadDecoded.name,
         email: payloadDecoded.email,
         jwtToken: token
       })

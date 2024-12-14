@@ -1,9 +1,9 @@
 export const validationRules = {
-    username: {
+    name: {
       minLength: 3,
       maxLength: 20,
       pattern: /^[a-zA-Z0-9]+$/, 
-      errorMessage: 'Username must be 3-20 characters and alphanumeric.',
+      errorMessage: 'name must be 3-20 characters and alphanumeric.',
     },
     email: {
       pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,

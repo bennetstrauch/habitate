@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { GoalsService } from './goals.service';
+import { Router } from '@angular/router';
+import { Goal } from '@backend/goals/goals.model';
 
 @Component({
   selector: 'app-goals',
@@ -11,5 +14,19 @@ import { Component } from '@angular/core';
   styles: ``
 })
 export class GoalsComponent {
+  #router = inject(Router);
+  #goalsService = inject(GoalsService)
+
+  $goals = signal<Goal[]>([])
+
+
+  constructor() {
+    this.#goalsService.get_goals().subscribe(response => {
+      if (response.success) this.$goals.set(response.data);
+    });
+  }
+
+  // if user does not have a reflectionTrigger (stored in mongo) redirect to setup
+
 
 }
