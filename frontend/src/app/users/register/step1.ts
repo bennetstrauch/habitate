@@ -47,10 +47,7 @@ import { MatButton } from '@angular/material/button';
 })
 export class RegisterStepOneComponent {
 
-  @Input() stepper!: MatStepper;
-  @Input() userDetailsForm!: FormGroup; // Form passed from parent
-  
-
+  userDetailsForm = input.required<FormGroup>();
   userDetailsFormData = output<User>()
 
   sendFormData(){

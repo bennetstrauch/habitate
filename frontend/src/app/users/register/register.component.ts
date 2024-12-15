@@ -25,7 +25,6 @@ import { Step4 } from "./step4";
 
       <mat-step [stepControl]="userDetailsForm">
         <app-register-step-one
-        [stepper]="stepper"
         [userDetailsForm]="userDetailsForm"
         (userDetailsFormData)="receiveUserDetails($event)"
         />
