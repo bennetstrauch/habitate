@@ -6,20 +6,20 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-register-part2',
+  selector: 'app-register-step3',
   imports: [MatCardModule, MatButtonModule, RouterModule],
   template: `
 
     <div>
-      <mat-card class="welcome-card">
+      <mat-card class="app-register-step3">
 
         <mat-card-content>
           <p>
-            We want to keep it simple & easy.
-            <br /> <br>
-            To help you get into the flow and stay there, <br>
-            it will be very valuable if we can <br>
-            connect once a day for a few minutes. 
+            To take out the strain <br> 
+            of sheduling something every time, <br> 
+            <br>
+            our daily meeting should be like tooth-brushing. <br>
+            - Nothing to think about.
           </p>
           <br>
          
@@ -61,6 +61,6 @@ import { MatButtonModule } from '@angular/material/button';
     `,
   ],
 })
-export class Part2 {
+export class Step3 {
   
 }

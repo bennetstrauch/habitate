@@ -4,24 +4,32 @@ import { intitialState, StateService } from '../../state.service';
 import { AuthenticationComponent } from "../../main/authentication.component";
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 @Component({
-  selector: 'app-register-part2',
-  imports: [MatCardModule, MatButtonModule, RouterModule],
+  selector: 'app-register-step4',
+  imports: [MatCardModule, MatButtonModule, RouterModule, MatInput, MatLabel],
   template: `
 
     <div>
-      <mat-card class="welcome-card">
+      <mat-card class="app-register-step3">
 
         <mat-card-content>
           <p>
-            We want to keep it simple & easy.
-            <br /> <br>
-            To help you get into the flow and stay there, <br>
-            it will be very valuable if we can <br>
-            connect once a day for a few minutes. 
+            Think about something you already do every day <br> 
+            ( preferrably at night ) <br>
+            and just shedule our <strong> ' Habit-Reflection ' </strong> right after. <br>
+            <br>
+            Enter this ' Reflection-Trigger ' here: 
           </p>
           <br>
+
+     
+
+      <mat-label> here: </mat-label>
+      <input matInput placeholder="Your personalized reflection-trigger" required>
+
          
         </mat-card-content>
 
@@ -61,6 +69,6 @@ import { MatButtonModule } from '@angular/material/button';
     `,
   ],
 })
-export class Part2 {
+export class Step4 {
   
 }

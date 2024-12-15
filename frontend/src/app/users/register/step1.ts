@@ -5,38 +5,51 @@ import { Router } from '@angular/router';
 import { UsersService } from '../users.service';
 import { User } from '@backend/users/users.model';
 import { validationRules } from '@global/auth/validationRules'
+import { MatStep, MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { MatInputModule } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 
 @Component({
   selector: 'app-register-step-one',
-  imports: [ MatFormFieldModule, ReactiveFormsModule],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatStep, MatStepperModule, MatInputModule, MatButton],
   template: `
+  
+
+ 
+
     <form [formGroup]="userDetailsForm">
       <ng-template matStepLabel>Let's habitate your account</ng-template>
 
       <mat-form-field>
+
+      <mat-label> </mat-label>
         <input matInput placeholder="Your desired name" formControlName="name" required>
-      </mat-form-field>
+      </mat-form-field> <br>
 
       <mat-form-field>
         <input matInput placeholder="Your email" formControlName="email" required>
-      </mat-form-field>
+      </mat-form-field> <br>
 
       <mat-form-field>
         <input matInput placeholder="Your top secret password" formControlName="password" required>
-      </mat-form-field>
+      </mat-form-field> <br>
 
-      <button mat-button matStepperNext>Continue</button>
+
+      <button mat-button (click)="sendFormData()" matStepperNext>Continue</button>
     </form>
+
+
+
+
+
   `
 })
 export class RegisterStepOneComponent {
+
+  @Input() stepper!: MatStepper;
+  @Input() userDetailsForm!: FormGroup; // Form passed from parent
   
-  userDetailsForm = inject(FormBuilder).nonNullable.group({
-    'name': ['', validators.name],
-    'email': ['', validators.email],
-    'password': ['', validators.password]
-  })
 
   userDetailsFormData = output<User>()
 
@@ -69,3 +82,4 @@ export const validators = {
   ]
 
 }
+
