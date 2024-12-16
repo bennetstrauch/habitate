@@ -12,21 +12,26 @@ import { Step2 } from "./step2";
 import { RegisterStepOneComponent } from "./step1";
 import { Step3 } from "./step3";
 import { Step4 } from "./step4";
+import { Step5 } from "./step5";
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
 // # make it generic and loop through steps when building 
 
 @Component({
-  imports: [ReactiveFormsModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatButton, Step2, RegisterStepOneComponent, Step3, Step4],
+  imports: [ReactiveFormsModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatButton, Step2, RegisterStepOneComponent, Step3, Step4, Step5],
 
   template: `
 
-    <mat-stepper headerPosition="top" #stepper>
+    <mat-stepper 
+    headerPosition="top" 
+    linear 
+    (selectionChange)="onStepChange($event)"
+    #stepper>
 
 
       <mat-step [stepControl]="userDetailsForm">
         <app-register-step-one
         [userDetailsForm]="userDetailsForm"
-        (userDetailsFormData)="receiveUserDetails($event)"
         />
       </mat-step>
 
@@ -51,16 +56,28 @@ import { Step4 } from "./step4";
 
 
       <mat-step>
-        <app-register-step4/> 
+        <app-register-step4
+        [userDetailsForm]="userDetailsForm"
+        /> 
+
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button mat-button matStepperNext>Next</button>
           </div>
       </mat-step>
 
-
       
+      
+      <mat-step>
+        <app-register-step5
+        [reflectionTrigger]="userDetailsForm.controls.reflectionTrigger.value"
+        /> 
 
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button mat>Next</button>
+          </div>
+      </mat-step>
 
       <!-- <mat-step>
         <ng-template matStepLabel>Done</ng-template>
@@ -82,29 +99,19 @@ export class RegisterComponent {
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     'name': ['', validators.name],
     'email': ['', validators.email],
-    'password': ['', validators.password]
+    'password': ['', validators.password],
+    'reflectionTrigger': ['']
   })
 
   #usersService = inject(UsersService)
   #router = inject(Router)
 
-  newUser : User = {
-    name: '',
-    email: '',
-    password: '',
-
-    reflectionTrigger: ''
+  onStepChange(event: StepperSelectionEvent) {
+    if (event.selectedIndex === 3) {
+      this.userDetailsForm.controls.reflectionTrigger.addValidators(Validators.required)
+      this.userDetailsForm.controls.reflectionTrigger.updateValueAndValidity()
+    }
   }
-
-  receiveUserDetails(data: User){
-    console.log('receivedUserDetails: ', data)
-    this.newUser = data
-  }
-
-
-
-
-
   
   // register(){
 

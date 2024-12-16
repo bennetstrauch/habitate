@@ -1,20 +1,21 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
-import { intitialState, StateService } from '../../state.service';
-import { AuthenticationComponent } from "../../main/authentication.component";
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
+// # take out form, @input to input, globalize formFieldNames
 @Component({
   selector: 'app-register-step4',
-  imports: [MatCardModule, MatButtonModule, RouterModule, MatInput, MatLabel],
+  imports: [MatCardModule, MatButtonModule, RouterModule, MatInput, MatLabel, MatFormField, ReactiveFormsModule],
   template: `
 
     <div>
-      <mat-card class="app-register-step3">
+      <mat-card class="app-register-step4">
 
+      
         <mat-card-content>
           <p>
             Think about something you already do every day <br> 
@@ -25,14 +26,16 @@ import { MatInput } from '@angular/material/input';
           </p>
           <br>
 
-     
 
-      <mat-label> here: </mat-label>
-      <input matInput placeholder="Your personalized reflection-trigger" required>
+          <form [formGroup]="userDetailsForm">
+    
+            <mat-form-field>
+              <mat-label> Reflection-Trigger: </mat-label>
+              <input matInput placeholder="eg. toothbrushing" formControlName="reflectionTrigger" >
+            </mat-form-field> <br>
 
-         
+          </form> 
         </mat-card-content>
-
       </mat-card>
     </div>
   `,
@@ -71,4 +74,6 @@ import { MatInput } from '@angular/material/input';
 })
 export class Step4 {
   
+  @Input() userDetailsForm!: FormGroup;
+
 }
