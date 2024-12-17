@@ -75,18 +75,11 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
           <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button mat>Next</button>
+            <button mat-button (click)='register()'> Submit Registration </button>
+
           </div>
       </mat-step>
 
-      <!-- <mat-step>
-        <ng-template matStepLabel>Done</ng-template>
-        You are now done.
-        <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button (click)="stepper.reset()">Reset</button>
-        </div>
-      </mat-step> -->
 
     </mat-stepper>
 
@@ -113,13 +106,12 @@ export class RegisterComponent {
     }
   }
   
-  // register(){
-
-  //   this.#usersService.register(this.$newUser).subscribe(response => {
-  //     console.log(response)
-  //     this.#router.navigate(['', 'login'])
-  //   })
-  // }
+  register(){
+    this.#usersService.register(this.userDetailsForm.value as User).subscribe(response => {
+      console.log(response)
+      this.#router.navigate(['', 'login'])
+    })
+  }
 
 }
 

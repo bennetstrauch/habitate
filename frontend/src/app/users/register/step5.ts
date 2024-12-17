@@ -21,10 +21,9 @@ import { MatButtonModule } from '@angular/material/button';
             and we'll guide you through this <br>
             short but insightful reflection process. <br>
           </p>
-          <br><br>
+          <br>
           <p>
             <strong> Welcome on board ! </strong>
-            <button mat-button> Submit Registration </button>
 
           </p>
          
