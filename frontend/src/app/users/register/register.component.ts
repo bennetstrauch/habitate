@@ -25,7 +25,7 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
     <mat-stepper 
     headerPosition="top" 
     linear 
-    (selectionChange)="onStepChange($event)"
+    (selectionChange)="addNeededValidatorsOnStepChange($event)"
     #stepper>
 
 
@@ -99,7 +99,7 @@ export class RegisterComponent {
   #usersService = inject(UsersService)
   #router = inject(Router)
 
-  onStepChange(event: StepperSelectionEvent) {
+  addNeededValidatorsOnStepChange(event: StepperSelectionEvent) {
     if (event.selectedIndex === 3) {
       this.userDetailsForm.controls.reflectionTrigger.addValidators(Validators.required)
       this.userDetailsForm.controls.reflectionTrigger.updateValueAndValidity()

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { StandardResponse } from '@backend/types/standardResponse';
-import { Goal } from '@backend/goals/goals.model'
+import { Goal, GoalBase } from '@backend/goals/goals.model'
 import { environment } from 'frontend/src/environments/environment.development';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class GoalsService {
     return this.#http.get<StandardResponse<Goal[]>>(environment.SERVER_URL + '/goals');
   }
 
-  post_goal(goal: Goal) {
+  post_goal(goal: GoalBase) {
     return this.#http.post<StandardResponse<Goal>>(environment.SERVER_URL + '/goals', goal);
   }
 

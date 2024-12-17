@@ -23,7 +23,7 @@ const goalSchema = new Schema({
 
     createdByUserWithId: Schema.Types.ObjectId,
 
-    habits: { type: [habitSchema], validate: habitsValidator }
+    habits: { type: [habitSchema], validate: habitsValidator, required: false }
 })
 
 

@@ -23,6 +23,10 @@ export class GoalsComponent {
   constructor() {
     this.#goalsService.get_goals().subscribe(response => {
       if (response.success) this.$goals.set(response.data);
+
+      if (this.$goals().length === 0) {
+        this.#router.navigate(['', 'goals', 'setup']);
+      }
     });
   }
 
