@@ -4,5 +4,16 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
+.card {
+    align-items: center;
+    text-align: center;
 
+    max-width: 500px;
+    padding: 1rem;
+    margin: 2rem;
+    border-radius: 8px;
+
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 

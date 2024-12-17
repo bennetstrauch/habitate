@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
   template: `
 
     <div>
-      <mat-card class="welcome-card">
+      <mat-card class="card">
 
         <mat-card-header>
           <p mat-card-title>Welcome to {{ title }}!</p>
@@ -42,19 +42,6 @@ import { MatButtonModule } from '@angular/material/button';
   `,
   styles: [
     `
-      .welcome-card {
-        align-items: center;
-        text-align: center;
-
-        max-width: 500px;
-        padding: 1rem;
-        margin: 2rem;
-        border-radius: 8px;
-
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
       mat-card-title {
         color: #00796b;
         font-size: 1.8rem;

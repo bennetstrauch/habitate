@@ -15,6 +15,7 @@ import { Step4 } from "./step4";
 import { Step5 } from "./step5";
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
+
 // # make it generic and loop through steps when building 
 
 @Component({
@@ -22,7 +23,8 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
   template: `
 
-    <mat-stepper 
+    <mat-stepper
+    class="card"
     headerPosition="top" 
     linear 
     (selectionChange)="addNeededValidatorsOnStepChange($event)"
@@ -105,36 +107,39 @@ export class RegisterComponent {
       this.userDetailsForm.controls.reflectionTrigger.updateValueAndValidity()
     }
   }
-  
-  register(){
+
+  register() {
     this.#usersService.register(this.userDetailsForm.value as User).subscribe(response => {
       console.log(response)
       this.#router.navigate(['', 'login'])
     })
   }
 
+
 }
 
 
-
-
 export const validators = {
-  name: [ 
-    Validators.required, 
-    Validators.minLength(validationRules.name.minLength), 
+  name: [
+    Validators.required,
+    Validators.minLength(validationRules.name.minLength),
     Validators.maxLength(validationRules.name.maxLength)
   ],
 
   email: [
-    Validators.required, 
+    Validators.required,
     Validators.email
   ],
 
   password: [
-    Validators.required, 
-    Validators.minLength(validationRules.password.minLength), 
+    Validators.required,
+    Validators.minLength(validationRules.password.minLength),
     Validators.maxLength(validationRules.password.maxLength)
   ]
 
 }
+
+
+
+
 

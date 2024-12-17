@@ -8,12 +8,13 @@ import { validationRules } from '@global/auth/validationRules'
 import { MatStep, MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe, KeyValuePipe } from '@angular/common';
+import { validators,  } from './register.component';
 
 
 @Component({
   selector: 'app-register-step-one',
-  imports: [ MatFormFieldModule, ReactiveFormsModule, CommonModule, MatError, MatStepperModule, MatInput, MatButton],
+  imports: [MatFormFieldModule, ReactiveFormsModule, CommonModule, MatError, MatStepperModule, MatInput, MatButton, KeyValuePipe, JsonPipe],
   template: `
   
 
@@ -24,14 +25,24 @@ import { CommonModule } from '@angular/common';
 
       <mat-form-field>
         <mat-label> Your desired name: </mat-label>
-        <input matInput placeholder="Pappa Joe" formControlName="name" required>
-        <!-- <mat-error *ngIf="userDetailsForm.get('name')?.invalid">Name is required</mat-error> -->
+        <input matInput placeholder="Pappa Joe" formControlName="name" required />
+        
+
+        <!-- @if (userDetailsForm.get('name')?.hasError('required')) {
+          <mat-error>Required</mat-error>
+        } @else if (userDetailsForm.get('name')?.hasError('minlength')) {
+          <mat-error>Minimum {{validationRules.name.minLength}}</mat-error>
+        } @else if (userDetailsForm.get('name')?.hasError('maxlength')) {
+          <mat-error>Maximum {{validationRules.name.maxLength}}</mat-error>
+        }  -->
+
       </mat-form-field> <br>
+
 
       <mat-form-field>
         <mat-label> Your email: </mat-label>
 
-        <input matInput placeholder="lifeislife@bliss.com" formControlName="email" required>
+        <input matInput placeholder="lifeislife@bliss.com" formControlName="email" required />
       </mat-form-field> <br>
 
       <mat-form-field>
@@ -40,8 +51,21 @@ import { CommonModule } from '@angular/common';
         <input matInput placeholder="MaaamaMia123" formControlName="password" required>
       </mat-form-field> <br>
 
-
       <button mat-button matStepperNext type="button" (click)='continue()'>Continue</button>
+
+      @for(validatorEntry of (validators | keyvalue) ; track $index){
+          
+          @if(userDetailsForm.get(validatorEntry['key'])?.invalid){
+            
+            @if(userDetailsForm.get(validatorEntry['key'])?.errors!['required']){
+              {{validatorEntry['key']}} is required.
+            }
+            # {{userDetailsForm.get(validatorEntry['key'])?.errors!['required']}} #
+
+          {{userDetailsForm.get(validatorEntry['key'])?.errors! | json}}
+       }
+     }
+
     </form>
 
 
@@ -54,7 +78,9 @@ export class RegisterStepOneComponent {
 
   @Input() userDetailsForm!: FormGroup;
 
-  continue = () => console.log('formvalid: ' , this.userDetailsForm.valid)
+  continue = () => console.log('formvalid: ', this.userDetailsForm.valid)
+
+  validators = validators
 
 }
 
