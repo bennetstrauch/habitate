@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { StandardResponse } from '@backend/types/standardResponse';
-import { Goal, GoalBase } from '@backend/goals/goals.model'
+import { Goal, GoalBase, Habit } from '@backend/goals/goals.model'
 import { environment } from 'frontend/src/environments/environment.development';
 
 @Injectable({
@@ -11,6 +11,8 @@ import { environment } from 'frontend/src/environments/environment.development';
 export class GoalsService {
 
   #http = inject(HttpClient);
+
+  $habits = signal<Habit[]>([])
 
 
   get_goals(page: number = 1) {

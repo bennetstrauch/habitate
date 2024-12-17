@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-habits',
@@ -11,5 +12,5 @@ import { Component } from '@angular/core';
   styles: ``
 })
 export class HabitsComponent {
-
+  #router = inject(Router);
 }

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { Router } from '@angular/router';
-import { Goal } from '@backend/goals/goals.model';
+import { Goal, Habit } from '@backend/goals/goals.model';
 
 @Component({
   selector: 'app-goals',
@@ -28,9 +28,15 @@ export class GoalsComponent {
         this.#router.navigate(['', 'goals', 'setup']);
       }
     });
+
+
+    const allHabits = this.$goals()
+      .flatMap(goal => goal.habits || []);
+    this.#goalsService.$habits.set(allHabits);
   }
+    
+}
 
   // if user does not have a reflectionTrigger (stored in mongo) redirect to setup
 
 
-}
