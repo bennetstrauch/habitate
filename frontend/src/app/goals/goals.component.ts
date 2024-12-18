@@ -19,7 +19,10 @@ export class GoalsComponent {
 
   $goals = signal<Goal[]>([])
 
+// ####idea: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
+// signature const function if(condition : boolean)navigateTo(path: string){}
 
+// this way better or effect? when does the constructor trigger? ### see register
   constructor() {
     this.#goalsService.get_goals().subscribe(response => {
       if (response.success) this.$goals.set(response.data);
@@ -30,9 +33,13 @@ export class GoalsComponent {
     });
 
 
+
+    // ###
     const allHabits = this.$goals()
       .flatMap(goal => goal.habits || []);
-    this.#goalsService.$habits.set(allHabits);
+
+      console.log(allHabits, 'all habits')
+    // this.#goalsService.$habits.set(allHabits);
   }
     
 }

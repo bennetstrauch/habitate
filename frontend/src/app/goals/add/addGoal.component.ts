@@ -1,13 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild, viewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { GoalsService } from '../goals.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Goal, GoalBase } from '@backend/goals/goals.model';
+import { MatCardContent, MatCardModule } from '@angular/material/card';
 
+// #### make clear that a goal is not a concrete behavior, thats a habit
 @Component({
   selector: 'app-addGoal',
   standalone: true,
@@ -17,22 +19,58 @@ import { Goal, GoalBase } from '@backend/goals/goals.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatCardContent,
+    MatCardModule,
+    RouterLink
   ],
   template: `
 
 
+      <mat-stepper 
+        class='card'
+        linear 
+        #stepper
+       >
 
+        <mat-step>
+            <p>
+            Take your time for this.
+            <br>
+            </p>
 
+            <button mat-button matStepperNext>
+                  Next
+            </button>
+        </mat-step>
+
+        <mat-step>
     
+          <p>
+            A goal is an intention. <br>
+            Soft & gentle. <br>
+          </p>
 
-      <mat-stepper linear #stepper >
+          <button mat-button matStepperNext>
+                Next
+          </button>
+        </mat-step>
 
 
         <mat-step [stepControl]="goalForm.step1">
 
+        <mat-card-content>
+          <p>
+            What do you <strong>feel</strong>, <br> 
+            right now, <br>
+            is your most important goal? <br>
+          </p>
+          <br>
+
+        </mat-card-content>
+
           <mat-form-field>
-            <mat-label>Title</mat-label>
-            <input matInput [formControl]="goalForm.step1.controls.name" placeholder="Enter title" />
+            <mat-label>Goal</mat-label>
+            <input matInput [formControl]="goalForm.step1.controls.name" placeholder="your heartfelt goal" />
           </mat-form-field>
 
             <div>
@@ -41,9 +79,69 @@ import { Goal, GoalBase } from '@backend/goals/goals.model';
               </button>
             </div>
         </mat-step>
+
+
+        <mat-step>
+          <mat-card-content>
+            <p>
+              Now, <br>
+              relax for a few seconds.
+            <br>
+            </p>
+
+            <button mat-button matStepperNext>
+                  Next
+            </button>
+
+          </mat-card-content>
+        </mat-step>
+
+        <mat-step>
+            <p>
+              Do you feel that pursuing and achieving this goal <br>
+              <br>
+              will <strong>uplift,</strong> <br>
+              bring <strong>growth,</strong> <br>
+              bring <strong>purpose,</strong> <br>
+              bring <strong>bliss</strong> <br>
+              <br>
+              to you <br>
+              <strong>&</strong> <br>
+              your environment ?
+            <br>
+            </p>
+
+            <button mat-button (click)="goToStep(3)">Revise Goal</button>
+            <button mat-button matStepperNext>
+                  Yes
+            </button>
+        </mat-step>
             
 
+        <mat-step>
+          <mat-card-content>
+            <p>
+              Congratulations! <br>
+              You are on a good track. <br>
+            <br>
+              " Well begun - is half done. "
+            </p>
+
+            <button mat-button matStepperNext>
+                  Next
+            </button>
+
+          </mat-card-content>
+        </mat-step>
+
         <mat-step [stepControl]="goalForm.step2">
+
+          <p>
+            Anything you would like to add? <br>
+            <br>
+            eg. more elaboration or underlying motivations ...
+          </p>
+
           <form [formGroup]="goalForm.step2">
             <mat-form-field>
               <mat-label>Description</mat-label>
@@ -58,20 +156,39 @@ import { Goal, GoalBase } from '@backend/goals/goals.model';
           </form>
         </mat-step>
 
-        <!-- Final Step -->
+       
         <mat-step>
-          <p>Review your goal and submit.</p>
+          <p>
+            This is it ! <br> 
+            Fantatataaastic !
+          </p>
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button mat-button type="submit" color="primary" (click)="addGoal()">
-              Submit
+              Add Goal
             </button>
           </div>
+        </mat-step>
+
+        <mat-step>
+          <p>
+            If you have more time, <br>
+            feel free to add your first habit to your new goal.
+          </p>
+
+          <button mat-button [routerLink]="['', 'habits', 'add']">
+              Add Habit
+          </button>
         </mat-step>
       </mat-stepper>
     
   `,
-  styles: [``],
+  // ### hiding does not work
+  styles: [`
+    ..mat-horizontal-stepper-header-container {
+      display: none;
+    }
+    `],
 })
 export class AddGoalComponent {
   #goalsService = inject(GoalsService);
@@ -91,6 +208,10 @@ export class AddGoalComponent {
 
   addGoal() {
 
+    // ### ?
+    // @ViewChild('stepper') stepper!: MatStepper;
+    // stepper2 = viewChild.required<MatStepper>('stepper')
+
     const newGoal: GoalBase = {
       name: this.goalForm.step1.value.name!,
       description: this.goalForm.step2.value.description,
@@ -101,5 +222,11 @@ export class AddGoalComponent {
       this.#router.navigate(['', 'habits', 'add']);
     })
   }
+
+
+  goToStep(stepIndex: number): void {
+    // this.#stepper.selectedIndex = stepIndex; 
+  }
+
 
 }

@@ -58,7 +58,7 @@ import { validators,  } from './register.component';
           @if(userDetailsForm.get(validatorEntry['key'])?.invalid){
             
             @if(userDetailsForm.get(validatorEntry['key'])?.errors!['required']){
-              {{validatorEntry['key']}} is required.
+              <mat-error> {{validatorEntry['key']}} is required. </mat-error>
             }
             # {{userDetailsForm.get(validatorEntry['key'])?.errors!['required']}} #
 

@@ -65,7 +65,7 @@ export class WelcomeComponent {
   #stateService = inject(StateService)
   #router = inject(Router)
 
-  // good way? #
+  // good way? # , also duplicate
   redirectEffect = effect(() => {
     if (this.#stateService.isLoggedIn()) {
       this.#router.navigate(['', 'goals'])

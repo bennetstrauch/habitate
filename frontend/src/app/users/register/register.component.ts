@@ -1,4 +1,4 @@
-import { Component, inject, Input, output, signal } from '@angular/core';
+import { Component, effect, inject, Input, output, signal } from '@angular/core';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,19 +7,20 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { UsersService } from '../users.service';
 import { User } from '@backend/users/users.model'
 import { Router } from '@angular/router';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { Step2 } from "./step2";
 import { RegisterStepOneComponent } from "./step1";
 import { Step3 } from "./step3";
 import { Step4 } from "./step4";
 import { Step5 } from "./step5";
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
+import { StateService } from '../../state.service';
 
 
 // # make it generic and loop through steps when building 
 
 @Component({
-  imports: [ReactiveFormsModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatButton, Step2, RegisterStepOneComponent, Step3, Step4, Step5],
+  imports: [ReactiveFormsModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatButtonModule, Step2, RegisterStepOneComponent, Step3, Step4, Step5],
 
   template: `
 
@@ -91,6 +92,17 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
 })
 export class RegisterComponent {
 
+  #stateService = inject(StateService)
+  #usersService = inject(UsersService)
+  #router = inject(Router)
+
+  redirectEffect = effect(() => {
+    if (this.#stateService.isLoggedIn()) {
+      this.#router.navigate(['', 'goals'])
+    }
+  })
+
+
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     'name': ['', validators.name],
     'email': ['', validators.email],
@@ -98,8 +110,6 @@ export class RegisterComponent {
     'reflectionTrigger': ['']
   })
 
-  #usersService = inject(UsersService)
-  #router = inject(Router)
 
   addNeededValidatorsOnStepChange(event: StepperSelectionEvent) {
     if (event.selectedIndex === 3) {
