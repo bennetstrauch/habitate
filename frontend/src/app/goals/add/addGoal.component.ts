@@ -164,7 +164,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
           </p>
           <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button type="submit" color="primary" (click)="addGoal()">
+            <button mat-button type="submit" matStepperNext (click)="addGoal()">
               Add Goal
             </button>
           </div>
@@ -176,7 +176,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
             feel free to add your first habit to your new goal.
           </p>
 
-          <button mat-button [routerLink]="['', 'habits', 'add']">
+          <button mat-button [routerLink]="['', 'goals',':id', 'habits', 'add']">
               Add Habit
           </button>
         </mat-step>
@@ -185,7 +185,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
   `,
   // ### hiding does not work
   styles: [`
-    ..mat-horizontal-stepper-header-container {
+    .mat-horizontal-stepper-header-container {
       display: none;
     }
     `],
@@ -193,7 +193,8 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
 export class AddGoalComponent {
   #goalsService = inject(GoalsService);
   #router = inject(Router);
-
+ 
+  $stepper = viewChild.required<MatStepper>('stepper')
 
   formBuilder = inject(FormBuilder);
 
@@ -208,10 +209,6 @@ export class AddGoalComponent {
 
   addGoal() {
 
-    // ### ?
-    // @ViewChild('stepper') stepper!: MatStepper;
-    // stepper2 = viewChild.required<MatStepper>('stepper')
-
     const newGoal: GoalBase = {
       name: this.goalForm.step1.value.name!,
       description: this.goalForm.step2.value.description,
@@ -219,13 +216,13 @@ export class AddGoalComponent {
 
     this.#goalsService.post_goal(newGoal).subscribe(response => {
       console.log(response)
-      this.#router.navigate(['', 'habits', 'add']);
+      // this.#router.navigate(['', 'habits', 'add']);
     })
   }
 
 
-  goToStep(stepIndex: number): void {
-    // this.#stepper.selectedIndex = stepIndex; 
+  goToStep(stepIndex: number) {
+    this.$stepper().selectedIndex = stepIndex-1; 
   }
 
 

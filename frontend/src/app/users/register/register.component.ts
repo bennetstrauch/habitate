@@ -96,6 +96,7 @@ export class RegisterComponent {
   #usersService = inject(UsersService)
   #router = inject(Router)
 
+  //##routerresolver
   redirectEffect = effect(() => {
     if (this.#stateService.isLoggedIn()) {
       this.#router.navigate(['', 'goals'])

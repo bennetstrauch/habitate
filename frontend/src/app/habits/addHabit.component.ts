@@ -1,15 +1,94 @@
-import { Component } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { GoalsService } from '../goals/goals.service';
+import { Router } from '@angular/router';
+import { FormBuilder, Validators } from '@angular/forms';
+import { Habit } from '@backend/goals/goals.model';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-add-habit',
-  imports: [],
+  imports: [MatStepperModule, MatFormField, MatLabel],
   template: `
-    <p>
-      add-habit works!
-    </p>
+    <mat-stepper linear #stepper >
+
+
+<mat-step [stepControl]="goalForm.step1">
+
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input matInput [formControl]="goalForm.step1.controls.name" placeholder="Enter title" />
+  </mat-form-field>
+
+    <div>
+      <button mat-button matStepperNext [disabled]="goalForm.step1.invalid">
+        Next
+      </button>
+    </div>
+</mat-step>
+    
+
+<mat-step [stepControl]="goalForm.step2">
+  <form [formGroup]="goalForm.step2">
+    <mat-form-field>
+      <mat-label>Description</mat-label>
+      <input matInput formControlName="description" placeholder="Enter description" />
+    </mat-form-field>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext [disabled]="goalForm.step2.invalid">
+        Next
+      </button>
+    </div>
+  </form>
+</mat-step>
+
+<!-- Final Step -->
+<mat-step>
+  <p>Review your goal and submit.</p>
+  <div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button type="submit" color="primary" (click)="addGoal()">
+      Submit
+    </button>
+  </div>
+</mat-step>
+</mat-stepper>
   `,
   styles: ``
 })
 export class AddHabitComponent {
+  #goalsService = inject(GoalsService);
+  #router = inject(Router);
 
+  id = input.required<string>()
+  
+  constructor(){
+    console.log(this.id)
+  }
+
+
+  formBuilder = inject(FormBuilder);
+
+  goalForm = {
+    step1: this.formBuilder.group({
+      name: ['', Validators.required],
+    }),
+    step2: this.formBuilder.group({
+      description: [''],
+    })
+  }
+
+  addHabit() {
+
+    const newHabit: Habit = {
+      name: this.goalForm.step1.value.name!,
+      description: this.goalForm.step2.value.description,
+    }
+
+    this.#goalsService.put_goal(this.id).subscribe(response => {
+      console.log(response)
+      this.#router.navigate(['', 'habits', 'add']);
+    })
+  }
 }

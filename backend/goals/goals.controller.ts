@@ -7,9 +7,9 @@ import { StandardResponse } from "../types/standardResponse";
 type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<GoalBase[]>>
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
-   
+
     try {
-        const results = await GoalModel.find({ user_id: req.userId })
+        const results = await GoalModel.find({ createdByUserWithId: req.userId })
         res.json({ success: true, data: results });
     } catch (err) {
         next(err);
@@ -39,7 +39,7 @@ export const postGoal: RequestHandler<unknown, StandardResponse<GoalBase>, GoalB
     try {
         const result = await GoalModel.create({
             ...req.body,
-            user_id: req.userId
+            createdByUserWithId: req.userId
         });
 
         res.json({ success: true, data: result });

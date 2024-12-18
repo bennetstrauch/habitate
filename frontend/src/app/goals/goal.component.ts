@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
+import { GoalsService } from './goals.service';
 
 @Component({
   selector: 'app-goal',
@@ -11,5 +13,10 @@ import { Component } from '@angular/core';
   styles: ``
 })
 export class GoalComponent {
-
+  #router = inject(Router);
+  readonly id = input.required<string>()
+  
+  constructor(){
+    console.log(this.id())
+  }
 }
