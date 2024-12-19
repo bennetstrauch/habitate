@@ -15,7 +15,7 @@ export const goalsRoutes: Routes = [
     { path: 'habits', 
         loadChildren: () => import('../../habits/habits.routes').then(r => r.habitsRoutes),
     },
-    { path: ':id', 
+    { path: ':_id', 
         loadChildren: () => import('./goal.routes').then(r => r.goalRoutes),
     },
 

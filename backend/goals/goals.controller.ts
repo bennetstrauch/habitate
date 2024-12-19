@@ -1,4 +1,4 @@
-import { GoalBase, GoalModel } from "./goals.model";
+import { GoalBase, GoalModel, Habit } from "./goals.model";
 import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
@@ -67,6 +67,22 @@ export const putGoal: PutGoalReqHandler = async (req, res, next) => {
         next(err);
     }
 };
+
+export const addHabit: RequestHandler<{ goal_id: string; }, StandardResponse<number>, Habit> = async (req, res, next) => {
+    
+    try {
+        const { goal_id } = req.params;
+        const result = await GoalModel.updateOne(
+            { _id: goal_id, createdByUserWithId: req.userId },
+            { $push: { habits: req.body } }
+        );
+
+        res.status(200).json({ success: true, data: result.modifiedCount });
+
+    } catch (err) {
+        next(err);
+    }
+}
 
 
 export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<number>> = async (req, res, next) => {

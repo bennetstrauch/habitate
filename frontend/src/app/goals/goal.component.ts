@@ -21,15 +21,15 @@ export class GoalComponent {
   #router = inject(Router);
   #goalsService = inject(GoalsService)
   
-  readonly id = input.required<string>()
+  readonly _id = input.required<string>()
  
   $goal = computed(
-    () => this.#goalsService.$goals().filter(this.id)[0]
+    () => this.#goalsService.$goals().filter(this._id)[0]
   )
   
   constructor(){
     effect(
-      () => {  console.log(this.id()) }
+      () => {  console.log(this._id()) }
     )
   }
 

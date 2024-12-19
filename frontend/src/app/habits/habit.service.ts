@@ -10,7 +10,7 @@ import { environment } from 'frontend/src/environments/environment.development';
 
 export class GoalsService {
 
-  #http = inject(HttpClient);
+  #goalsService = inject(GoalsService);
 
   $habits = signal<Habit[]>([])
 
@@ -19,8 +19,8 @@ export class GoalsService {
     return this.#http.get<StandardResponse<Goal[]>>(environment.SERVER_URL + '/goals');
   }
 
-  post_goal(goal: GoalBase) {
-    return this.#http.post<StandardResponse<Goal>>(environment.SERVER_URL + '/goals', goal);
+  post_habit(habit: Habit) {
+    return this.#goalsService.put_goal();
   }
 
   put_goal(goal: Goal) {

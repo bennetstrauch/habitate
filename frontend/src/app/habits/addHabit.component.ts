@@ -6,10 +6,11 @@ import { Habit } from '@backend/goals/goals.model';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-add-habit',
-  imports: [MatStepperModule, MatFormField, MatLabel, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
+  imports: [MatStepperModule, MatFormField, MatLabel, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule],
   template: `
     <mat-stepper linear #stepper >
 
@@ -46,7 +47,7 @@ import { MatInput, MatInputModule } from '@angular/material/input';
 
 <!-- Final Step -->
 <mat-step>
-  <p>Review your goal and submit.</p>
+  <p>Submit?</p>
   <div>
     <button mat-button matStepperPrevious>Back</button>
     <button mat-button type="submit" color="primary" (click)="addHabit()">
@@ -62,7 +63,7 @@ export class AddHabitComponent {
   #goalsService = inject(GoalsService);
   #router = inject(Router);
 
-  id = input.required<string>()
+  _id = input.required<string>()
   
   constructor(){
   }

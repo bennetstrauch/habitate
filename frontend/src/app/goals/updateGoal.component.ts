@@ -6,10 +6,11 @@ import { GoalsService } from './goals.service';
 import { MatInputModule } from '@angular/material/input';
 import { Goal } from '@backend/goals/goals.model';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-update',
-  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule],
+  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, RouterLink],
   template: `
     <mat-card>
       
@@ -29,7 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
       <mat-card-content>
 
         @if($goal().habits.length === 0){
-          <button mat-button>Add Habit</button>
+          <button mat-button [routerLink]="['','goals', _id, 'habits', 'add']">Add Habit</button>
         } @else {
           Habits:
           @for( habit of $goal().habits; track $index) {
@@ -48,9 +49,9 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class UpdateGoalComponent {
   #goalsService = inject(GoalsService);
-  readonly id = input.required<string>()
+  readonly _id = input.required<string>()
   $goal = computed(
-    () => this.#goalsService.$goals().filter(this.id)[0]
+    () => this.#goalsService.$goals().filter(this._id)[0]
   )
 
   formBuilder = inject(FormBuilder);
