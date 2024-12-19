@@ -7,7 +7,9 @@ import { StateService } from '../../state.service';
 import { GoalComponent } from '../goal.component';
 
 export const goalsRoutes: Routes = [
-    { path: '', component: GoalsComponent },
+    { path: '', component: GoalsComponent, 
+
+     },
     { path: 'add', component: AddGoalComponent},
     { path: 'setup', component: SetupFirstGoalComponent},
     { path: 'habits', 

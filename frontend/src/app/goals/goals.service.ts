@@ -14,6 +14,8 @@ export class GoalsService {
 
   $habits = signal<Habit[]>([])
 
+  $goals = signal<Goal[]>([])
+
 
   get_goals(page: number = 1) {
     return this.#http.get<StandardResponse<Goal[]>>(environment.SERVER_URL + '/goals');

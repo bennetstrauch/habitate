@@ -1,14 +1,15 @@
 import { Component, inject, input } from '@angular/core';
 import { GoalsService } from '../goals/goals.service';
 import { Router } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Habit } from '@backend/goals/goals.model';
 import { MatStepperModule } from '@angular/material/stepper';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatInput, MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-add-habit',
-  imports: [MatStepperModule, MatFormField, MatLabel],
+  imports: [MatStepperModule, MatFormField, MatLabel, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
   template: `
     <mat-stepper linear #stepper >
 
@@ -16,7 +17,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 <mat-step [stepControl]="goalForm.step1">
 
   <mat-form-field>
-    <mat-label>Title</mat-label>
+    <mat-label>Habbit</mat-label>
     <input matInput [formControl]="goalForm.step1.controls.name" placeholder="Enter title" />
   </mat-form-field>
 
@@ -48,7 +49,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
   <p>Review your goal and submit.</p>
   <div>
     <button mat-button matStepperPrevious>Back</button>
-    <button mat-button type="submit" color="primary" (click)="addGoal()">
+    <button mat-button type="submit" color="primary" (click)="addHabit()">
       Submit
     </button>
   </div>
@@ -64,7 +65,6 @@ export class AddHabitComponent {
   id = input.required<string>()
   
   constructor(){
-    console.log(this.id)
   }
 
 
@@ -86,9 +86,9 @@ export class AddHabitComponent {
       description: this.goalForm.step2.value.description,
     }
 
-    this.#goalsService.put_goal(this.id).subscribe(response => {
-      console.log(response)
-      this.#router.navigate(['', 'habits', 'add']);
-    })
+    // this.#goalsService.put_goal(this.id).subscribe(response => {
+    //   console.log(response)
+    //   this.#router.navigate(['', 'habits', 'add']);
+    // })
   }
 }

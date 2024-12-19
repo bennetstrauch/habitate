@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { StateService } from '../state.service';
 import { WelcomeComponent } from '../goals/getStarted/welcome.component';
 import { RegisterStepOneComponent } from '../users/register/step1';
+import { GoalsResolver } from '../goals/routes/goals.resolver';
 
 // # global variables for routes
 
@@ -14,7 +15,10 @@ export const routes: Routes = [
     { path: 'register', loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent) },
     { path: 'goals', 
         loadChildren: () => import('../goals/routes/goals.routes').then(r => r.goalsRoutes),
-        canActivate: [ () => inject(StateService).isLoggedIn() ]
+        canActivate: [ () => inject(StateService).isLoggedIn() ],
+        resolve: {
+            goals: GoalsResolver
+          }
     },
 
 ];
