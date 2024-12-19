@@ -7,6 +7,8 @@ const habitSchema = new Schema({
 })
 
 
+
+
 // #type
 const habitsValidator = { 
     validator: function(habits : Habit[]) {
@@ -36,6 +38,6 @@ export const GoalModel = model<GoalBase>('goal', goalSchema)
 
 
 export interface Goal extends GoalBase {
-    _id: string; // MongoDB ObjectId as a string for the frontend
+    _id: string; // MongoDB ObjectId as string for frontend
   }
 
