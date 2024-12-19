@@ -3,7 +3,6 @@ import { LoginComponent } from '../users/login.component';
 import { inject } from '@angular/core';
 import { StateService } from '../state.service';
 import { WelcomeComponent } from '../goals/getStarted/welcome.component';
-import { RegisterStepOneComponent } from '../users/register/step1';
 import { GoalsResolver } from '../goals/routes/goals.resolver';
 
 // # global variables for routes

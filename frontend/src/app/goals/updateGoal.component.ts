@@ -27,15 +27,19 @@ import { MatButtonModule } from '@angular/material/button';
       </mat-form-field>
         
       <mat-card-content>
-        Habits:
 
-        <!-- @for( habit of $goal().habits; track $index) {
-          {{ habit.name }}
-        } -->
+        @if($goal().habits.length === 0){
+          <button mat-button>Add Habit</button>
+        } @else {
+          Habits:
+          @for( habit of $goal().habits; track $index) {
+            {{ habit.name }}
+          }
+      }
 
         </mat-card-content>
 
-        <button mat-raised-button type="submit" [disabled]="(this.goalForm.invalid && this.goalForm.dirty)">Update</button>
+        <button mat-raised-button type="submit" [disabled]="(this.goalForm.invalid || this.goalForm.pristine)">Update</button>
         </form>
 
     </mat-card>
@@ -50,14 +54,14 @@ export class UpdateGoalComponent {
   )
 
   formBuilder = inject(FormBuilder);
-  // @@ one for all in service?
+
   goalForm = this.formBuilder.group({
       name: ['', Validators.required],
       description: [''],
     })
    
 
-    // @@ better way?, why update button is enabled from the beginning
+  
     ngOnInit() {
       const goal = this.$goal();
 
@@ -75,11 +79,14 @@ export class UpdateGoalComponent {
       const goal : Goal = {
         ...this.$goal(),
         name: this.goalForm.controls.name.value!,   // ! because we check validity on button
-        description: this.goalForm.controls.description.value,
+        description: this.goalForm.controls.description.value ?? '',
       };
-        const result = this.#goalsService.put_goal(goal);
 
-        console.log('update result:', result)
+      this.#goalsService.put_goal(goal).subscribe(
+        response => {
+          console.log(' update response: ', response)
+        }
+      );
     }
 
 }

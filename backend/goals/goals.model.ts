@@ -7,8 +7,6 @@ const habitSchema = new Schema({
 })
 
 
-
-
 // #type
 const habitsValidator = { 
     validator: function(habits : Habit[]) {
@@ -30,14 +28,26 @@ const goalSchema = new Schema({
 
 
 
-export type Habit = InferSchemaType<typeof habitSchema>
+
 
 export type GoalBase = InferSchemaType<typeof goalSchema>
 
 export const GoalModel = model<GoalBase>('goal', goalSchema)
 
 
-export interface Goal extends GoalBase {
-    _id: string; // MongoDB ObjectId as string for frontend
-  }
+interface EntityBase {
+    name: string,
+    description?: string,
+}
+
+export interface Habit extends EntityBase {
+
+}
+
+export interface Goal extends EntityBase {
+    _id: string
+    createdByUserWithId: string
+    
+    habits: Habit[]
+}
 

@@ -26,7 +26,7 @@ export class GoalsService {
   }
 
   put_goal(goal: Goal) {
-    return this.#http.put<StandardResponse<number>>(environment.SERVER_URL + '/goals' + goal._id, goal);
+    return this.#http.put<StandardResponse<number>>(environment.SERVER_URL + '/goals' + '/' + goal._id, goal);
   }
 
   delete_goal(goal_id: string) {

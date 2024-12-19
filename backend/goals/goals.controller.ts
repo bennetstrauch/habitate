@@ -57,7 +57,7 @@ export const putGoal: PutGoalReqHandler = async (req, res, next) => {
     try {
         const { goal_id } = req.params;
         const result = await GoalModel.updateOne(
-            { _id: goal_id, user_id: req.userId },
+            { _id: goal_id, createdByUserWithId: req.userId },
             { $set: req.body }
         );
 
@@ -74,7 +74,7 @@ export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<n
     try {
         const { goal_id } = req.params;
 
-        const result = await GoalModel.deleteOne({ _id: goal_id, user_id: req.userId });
+        const result = await GoalModel.deleteOne({ _id: goal_id, createdByUserWithId: req.userId });
 
         res.status(200).json({ success: true, data: result.deletedCount });
 

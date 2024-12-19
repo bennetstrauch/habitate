@@ -22,7 +22,7 @@ export class GoalComponent {
   #goalsService = inject(GoalsService)
   
   readonly id = input.required<string>()
-  //@@ signal needed, what type?
+ 
   $goal = computed(
     () => this.#goalsService.$goals().filter(this.id)[0]
   )

@@ -83,7 +83,7 @@ export class AddHabitComponent {
 
     const newHabit: Habit = {
       name: this.goalForm.step1.value.name!,
-      description: this.goalForm.step2.value.description,
+      description: this.goalForm.step2.value.description ?? '',
     }
 
     // this.#goalsService.put_goal(this.id).subscribe(response => {
