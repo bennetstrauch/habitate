@@ -7,6 +7,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-add-habit',
@@ -61,11 +62,11 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class AddHabitComponent {
   #goalsService = inject(GoalsService);
-  #router = inject(Router);
+
 
   _id = input.required<string>()
   
-  constructor(){
+  constructor(private location: Location){
   }
 
 
@@ -89,7 +90,7 @@ export class AddHabitComponent {
 
     this.#goalsService.add_habit(this._id(), newHabit).subscribe(response => {
       console.log(response)
-      // this.#router.navigate(['', 'habits', 'add']);
+      // this.location.back()
     })
   }
 }

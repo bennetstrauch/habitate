@@ -34,6 +34,7 @@ import { RouterLink } from '@angular/router';
         } @else {
           Habits:
           @for( habit of $goal().habits; track $index) {
+            <br>
             {{ habit.name }}
           }
       }
