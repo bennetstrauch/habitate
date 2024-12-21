@@ -30,7 +30,7 @@ import { RouterLink } from '@angular/router';
       <mat-card-content>
 
         @if($goal().habits.length === 0){
-          <button mat-button [routerLink]="['','goals', _id, 'habits', 'add']">Add Habit</button>
+          <button mat-button [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
         } @else {
           Habits:
           @for( habit of $goal().habits; track $index) {

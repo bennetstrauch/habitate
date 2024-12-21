@@ -68,6 +68,9 @@ export const putGoal: PutGoalReqHandler = async (req, res, next) => {
     }
 };
 
+
+
+// $$ extra controller
 export const addHabit: RequestHandler<{ goal_id: string; }, StandardResponse<number>, Habit> = async (req, res, next) => {
     
     try {

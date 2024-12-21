@@ -62,15 +62,6 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class WelcomeComponent {
   title = "' Habitate '";
-  #stateService = inject(StateService)
-  #router = inject(Router)
-
-  // good way? # , also duplicate
-  redirectEffect = effect(() => {
-    if (this.#stateService.isLoggedIn()) {
-      this.#router.navigate(['', 'goals'])
-    }
-  })
 
 
 }

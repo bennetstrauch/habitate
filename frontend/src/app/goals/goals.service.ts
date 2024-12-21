@@ -32,4 +32,9 @@ export class GoalsService {
   delete_goal(goal_id: string) {
     return this.#http.delete<StandardResponse<number>>(environment.SERVER_URL + '/goals' + '/' + goal_id);
   }
+
+  add_habit(goal_id: string, habit: Habit) {
+    return this.#http.post<StandardResponse<number>>(environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits', habit);
+  }
+
 }

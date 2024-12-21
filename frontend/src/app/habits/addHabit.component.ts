@@ -87,9 +87,9 @@ export class AddHabitComponent {
       description: this.goalForm.step2.value.description ?? '',
     }
 
-    // this.#goalsService.put_goal(this.id).subscribe(response => {
-    //   console.log(response)
-    //   this.#router.navigate(['', 'habits', 'add']);
-    // })
+    this.#goalsService.add_habit(this._id(), newHabit).subscribe(response => {
+      console.log(response)
+      // this.#router.navigate(['', 'habits', 'add']);
+    })
   }
 }
