@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { GoalsService } from '../goals/goals.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Habit } from '@backend/goals/goals.model';
+import { Habit, HabitBase } from '@backend/goals/goals.model';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
@@ -83,14 +83,15 @@ export class AddHabitComponent {
 
   addHabit() {
 
-    const newHabit: Habit = {
+    const newHabit: HabitBase = {
       name: this.goalForm.step1.value.name!,
       description: this.goalForm.step2.value.description ?? '',
     }
 
     this.#goalsService.add_habit(this._id(), newHabit).subscribe(response => {
       console.log(response)
-      // this.location.back()
+      this.#goalsService.update_goals()
+      this.location.back()
     })
   }
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,10 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { Goal } from '@backend/goals/goals.model';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-update',
-  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, RouterLink],
+  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, RouterLink, MatIconModule],
   template: `
     <mat-card>
       
@@ -28,16 +29,25 @@ import { RouterLink } from '@angular/router';
       </mat-form-field>
         
       <mat-card-content>
+        <!-- put below and always visible besides already 3 habits, then greyed out or so -->
+          <strong>Habits :</strong>
+            @for( habit of $goal().habits; track $index) {
+              <br>
+              <mat-card>
+                {{ habit.name }}
+                <button type="button" mat-fab aria-label="Delete" (click)="deleteHabit(habit._id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+              </mat-card>
 
-        @if($goal().habits.length === 0){
-          <button mat-button [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
-        } @else {
-          Habits:
-          @for( habit of $goal().habits; track $index) {
-            <br>
-            {{ habit.name }}
-          }
-      }
+             
+              
+            }
+          <br>
+          @if($goal().habits.length < 3){
+          <button mat-button type="button" [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
+        } 
+      
 
         </mat-card-content>
 
@@ -54,6 +64,20 @@ export class UpdateGoalComponent {
   $goal = computed(
     () => this.#goalsService.$goals().filter(this._id)[0]
   )
+  
+
+
+
+  updateHabits = () => {
+      this.#goalsService.get_habits(this._id()).subscribe(
+        response => {
+          if(response.success)
+          this.$goal().habits = response.data
+        }
+      );
+    }
+  
+
 
   formBuilder = inject(FormBuilder);
 
@@ -87,6 +111,24 @@ export class UpdateGoalComponent {
       this.#goalsService.put_goal(goal).subscribe(
         response => {
           console.log(' update response: ', response)
+          if (response.success){
+            // this.updateHabits()
+            this.#goalsService.update_goals()
+
+          }
+        }
+      );
+    }
+
+
+    deleteHabit = (habit_id : string) => {
+      this.#goalsService.remove_habit(this._id(), habit_id).subscribe(
+        response => {
+          console.log(' delete response: ', response)
+          if (response.success){
+            // this.updateHabits()
+            this.#goalsService.update_goals()
+          }
         }
       );
     }

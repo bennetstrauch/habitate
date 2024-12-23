@@ -10,9 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     
     @for (goal of goalsService.$goals(); track $index) {
-      <div [routerLink]="['', 'goals', goal._id]"> {{goal.name}} </div>
+      <div [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
 
-      <div> {{goal.habits}} </div>
+      @for (habit of goal.habits; track $index){
+      <div> - {{habit.name}} </div>
+
+      }
     }
   `,
   styles: ``
@@ -27,7 +30,7 @@ export class GoalsComponent {
  
 
 
-  // ####idea: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
+  // ####ideax: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
   // signature const function if(condition : boolean)navigateTo(path: string){}
 
 

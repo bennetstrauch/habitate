@@ -27,7 +27,7 @@ export class GoalsService {
     return this.#http.put<StandardResponse<number>>(environment.SERVER_URL + '/goals' + goal._id, goal);
   }
 
-  delete_goal(goal_id: string) {
+  delete_habit(habit_id: string) {
     return this.#http.delete<StandardResponse<number>>(environment.SERVER_URL + '/goals' + '/' + goal_id);
   }
 }

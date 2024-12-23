@@ -40,8 +40,12 @@ interface EntityBase {
     description?: string,
 }
 
-export interface Habit extends EntityBase {
+export interface HabitBase extends EntityBase {
+   
+}
 
+export interface Habit extends HabitBase {
+    _id: string
 }
 
 export interface Goal extends EntityBase {

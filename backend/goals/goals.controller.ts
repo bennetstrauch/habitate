@@ -1,30 +1,35 @@
-import { GoalBase, GoalModel, Habit } from "./goals.model";
+import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
 import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
 
 
-type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<GoalBase[]>>
+type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 
     try {
-        const results = await GoalModel.find({ createdByUserWithId: req.userId })
+        const results : Goal[] = await GoalModel.find({ createdByUserWithId: req.userId })
         res.json({ success: true, data: results });
+
     } catch (err) {
         next(err);
     }
 };
 
 
-type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<GoalBase | null>>
+type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Goal | null>>
 
 export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 
     try {
         const { goal_id } = req.params;
 
-        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId });
+        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId }) as Goal | null;
+
+        if (!goal) {
+            throw new ErrorWithStatus('Goal not found', 404);
+        }
 
         res.json({ success: true, data: goal });
 
@@ -34,7 +39,7 @@ export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 };
 
 
-export const postGoal: RequestHandler<unknown, StandardResponse<GoalBase>, GoalBase> = async (req, res, next) => {
+export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, GoalBase> = async (req, res, next) => {
 
     try {
         const result = await GoalModel.create({
@@ -97,6 +102,45 @@ export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<n
 
         res.status(200).json({ success: true, data: result.deletedCount });
 
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+export const deleteHabit: RequestHandler<{ goal_id: string, habit_id: string; }, StandardResponse<number>> = async (req, res, next) => {
+    
+    try {
+        const { goal_id, habit_id } = req.params;
+
+        const result = await GoalModel.updateOne(
+            { _id: goal_id, createdByUserWithId: req.userId },
+            { $pull: { habits: { _id: habit_id } } }
+            );
+
+            res.status(200).json({ success: true, data: result.modifiedCount });
+
+        } catch (err) {
+            next(err);
+            }
+            
+           
+};
+
+type GetHabbitsReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Habit[]>>
+
+// ## two times getHabit functionality used here, abstract
+export const getHabits: GetHabbitsReqHandler = async (req, res, next) => {
+    try {
+        const { goal_id } = req.params;
+        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId }) as Goal | null;
+
+        if (!goal) {
+            throw new ErrorWithStatus('Goal not found', 404);
+        }
+
+        res.json({ success: true, data: goal.habits });
+        
     } catch (err) {
         next(err);
     }
