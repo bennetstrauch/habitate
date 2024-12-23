@@ -29,34 +29,58 @@ import { MatIconModule } from '@angular/material/icon';
       </mat-form-field>
         
       <mat-card-content>
-        <!-- put below and always visible besides already 3 habits, then greyed out or so -->
           <strong>Habits :</strong>
-            @for( habit of $goal().habits; track $index) {
-              <br>
-              <mat-card>
-                {{ habit.name }}
-                <button type="button" mat-fab aria-label="Delete" (click)="deleteHabit(habit._id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-              </mat-card>
 
-             
-              
+            @for( habit of $goal().habits; track $index) {
+              <mat-card class="habit-card"> 
+                <div class="habit-container">
+
+                  <span class="habit-name">{{ habit.name }}</span> 
+                    <button type="button" class="small-delete-btn" mat-mini-fab aria-label="Delete" (click)="deleteHabit(habit._id)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+              </mat-card>
             }
-          <br>
+        
           @if($goal().habits.length < 3){
           <button mat-button type="button" [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
         } 
       
-
         </mat-card-content>
+        <br>
 
         <button mat-raised-button type="submit" [disabled]="(this.goalForm.invalid || this.goalForm.pristine)">Update</button>
         </form>
 
     </mat-card>
   `,
-  styles: ``
+  styles: `
+  .small-delete-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 5px; 
+  }
+  
+  .habit-card {
+  padding: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  }
+
+.habit-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  }
+
+.habit-name {
+  font-size: 16px;
+  font-weight: 500;
+  }
+  `
 })
 export class UpdateGoalComponent {
   #goalsService = inject(GoalsService);
