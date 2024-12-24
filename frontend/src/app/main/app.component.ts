@@ -1,16 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { intitialState, StateService } from '../state.service';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { AuthenticationComponent } from "./authentication.component";
+import { NavigationComponent } from "./navigation.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AuthenticationComponent],
+  imports: [RouterOutlet, NavigationComponent],
   template: `
 
     <div class="main-container">
 
-    <app-authentication />
+    <app-navigation />
     <router-outlet />
 
     </div>

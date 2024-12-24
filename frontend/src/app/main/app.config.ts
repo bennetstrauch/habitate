@@ -3,9 +3,10 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { addTokenInterceptor } from '../add-token.interceptor';
+import { addTokenInterceptor } from '../interceptors/add-token.interceptor';
 import { StateService } from '../state.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { checkTokenResponseInterceptor } from '../interceptors/check-token-response.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -15,7 +16,7 @@ export const appConfig: ApplicationConfig = {
 
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors([addTokenInterceptor])), provideAnimationsAsync()
+    provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), provideAnimationsAsync()
   ]
 };
 

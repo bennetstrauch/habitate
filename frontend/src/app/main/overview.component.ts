@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { GoalsService } from './goals.service';
+import { GoalsService } from '../goals/goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Goal, Habit } from '@backend/goals/goals.model';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,10 +17,11 @@ import { MatIconModule } from '@angular/material/icon';
 
       }
     }
+
   `,
   styles: ``
 })
-export class GoalsComponent {
+export class OverviewComponent {
   #router = inject(Router);
   goalsService = inject(GoalsService)
 

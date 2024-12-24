@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { GoalsComponent } from '../goals.component';
+import { OverviewComponent } from '../../main/overview.component';
 import { AddGoalComponent } from '../add/addGoal.component';
 import { SetupFirstGoalComponent } from '../setupFirstGoal/setupFirstGoal.component';
 import { inject } from '@angular/core';
@@ -7,7 +7,8 @@ import { StateService } from '../../state.service';
 import { GoalComponent } from '../goal.component';
 
 export const goalsRoutes: Routes = [
-    { path: '', component: GoalsComponent, 
+    // replace with goalscomponent ##
+    { path: '', component: OverviewComponent, 
 
      },
     { path: 'add', component: AddGoalComponent},

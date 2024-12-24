@@ -51,13 +51,24 @@ import { MatIconModule } from '@angular/material/icon';
         <br>
 
         <button mat-raised-button type="submit" [disabled]="(this.goalForm.invalid || this.goalForm.pristine)">Update</button>
-        </form>
+        &nbsp;
+        <button type="button" mat-raised-button aria-label="Delete" (click)="deleteGoal()">
+                      <mat-icon>delete</mat-icon> Delete Goal
+                    </button>
 
+        </form>
     </mat-card>
   `,
+
   styles: `
   .small-delete-btn {
   width: 30px;
+  height: 30px;
+  font-size: 5px; 
+  }
+
+  .delete-goal-btn {
+  width: 90px;
   height: 30px;
   font-size: 5px; 
   }
@@ -144,6 +155,17 @@ export class UpdateGoalComponent {
       );
     }
 
+
+    deleteGoal = () => {
+      this.#goalsService.delete_goal(this._id()).subscribe(
+        response => {
+          console.log(' delete response: ', response)
+          if (response.success){
+            this.#goalsService.update_goals()
+          }
+        }
+      );
+    }
 
     deleteHabit = (habit_id : string) => {
       this.#goalsService.remove_habit(this._id(), habit_id).subscribe(

@@ -20,7 +20,7 @@ import { MatButton } from '@angular/material/button';
     }
     
   } @else {
-    <button mat-raised-button color="warn" (click)='logout()' > 
+    <button mat-button color="warn" (click)='logout()' > 
       Logout </button>
   } 
 
@@ -31,12 +31,10 @@ import { MatButton } from '@angular/material/button';
     }
   `
 })
-export class AuthenticationComponent {
-  stateService = inject(StateService)
-  router = inject(Router)
 
-  logout() {
-    this.stateService.$state.set(intitialState)
-    this.router.navigate(['', 'login'])
-  }
+
+export class AuthenticationComponent {
+  router = inject(Router)
+  stateService = inject(StateService)
+  logout = this.stateService.logout
 }

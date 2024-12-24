@@ -1,6 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { StateService } from './state.service';
+import { StateService } from '../state.service';
 
 export const addTokenInterceptor: HttpInterceptorFn = (req, next) => {
   

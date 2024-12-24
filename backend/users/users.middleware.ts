@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { verify } from "jsonwebtoken";
+import { TokenExpiredError, verify } from "jsonwebtoken";
 import { ErrorWithStatus } from "../utils/classes";
 import { Token } from "../types/token";
 
@@ -25,6 +25,11 @@ export const checkToken: RequestHandler = async (req, res, next) => {
         next();
 
     } catch (e) {
-        next(e);
+        if (e instanceof TokenExpiredError) {
+            console.log('Token Expired')
+            next(new ErrorWithStatus('Token Expired', 401));
+        } else {
+            next(e);
+        }
     }
 };

@@ -1,4 +1,5 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 export type GlobalState = {
   name: string,
@@ -19,6 +20,7 @@ export const intitialState : GlobalState = {
   providedIn: 'root'
 })
 export class StateService {
+  #router = inject(Router)
 
   $state = signal<GlobalState>(intitialState)
 
@@ -29,6 +31,12 @@ export class StateService {
 
   isLoggedIn() {
     return this.$state()._id ? true : false;
+  }
+
+  // ##refactor
+  logout() {
+    this.$state.set(intitialState)
+    this.#router.navigate(['', 'login'])
   }
 
 }

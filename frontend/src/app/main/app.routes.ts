@@ -10,6 +10,9 @@ import { stateGuard } from './state.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'welcome', pathMatch: 'full' },
+    // ##loadComponent
+    { path: 'overview', loadComponent: () => import('./overview.component').then(c => c.OverviewComponent) },
+
     { path: 'welcome', component: WelcomeComponent, canActivate: [stateGuard]},
     { path: 'login', component: LoginComponent, canActivate:[stateGuard]},
     { path: 'register', loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent) },

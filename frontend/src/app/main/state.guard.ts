@@ -9,7 +9,7 @@ export const stateGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (stateService.isLoggedIn()) {
-    return router.createUrlTree(['', 'goals']) 
+    return router.createUrlTree(['', 'overview']) 
   }
 
   return true; 
