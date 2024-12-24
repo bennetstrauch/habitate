@@ -57,7 +57,7 @@ export class LoginComponent {
         jwtToken: token
       })
 
-      this.#router.navigate(['', 'overview'])
+      this.#router.navigate(['', 'goals', 'overview'])
     })
 
   }

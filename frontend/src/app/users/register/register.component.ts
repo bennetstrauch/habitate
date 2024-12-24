@@ -99,7 +99,7 @@ export class RegisterComponent {
   //##routerresolver
   redirectEffect = effect(() => {
     if (this.#stateService.isLoggedIn()) {
-      this.#router.navigate(['', 'overview'])
+      this.#router.navigate(['', 'goals', 'overview'])
     }
   })
 

@@ -11,11 +11,10 @@ import { stateGuard } from './state.guard';
 export const routes: Routes = [
     { path: '', redirectTo: 'welcome', pathMatch: 'full' },
     // ##loadComponent
-    { path: 'overview', loadComponent: () => import('./overview.component').then(c => c.OverviewComponent) },
-
     { path: 'welcome', component: WelcomeComponent, canActivate: [stateGuard]},
     { path: 'login', component: LoginComponent, canActivate:[stateGuard]},
     { path: 'register', loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent) },
+
     { path: 'goals', 
         loadChildren: () => import('../goals/routes/goals.routes').then(r => r.goalsRoutes),
         canActivate: [ () => inject(StateService).isLoggedIn() ],

@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { GoalsService } from '../goals/goals.service';
+import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Goal, Habit } from '@backend/goals/goals.model';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,9 +40,9 @@ export class OverviewComponent {
       const goals = this.#route.snapshot.data['goals'] as Goal[];
 
 
-        if (this.goalsService.$goals().length === 0) {
-          this.#router.navigate(['', 'goals', 'setup']);
-        }
+        // if (this.goalsService.$goals().length === 0) {
+        //   this.#router.navigate(['', 'goals', 'setup']);
+        // }
      
 
     const allHabits = this.goalsService.$goals()

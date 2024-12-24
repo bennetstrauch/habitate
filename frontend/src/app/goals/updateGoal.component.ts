@@ -6,7 +6,7 @@ import { GoalsService } from './goals.service';
 import { MatInputModule } from '@angular/material/input';
 import { Goal } from '@backend/goals/goals.model';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -31,7 +31,7 @@ import { MatIconModule } from '@angular/material/icon';
       <mat-card-content>
           <strong>Habits :</strong>
 
-            @for( habit of $goal().habits; track $index) {
+            @for( habit of $goal()!.habits; track $index) {
               <mat-card class="habit-card"> 
                 <div class="habit-container">
 
@@ -43,7 +43,7 @@ import { MatIconModule } from '@angular/material/icon';
               </mat-card>
             }
         
-          @if($goal().habits.length < 3){
+          @if($goal()!.habits.length! < 3){
           <button mat-button type="button" [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
         } 
       
@@ -94,10 +94,11 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class UpdateGoalComponent {
+  #router = inject(Router);
   #goalsService = inject(GoalsService);
   readonly _id = input.required<string>()
   $goal = computed(
-    () => this.#goalsService.$goals().filter(this._id)[0]
+    () => this.#goalsService.find_goal(this._id())
   )
   
 
@@ -107,7 +108,7 @@ export class UpdateGoalComponent {
       this.#goalsService.get_habits(this._id()).subscribe(
         response => {
           if(response.success)
-          this.$goal().habits = response.data
+          this.$goal()!.habits = response.data
         }
       );
     }
@@ -125,20 +126,19 @@ export class UpdateGoalComponent {
   
     ngOnInit() {
       const goal = this.$goal();
-
-      if (goal) {
+     
         this.goalForm.patchValue({
-          name: goal.name || '',
-          description: goal.description || ''
+          name: goal!.name || '',
+          description: goal!.description || ''
         });
         this.goalForm.markAsPristine();
-      }
+      
     }
 
     onSubmit = () => {
       
       const goal : Goal = {
-        ...this.$goal(),
+        ...this.$goal()!,
         name: this.goalForm.controls.name.value!,   // ! because we check validity on button
         description: this.goalForm.controls.description.value ?? '',
       };

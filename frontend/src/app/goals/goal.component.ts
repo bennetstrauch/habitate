@@ -11,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
    <button mat-icon-button aria-label="Update" (click)="onUpdate()">
           <mat-icon>edit</mat-icon>
         </button>
-    <div> {{$goal().name}} </div> <br>
-    <div> {{$goal().description}} </div>
+    <div> {{$goal()!.name}} </div> <br>
+    <div> {{$goal()!.description}} </div>
 
   `,
   styles: ``
@@ -23,8 +23,9 @@ export class GoalComponent {
   
   readonly _id = input.required<string>()
  
+  // ## unify, put getGoal method in goalsService
   $goal = computed(
-    () => this.#goalsService.$goals().filter(this._id)[0]
+    () => this.#goalsService.find_goal(this._id())
   )
   
   constructor(){
@@ -34,7 +35,7 @@ export class GoalComponent {
   }
 
   onUpdate = () => {
-    this.#router.navigate(['', 'goals', this.$goal()._id, 'update']);
+    this.#router.navigate(['', 'goals', this.$goal()!._id, 'update']);
   }
 
   

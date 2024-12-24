@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.model'
 import { environment } from 'frontend/src/environments/environment.development';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,11 +11,14 @@ import { environment } from 'frontend/src/environments/environment.development';
 
 export class GoalsService {
 
+  #router = inject(Router);
+
   #http = inject(HttpClient);
 
   $habits = signal<Habit[]>([])
 
   $goals = signal<Goal[]>([])
+
 
 
   update_goals() {
@@ -24,6 +28,18 @@ export class GoalsService {
         console.log('goals updated: ', response.data)
       }
     });
+  }
+
+  find_goal(goal_id: string) {
+    const goal = this.$goals().find(goal => goal._id === goal_id);
+
+    if (!goal) {
+      console.error('No goal found. Redirecting...');
+      this.#router.navigate(['', 'goals']); 
+      return;
+    }
+
+    return goal;
   }
 
 
