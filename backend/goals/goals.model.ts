@@ -26,7 +26,9 @@ const goalSchema = new Schema({
 
     createdByUserWithId: Schema.Types.ObjectId,
 
-    habits: { type: [habitSchema], validate: habitsValidator, required: false }
+    habits: { type: [habitSchema], validate: habitsValidator, required: false },
+
+    ranking: Number
 })
 
 
@@ -53,8 +55,11 @@ export interface Habit extends HabitBase {
 export interface Goal extends EntityBase {
     _id: string
     createdByUserWithId: string
+    embedded_name: number[]
     
     habits: Habit[]
+
+    ranking: number
 }
 
 export const GoalModel = model<Goal>('goal', goalSchema)

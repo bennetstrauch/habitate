@@ -17,3 +17,5 @@ export async function generateEmbedding(input: string) {
     // });
     return vectorEmbedding.data[0].embedding;
    }
+
+

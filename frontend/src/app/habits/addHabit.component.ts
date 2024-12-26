@@ -62,11 +62,12 @@ import { Location } from '@angular/common';
 })
 export class AddHabitComponent {
   #goalsService = inject(GoalsService);
+  #router = inject(Router)
 
 
   _id = input.required<string>()
-  
-  constructor(private location: Location){
+
+  constructor(private location: Location) {
   }
 
 
@@ -91,7 +92,7 @@ export class AddHabitComponent {
     this.#goalsService.add_habit(this._id(), newHabit).subscribe(response => {
       console.log(response)
       this.#goalsService.update_goals()
-      this.location.back()
+      this.#router.navigate(['', 'goals', this._id(), 'update'])
     })
   }
 }

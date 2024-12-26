@@ -176,7 +176,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
             feel free to add your first habit to your new goal.
           </p>
 
-          <button mat-button [disabled]='!$addHabitEnabled()' [routerLink]="['', 'goals','', 'habits', 'add']">
+          <button mat-button [disabled]='!$addHabitEnabled()' [routerLink]="['', 'goals', $newGoalId(), 'habits', 'add']">
               Add Habit
           </button>
         </mat-step>
