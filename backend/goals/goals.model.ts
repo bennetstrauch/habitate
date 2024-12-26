@@ -15,11 +15,14 @@ const habitsValidator = {
     message: () => `You should not have more than 3 habits per goal to keep it simple. Delete one to add a new one.`
 }
 
-
+// ##standardize from base
 const goalSchema = new Schema({
 
     name: { type: String, required: true},
+    embedded_name: {type: [Number], required: false},
+
     description: String,
+
 
     createdByUserWithId: Schema.Types.ObjectId,
 
@@ -28,11 +31,11 @@ const goalSchema = new Schema({
 
 
 
+export interface GoalBase extends EntityBase {}
 
 
-export type GoalBase = InferSchemaType<typeof goalSchema>
+// export type GoalBase = InferSchemaType<typeof goalSchema>
 
-export const GoalModel = model<GoalBase>('goal', goalSchema)
 
 
 interface EntityBase {
@@ -40,13 +43,12 @@ interface EntityBase {
     description?: string,
 }
 
-export interface HabitBase extends EntityBase {
-   
-}
+export interface HabitBase extends EntityBase {}
 
 export interface Habit extends HabitBase {
     _id: string
 }
+
 
 export interface Goal extends EntityBase {
     _id: string
@@ -54,4 +56,6 @@ export interface Goal extends EntityBase {
     
     habits: Habit[]
 }
+
+export const GoalModel = model<Goal>('goal', goalSchema)
 

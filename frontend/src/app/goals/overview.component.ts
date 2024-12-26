@@ -10,25 +10,22 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     
     @for (goal of goalsService.$goals(); track $index) {
-      <div class="hover-div" [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
+      <div class="hover-div">
+      <div [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
 
       @for (habit of goal.habits; track $index){
       <div> - {{habit.name}} </div>
 
       }
+      </div>
+      <br>
     }
 
   `,
   styles: `
   .hover-div {
-      width: 200px;
-      height: 100px;
-      background-color: lightblue;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    padding: 10 px;
       font-size: 18px;
-      border: 1px solid #000;
       cursor: pointer; /* Changes mouse icon to hand */
     }
   `

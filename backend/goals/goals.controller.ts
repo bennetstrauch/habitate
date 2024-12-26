@@ -2,6 +2,7 @@ import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
 import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
+import { generateEmbedding } from "./embedding";
 
 
 type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
@@ -42,12 +43,18 @@ export const getGoal: GetGoalReqHandler = async (req, res, next) => {
 export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, GoalBase> = async (req, res, next) => {
 
     try {
+        const goalBase = req.body
+        const embedded_name = await generateEmbedding(goalBase.name)
+
+
+
         const result = await GoalModel.create({
-            ...req.body,
+            ...goalBase,
+            embedded_name,
             createdByUserWithId: req.userId
         });
 
-        res.json({ success: true, data: result });
+        res.json({ success: true, data: result as Goal });
 
     } catch (err) {
         next(err);
