@@ -3,17 +3,21 @@ import { Router } from '@angular/router';
 import { GoalsService } from './goals.service';
 import { Goal } from '@backend/goals/goals.model';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-goal',
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatCardModule, MatButtonModule],
   template: `
-   <button mat-icon-button aria-label="Update" (click)="onUpdate()">
-          <mat-icon>edit</mat-icon>
-        </button>
-    <div> {{$goal()!.name}} </div> <br>
-    <div> {{$goal()!.description}} </div>
-
+    <mat-card class="card">
+      <u>Goal</u> <br>
+      <div> <strong>{{$goal()!.name}}</strong> </div> <br>
+      <div> {{$goal()!.description}} </div> <br>
+      <button mat-raised-button aria-label="Update" (click)="onUpdate()">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+    </mat-card>
   `,
   styles: ``
 })

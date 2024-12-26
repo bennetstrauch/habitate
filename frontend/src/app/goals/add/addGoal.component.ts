@@ -184,11 +184,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
     
   `,
   // ### hiding does not work
-  styles: [`
-    .mat-horizontal-stepper-header-container {
-      display: none;
-    }
-    `],
+  styles: [``],
 })
 export class AddGoalComponent {
   #goalsService = inject(GoalsService);
@@ -231,6 +227,5 @@ export class AddGoalComponent {
   goToStep(stepIndex: number) {
     this.$stepper().selectedIndex = stepIndex-1; 
   }
-
 
 }

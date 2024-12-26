@@ -1,9 +1,9 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, viewChild } from '@angular/core';
 import { GoalsService } from '../goals/goals.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Habit, HabitBase } from '@backend/goals/goals.model';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,50 +13,88 @@ import { Location } from '@angular/common';
   selector: 'app-add-habit',
   imports: [MatStepperModule, MatFormField, MatLabel, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule],
   template: `
-    <mat-stepper linear #stepper >
+    <mat-stepper class="card" linear #stepper >
+
+      <mat-step>
+
+        <p>
+          A habit is a concrete thing to do. <br>
+          Keep it small and simple. <br>
+        </p>
+
+        <button mat-button matStepperNext>
+              Next
+        </button>
+      </mat-step>
+
+      <mat-step>
+        <p>
+          A small step towards your goal. <br>
+          You feel you can do it day by day without strain. <br>
+          Should require 1 - 30 minutes. <br>
+        </p>
+
+        <button mat-button matStepperNext>
+              Next
+        </button>
+        </mat-step>
 
 
-<mat-step [stepControl]="goalForm.step1">
+      <mat-step [stepControl]="habitForm.step1">
 
-  <mat-form-field>
-    <mat-label>Habbit</mat-label>
-    <input matInput [formControl]="goalForm.step1.controls.name" placeholder="Enter title" />
-  </mat-form-field>
+        <mat-form-field>
+          <mat-label>Habit</mat-label>
+          <input matInput [formControl]="habitForm.step1.controls.name" placeholder="Enter title" />
+        </mat-form-field>
 
-    <div>
-      <button mat-button matStepperNext [disabled]="goalForm.step1.invalid">
-        Next
-      </button>
-    </div>
-</mat-step>
-    
+          <div>
+            <button mat-button matStepperNext [disabled]="habitForm.step1.invalid">
+              Next
+            </button>
+          </div>
+      </mat-step>
+          
 
-<mat-step [stepControl]="goalForm.step2">
-  <form [formGroup]="goalForm.step2">
-    <mat-form-field>
-      <mat-label>Description</mat-label>
-      <input matInput formControlName="description" placeholder="Enter description" />
-    </mat-form-field>
-    <div>
-      <button mat-button matStepperPrevious>Back</button>
-      <button mat-button matStepperNext [disabled]="goalForm.step2.invalid">
-        Next
-      </button>
-    </div>
-  </form>
-</mat-step>
+      <mat-step [stepControl]="habitForm.step2">
+        <form [formGroup]="habitForm.step2">
+          <mat-form-field>
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" placeholder="Enter description" />
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext [disabled]="habitForm.step2.invalid">
+              Next
+            </button>
+          </div>
+        </form>
+      </mat-step>
 
-<!-- Final Step -->
-<mat-step>
-  <p>Submit?</p>
-  <div>
-    <button mat-button matStepperPrevious>Back</button>
-    <button mat-button type="submit" color="primary" (click)="addHabit()">
-      Submit
-    </button>
-  </div>
-</mat-step>
-</mat-stepper>
+      <mat-step>
+        <p>
+          Take a soft, deep breath. <br>
+          Relax. <br>
+        </p>
+
+        <button mat-button matStepperNext>
+              Next
+        </button>
+        </mat-step>
+
+      <!-- Final Step -->
+      <mat-step>
+        <p>
+          Is this habit good for you and your environment? <br> 
+          Is it easy to do and implement? <br>
+        </p>
+        <div>
+          <button mat-button (click)="goToStep(3)">Revise</button>
+          <button mat-button type="submit" color="primary" (click)="addHabit()">
+            Yes, Submit
+          </button>
+        </div>
+      </mat-step>
+    </mat-stepper>
   `,
   styles: ``
 })
@@ -73,7 +111,7 @@ export class AddHabitComponent {
 
   formBuilder = inject(FormBuilder);
 
-  goalForm = {
+  habitForm = {
     step1: this.formBuilder.group({
       name: ['', Validators.required],
     }),
@@ -85,8 +123,8 @@ export class AddHabitComponent {
   addHabit() {
 
     const newHabit: HabitBase = {
-      name: this.goalForm.step1.value.name!,
-      description: this.goalForm.step2.value.description ?? '',
+      name: this.habitForm.step1.value.name!,
+      description: this.habitForm.step2.value.description ?? '',
     }
 
     this.#goalsService.add_habit(this._id(), newHabit).subscribe(response => {
@@ -95,4 +133,10 @@ export class AddHabitComponent {
       this.#router.navigate(['', 'goals', this._id(), 'update'])
     })
   }
+
+  $stepper = viewChild.required<MatStepper>('stepper')
+ goToStep(stepIndex: number) {
+    this.$stepper().selectedIndex = stepIndex-1; 
+  }
+
 }

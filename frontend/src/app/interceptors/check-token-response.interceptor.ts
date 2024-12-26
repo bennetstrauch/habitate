@@ -14,7 +14,7 @@ export const checkTokenResponseInterceptor: HttpInterceptorFn = (req, next) => {
 
     catchError((error) => {
       console.log('checkTokenResponseInterceptor, error> ', error);
-      if (error.status === 401 && error.error?.error === 'Token Expired') {
+      if (error.status === 401 && error.error === 'Token Expired') {
         alert('Your session has expired. Please log in again.');
 
       
