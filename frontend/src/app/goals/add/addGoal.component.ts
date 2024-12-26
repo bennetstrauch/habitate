@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild, viewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -176,7 +176,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
             feel free to add your first habit to your new goal.
           </p>
 
-          <button mat-button [routerLink]="['', 'goals',':id', 'habits', 'add']">
+          <button mat-button [disabled]='!$addHabitEnabled()' [routerLink]="['', 'goals','', 'habits', 'add']">
               Add Habit
           </button>
         </mat-step>
@@ -207,16 +207,23 @@ export class AddGoalComponent {
     })
   }
 
+  $newGoalId = signal<string | null>(null)
+  $addHabitEnabled = computed( () => !!this.$newGoalId() )
+
   addGoal() {
 
     const newGoal: GoalBase = {
       name: this.goalForm.step1.value.name!,
-      description: this.goalForm.step2.value.description,
+      description: this.goalForm.step2.value.description ?? '',
     }
 
     this.#goalsService.post_goal(newGoal).subscribe(response => {
       console.log(response)
-      // this.#router.navigate(['', 'habits', 'add']);
+      
+      this.$newGoalId.set(response.data._id);
+      this.#goalsService.update_goals()
+
+      alert("Goal added successfully")
     })
   }
 
