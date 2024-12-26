@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { ErrorWithStatus } from '@backend/utils/classes';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { validators } from './register/register.component';
 import { UsersService } from './users.service';
@@ -8,6 +9,7 @@ import { jwtDecode } from 'jwt-decode'
 import { Token } from '@backend/types/token';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -41,16 +43,33 @@ export class LoginComponent {
 
   login() {
 
-    this.#usersService.login(this.form.value as LoginRequest).subscribe(response => {
+    /// h## handle error correctly
+  
+    this.#usersService.login(this.form.value as LoginRequest)
+    .pipe(
+      catchError((err: ErrorWithStatus) => {
+
+        if (err.status == 401) {
+          alert(err?.error);
+          console.log('catched error: ', err)
+        } else {
+          alert('An unknown error occurred');
+        }
+
+        return of(null); 
+      })
+    )
+    .subscribe(response => {
+
+      if (!response) return;
       console.log('login user:', response)
 
       const token = response.data.token
-    
       const payloadDecoded = jwtDecode(token) as Token
       console.log(payloadDecoded)
 
+
       this.#stateService.$state.set({
-        
         _id: payloadDecoded._id,
         name: payloadDecoded.name,
         email: payloadDecoded.email,
@@ -59,6 +78,8 @@ export class LoginComponent {
 
       this.#router.navigate(['', 'goals', 'overview'])
     })
+
+
 
   }
 }

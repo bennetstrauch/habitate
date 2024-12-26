@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     
     @for (goal of goalsService.$goals(); track $index) {
-      <div [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
+      <div class="hover-div" [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
 
       @for (habit of goal.habits; track $index){
       <div> - {{habit.name}} </div>
@@ -19,7 +19,19 @@ import { MatIconModule } from '@angular/material/icon';
     }
 
   `,
-  styles: ``
+  styles: `
+  .hover-div {
+      width: 200px;
+      height: 100px;
+      background-color: lightblue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      border: 1px solid #000;
+      cursor: pointer; /* Changes mouse icon to hand */
+    }
+  `
 })
 export class OverviewComponent {
   #router = inject(Router);
@@ -40,9 +52,9 @@ export class OverviewComponent {
       const goals = this.#route.snapshot.data['goals'] as Goal[];
 
 
-        // if (this.goalsService.$goals().length === 0) {
-        //   this.#router.navigate(['', 'goals', 'setup']);
-        // }
+        if (this.goalsService.$goals().length === 0) {
+          this.#router.navigate(['', 'goals', 'setup']);
+        }
      
 
     const allHabits = this.goalsService.$goals()

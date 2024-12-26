@@ -122,6 +122,14 @@ export class RegisterComponent {
   register() {
     this.#usersService.register(this.userDetailsForm.value as User).subscribe(response => {
       console.log(response)
+
+      if (response.success){
+        alert('Account created successfully. Welcome on board!')
+      } else {
+        alert('Sorry, something went wrong. Please try again or try later.')
+      }
+
+
       this.#router.navigate(['', 'login'])
     })
   }
