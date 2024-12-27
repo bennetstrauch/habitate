@@ -43,6 +43,7 @@ import { MatIconModule } from '@angular/material/icon';
               </mat-card>
             }
         
+            <!-- not hardcode number ## -->
           @if($goal()!.habits.length! < 3){
           <button mat-button type="button" [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
         } 

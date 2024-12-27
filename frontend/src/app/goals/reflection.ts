@@ -37,10 +37,12 @@ import { GoalsService } from './goals.service';
     @for(goal of this.goalsService.$goals(); track $index) {
 
      <mat-step>
+        <p>Intention</p> 
         <strong>" {{goal.name}} "</strong>
+        <br> <br>
 
         <button mat-button matStepperNext>
-                Next
+                Check Habits
             </button>
      </mat-step>
 
