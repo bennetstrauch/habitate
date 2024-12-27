@@ -219,13 +219,21 @@ export class AddGoalComponent {
       this.$newGoalId.set(response.data._id);
       this.#goalsService.update_goals()
 
-      alert("Goal added successfully")
+      alert(`Goal added successfully. \n ${this.displayRanking(response.data.ranking)}`)
     })
   }
 
 
   goToStep(stepIndex: number) {
     this.$stepper().selectedIndex = stepIndex-1; 
+  }
+
+  displayRanking = (ranking: number) => {
+    if (ranking === 0) {
+      return 'You are a trendsetter. /n No one else has a similar goal yet.'
+    }
+
+    return `You are not alone. /n ${ranking} other(s) have similar goals.`
   }
 
 }

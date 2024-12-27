@@ -3,6 +3,7 @@ import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./embedding";
+import { findSimilarGoals } from "../database/queries";
 
 
 type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
@@ -46,13 +47,16 @@ export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, GoalBase>
         const goalBase = req.body
         const embedded_name = await generateEmbedding(goalBase.name)
 
+        const ranking = await findSimilarGoals(embedded_name)
 
 
         const result = await GoalModel.create({
             ...goalBase,
             embedded_name,
-            createdByUserWithId: req.userId
+            createdByUserWithId: req.userId,
+            ranking
         });
+
 
         res.json({ success: true, data: result as Goal });
 
