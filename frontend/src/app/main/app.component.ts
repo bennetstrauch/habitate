@@ -10,20 +10,23 @@ import { NavigationComponent } from "./navigation.component";
 
     <div class="main-container">
 
-    <app-navigation />
-    <router-outlet />
+      <app-navigation class="navigation"/>
+      <router-outlet class="router-outlet"/>
 
     </div>
 
   `,
   styles: [
-    `.main-container {
+    `
+    .main-container {
       display: flex;
       flex-direction: column;
       align-items: center;
       background-color: #f4f4f4;
+      
     }
-    `
+    
+    `,
   ],
 })
 export class AppComponent {

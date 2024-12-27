@@ -9,29 +9,31 @@ import { AuthenticationComponent } from "./authentication.component";
   selector: 'app-navigation',
   imports: [RouterLink, MatButton, MatIcon, AuthenticationComponent],
   template: `
-
+    <div class="nav-div">
 
     <app-authentication />
 
     @if (stateService.isLoggedIn()) {
-
       <!-- ## home should be in middle of button -->
         <button mat-button color="primary" [routerLink]= "['', 'goals', 'overview']"> 
           <mat-icon>home</mat-icon>
         </button>
-
     
         <button mat-button color="accent" [routerLink]= "['', 'goals', 'add']"> 
           Add </button>
-    
-    
-  } 
+    } 
+
+  </div>
   `,
   // unified css ##
   styles: `
     button{
       border-radius: 0px;
     }
+  .nav-div {
+    display: flex;
+    justify-content: space-between;
+  }
   `
 })
 export class NavigationComponent {
