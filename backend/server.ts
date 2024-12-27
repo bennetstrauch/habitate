@@ -32,8 +32,8 @@ app.listen(3000, () => console.log('Server listening on Port 3000'))
 
 async function test(){
 const vector = Array.from({ length: 1536 }, () => Math.random());
-const goal = await GoalModel.findOne({ _id: '676d36de8f67316b443ebadc',}) as Goal;
-console.log('goal', goal)
+const goal = await GoalModel.findOne({ _id: '676d5eaa1aa4b1c31543e47b',}) as Goal;
+console.log('goal', goal, 'embeddedName:', goal.embedded_name)
 findSimilarGoals(goal.embedded_name)
 }
 

@@ -53,16 +53,32 @@ import { validators,  } from './register.component';
 
       <button mat-button matStepperNext type="button" (click)='continue()'>Continue</button>
 
+
+      <!-- VALIDATION -->
       @for(validatorEntry of (validators | keyvalue) ; track $index){
-          
-          @if(userDetailsForm.get(validatorEntry['key'])?.invalid){
+        
+        @let validatorField = userDetailsForm.get(validatorEntry['key']);
+        @let validatorFieldErrors = validatorField?.errors;
+
+          @if(validatorField?.touched && validatorField?.invalid){
             
-            @if(userDetailsForm.get(validatorEntry['key'])?.errors!['required']){
+            @if(validatorFieldErrors!['required']){
               <mat-error> {{validatorEntry['key']}} is required. </mat-error>
             }
-            # {{userDetailsForm.get(validatorEntry['key'])?.errors!['required']}} #
 
-          {{userDetailsForm.get(validatorEntry['key'])?.errors! | json}}
+            @if(validatorFieldErrors!['minlength']){
+              <mat-error> {{validatorEntry['key']}} has to be at least {{validatorFieldErrors!['minlength']!['requiredLength']}} characters. </mat-error>
+            }
+
+            @if(validatorFieldErrors!['maxlength']){
+              <mat-error> {{validatorEntry['key']}} can be at most {{validatorFieldErrors!['maxlength']!['requiredLength']}} characters. </mat-error>
+            }
+
+            @if(validatorFieldErrors!['email']){
+              <mat-error> {{validatorEntry['key']}} has to be in email format: max...n&#64;example.com </mat-error>
+            }
+
+          <!-- {{userDetailsForm.get(validatorEntry['key'])?.errors! | json}} -->
        }
      }
 
@@ -81,6 +97,8 @@ export class RegisterStepOneComponent {
   continue = () => console.log('formvalid: ', this.userDetailsForm.valid)
 
   validators = validators
+
+
 
 }
 
