@@ -5,11 +5,13 @@ import { SetupFirstGoalComponent } from '../setupFirstGoal/setupFirstGoal.compon
 import { inject } from '@angular/core';
 import { StateService } from '../../state.service';
 import { GoalComponent } from '../goal.component';
+import { ReflectionComponent } from '../reflection';
 
 export const goalsRoutes: Routes = [
     // replace with goalscomponent ##
     { path: '', redirectTo: 'overview' , pathMatch: 'full'},
     { path: 'overview', component: OverviewComponent },
+    { path: 'reflection', component: ReflectionComponent },
 
     { path: 'add', loadComponent: () => import('../add/addGoal.component').then(c => c.AddGoalComponent) },
     { path: 'setup', loadComponent: () => import('../setupFirstGoal/setupFirstGoal.component').then(c => c.SetupFirstGoalComponent) },

@@ -62,19 +62,13 @@ export class OverviewComponent {
 
   constructor() {
 
-      const goals = this.#route.snapshot.data['goals'] as Goal[];
-
-
         if (this.goalsService.$goals().length === 0) {
           this.#router.navigate(['', 'goals', 'setup']);
         }
      
 
-    const allHabits = this.goalsService.$goals()
-      .flatMap(goal => goal.habits || []);
-
-    console.log(allHabits, 'all habits')
-    console.log(goals, 'goals')
+    
+    console.log(this.goalsService.$goals(), 'goals')
     // this.#goalsService.$habits.set(allHabits);
   }
 
