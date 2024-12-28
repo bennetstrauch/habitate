@@ -5,6 +5,8 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { AuthenticationComponent } from "./authentication.component";
 import { GoalsService } from '../goals/goals.service';
+import { validationRulesGoals } from '@global/auth/validationRules';
+
 
 @Component({
   selector: 'app-navigation',
@@ -20,9 +22,8 @@ import { GoalsService } from '../goals/goals.service';
           <mat-icon>home</mat-icon>
         </button>
     
-        <!-- not hardcode length ## -->
-        <button mat-button color="accent" [disabled]='goalsService.$goals().length >= 3' [routerLink]= "['', 'goals', 'add']"> 
-          Add </button>
+        <button mat-button color="accent" [disabled]='goalsService.$goals().length >= validationRulesGoals.maxLength' [routerLink]= "['', 'goals', 'add']"> 
+          Add Goal</button>
     } 
 
   </div>
@@ -42,6 +43,8 @@ export class NavigationComponent {
   stateService = inject(StateService)
   router = inject(Router)
   goalsService = inject(GoalsService)
+  validationRulesGoals = validationRulesGoals
+
 
   logout() {
     this.stateService.$state.set(intitialState)

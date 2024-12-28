@@ -2,7 +2,7 @@ import { Component, effect, inject, Input, output, signal } from '@angular/core'
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { validationRules } from '@global/auth/validationRules'
+import { validationRulesRegister } from '@global/auth/validationRules'
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { UsersService } from '../users.service';
 import { User } from '@backend/users/users.model'
@@ -96,13 +96,6 @@ export class RegisterComponent {
   #usersService = inject(UsersService)
   #router = inject(Router)
 
-  //##routerresolver
-  redirectEffect = effect(() => {
-    if (this.#stateService.isLoggedIn()) {
-      this.#router.navigate(['', 'goals', 'overview'])
-    }
-  })
-
 
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     'name': ['', validators.name],
@@ -141,8 +134,8 @@ export class RegisterComponent {
 export const validators = {
   name: [
     Validators.required,
-    Validators.minLength(validationRules.name.minLength),
-    Validators.maxLength(validationRules.name.maxLength)
+    Validators.minLength(validationRulesRegister.name.minLength),
+    Validators.maxLength(validationRulesRegister.name.maxLength)
   ],
 
   email: [
@@ -152,8 +145,8 @@ export const validators = {
 
   password: [
     Validators.required,
-    Validators.minLength(validationRules.password.minLength),
-    Validators.maxLength(validationRules.password.maxLength)
+    Validators.minLength(validationRulesRegister.password.minLength),
+    Validators.maxLength(validationRulesRegister.password.maxLength)
   ]
 
 }

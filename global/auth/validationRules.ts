@@ -1,4 +1,4 @@
-export const validationRules = {
+export const validationRulesRegister = {
     name: {
       minLength: 3,
       maxLength: 20,
@@ -14,4 +14,9 @@ export const validationRules = {
       maxLength: 30,
       errorMessage: 'Password must be at least 5 and at most 30 characters.',
     },
+  };
+
+
+export const validationRulesGoals = {
+    maxLength: 3
   };

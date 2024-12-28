@@ -4,7 +4,7 @@ import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
 import { UsersService } from '../users.service';
 import { User } from '@backend/users/users.model';
-import { validationRules } from '@global/auth/validationRules'
+import { validationRulesRegister } from '@global/auth/validationRules'
 import { MatStep, MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';

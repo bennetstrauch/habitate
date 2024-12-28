@@ -2,7 +2,7 @@ import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
 import { RequestHandler } from 'express'
 import { ErrorWithStatus } from '../utils/classes'
 import { StandardResponse } from "../types/standardResponse";
-import { generateEmbedding } from "./embedding";
+import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
 
 
@@ -11,7 +11,10 @@ type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 
     try {
-        const results : Goal[] = await GoalModel.find({ createdByUserWithId: req.userId })
+        const results : Goal[] = await GoalModel.find(
+            { createdByUserWithId: req.userId },
+            { embedded_name: 0, __v: 0 }
+        )
         res.json({ success: true, data: results });
 
     } catch (err) {
@@ -27,7 +30,7 @@ export const getGoal: GetGoalReqHandler = async (req, res, next) => {
     try {
         const { goal_id } = req.params;
 
-        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId }) as Goal | null;
+        const goal = await findOneGoalHelper(goal_id, req.userId);
 
         if (!goal) {
             throw new ErrorWithStatus('Goal not found', 404);
@@ -86,24 +89,6 @@ export const putGoal: PutGoalReqHandler = async (req, res, next) => {
 
 
 
-// $$ extra controller
-export const addHabit: RequestHandler<{ goal_id: string; }, StandardResponse<number>, Habit> = async (req, res, next) => {
-    
-    try {
-        const { goal_id } = req.params;
-        const result = await GoalModel.updateOne(
-            { _id: goal_id, createdByUserWithId: req.userId },
-            { $push: { habits: req.body } }
-        );
-
-        res.status(200).json({ success: true, data: result.modifiedCount });
-
-    } catch (err) {
-        next(err);
-    }
-}
-
-
 export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<number>> = async (req, res, next) => {
     
     try {
@@ -119,40 +104,14 @@ export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<n
 };
 
 
-export const deleteHabit: RequestHandler<{ goal_id: string, habit_id: string; }, StandardResponse<number>> = async (req, res, next) => {
+// ## use in all getGoal / getHabit methods
+export const findOneGoalHelper = async (goal_id: string, userId?: string) => {
+
+    const query: { _id: string; createdByUserWithId?: string } = { _id: goal_id };
     
-    try {
-        const { goal_id, habit_id } = req.params;
-
-        const result = await GoalModel.updateOne(
-            { _id: goal_id, createdByUserWithId: req.userId },
-            { $pull: { habits: { _id: habit_id } } }
-            );
-
-            res.status(200).json({ success: true, data: result.modifiedCount });
-
-        } catch (err) {
-            next(err);
-            }
-            
-           
-};
-
-type GetHabbitsReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Habit[]>>
-
-// ## two times getHabit functionality used here, abstract
-export const getHabits: GetHabbitsReqHandler = async (req, res, next) => {
-    try {
-        const { goal_id } = req.params;
-        const goal = await GoalModel.findOne({ _id: goal_id, createdByUserWithId: req.userId }) as Goal | null;
-
-        if (!goal) {
-            throw new ErrorWithStatus('Goal not found', 404);
-        }
-
-        res.json({ success: true, data: goal.habits });
-        
-    } catch (err) {
-        next(err);
+    if (userId) {
+        query.createdByUserWithId = userId;
     }
-};
+
+    return await GoalModel.findOne(query, { embedded_name: 0, __v: 0 }) as Goal | null;
+}

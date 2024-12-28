@@ -13,7 +13,10 @@ export const routes: Routes = [
     // ##loadComponent
     { path: 'welcome', component: WelcomeComponent, canActivate: [stateGuard]},
     { path: 'login', component: LoginComponent, canActivate:[stateGuard]},
-    { path: 'register', loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent) },
+    { path: 'register', 
+        loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent),
+        canActivate:[stateGuard]
+    },
 
     { path: 'goals', 
         loadChildren: () => import('../goals/routes/goals.routes').then(r => r.goalsRoutes),

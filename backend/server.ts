@@ -37,4 +37,4 @@ console.log('goal', goal, 'embeddedName:', goal.embedded_name)
 findSimilarGoals(goal.embedded_name)
 }
 
-test()
+// test()

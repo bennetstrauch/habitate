@@ -1,5 +1,6 @@
 import {Router} from 'express'
-import { addHabit, deleteGoal, deleteHabit, getGoal, getGoals, getHabits, postGoal, putGoal } from './goals.controller'
+import { deleteGoal, getGoal, getGoals, postGoal, putGoal } from './goals.controller'
+import { addHabit, addHabitHelp, deleteHabit, getHabits } from './habits.controller'
 
 
 const router = Router()
@@ -14,6 +15,7 @@ router.delete('/:goal_id', deleteGoal)
 
 router.get('/:goal_id/habits', getHabits)
 router.post('/:goal_id/habits', addHabit)
+router.post('/:goal_id/habits/help', addHabitHelp)
 router.delete('/:goal_id/habits/:habit_id', deleteHabit)
 
 
