@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { intitialState, StateService } from '../../state.service';
-import { AuthenticationComponent } from "../../main/authentication.component";
+import { AuthenticationComponent } from "../authentication.component";
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { StateService } from '../state.service';
+import { StateService } from '../../state.service';
 
 
 export const stateGuard: CanActivateFn = () => {

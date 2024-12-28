@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   imports: [],
   template: `
     <p>
-      setup works!
+      NOT IMPLEMENTED YET
     </p>
   `,
   styles: ``

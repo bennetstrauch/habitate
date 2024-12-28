@@ -37,6 +37,16 @@ export class AddHelpComponent {
   $messages = signal<Message[]>([]);
   userInput = '';
 
+
+  ngOnInit() {
+    this.initializeConversation();
+  }
+
+  initializeConversation() {
+  }
+
+
+
   sendMessage() {
     
   }

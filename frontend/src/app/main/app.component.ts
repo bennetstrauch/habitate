@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthenticationComponent } from "./authentication.component";
+import { AuthenticationComponent } from "../users/authentication.component";
 import { NavigationComponent } from "./navigation.component";
 
 @Component({

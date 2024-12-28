@@ -4,6 +4,7 @@ import { openaiClient } from "./embedding";
 import { findOneGoalHelper } from "../goals.controller";
 
 
+
 const context: OpenAI.Chat.ChatCompletionMessageParam[] = [
     {
     role: 'system',

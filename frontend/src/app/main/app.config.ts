@@ -1,7 +1,7 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
-import { routes } from './app.routes';
+import { routes } from '../routes/app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { addTokenInterceptor } from '../interceptors/add-token.interceptor';
 import { StateService } from '../state.service';

@@ -52,9 +52,11 @@ import { AddHelpComponent } from "./addHelp.component";
             <button mat-button matStepperNext [disabled]="habitForm.step1.invalid">
               Next
             </button>
-            <button mat-button [routerLink]="['','goals', _id, 'habits', 'add', 'help']">
+
+            <!-- yet to be implemented: -->
+            <!-- <button mat-button [routerLink]="['','goals', _id, 'habits', 'add', 'help']">
               Need Help
-            </button>
+            </button> -->
 
           </div>
       </mat-step>

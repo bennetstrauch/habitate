@@ -3,7 +3,7 @@ import { intitialState, StateService } from '../state.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { AuthenticationComponent } from "./authentication.component";
+import { AuthenticationComponent } from "../users/authentication.component";
 import { GoalsService } from '../goals/goals.service';
 import { validationRulesGoals } from '@global/auth/validationRules';
 

@@ -63,7 +63,7 @@ export class OverviewComponent {
   constructor() {
 
         if (this.goalsService.$goals().length === 0) {
-          this.#router.navigate(['', 'goals', 'setup']);
+          this.#router.navigate(['', 'goals', 'add']);
         }
      
 
