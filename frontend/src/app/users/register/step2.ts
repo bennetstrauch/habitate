@@ -1,7 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
 import { intitialState, StateService } from '../../state.service';
-import { AuthenticationComponent } from "../authentication.component";
+import { AuthenticationButtonComponent } from '../authentication.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -10,30 +15,25 @@ import { MatStepperModule } from '@angular/material/stepper';
   selector: 'app-register-step2',
   imports: [MatCardModule, MatButtonModule, MatStepperModule],
   template: `
-
     <div>
       <mat-card class="welcome-card">
-
         <mat-card-content>
           <p>
             We want to keep it simple & easy.
-            <br /> <br>
-            To help you get into the flow and stay there, <br>
-            it will be very valuable if we can <br>
+            <br />
+            <br />
+            To help you get into the flow and stay there, <br />
+            it will be very valuable if we can <br />
             connect once a day for a few minutes. 
           </p>
-          <br>
-         
+          <br />
         </mat-card-content>
-
       </mat-card>
     </div>
-
   `,
   styles: [
     `
       .welcome-card {
-
         max-width: 500px;
         padding: 1rem;
         margin: 2rem;
@@ -61,6 +61,4 @@ import { MatStepperModule } from '@angular/material/stepper';
     `,
   ],
 })
-export class Step2 {
-  
-}
+export class Step2 {}

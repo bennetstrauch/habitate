@@ -4,12 +4,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Goal, Habit } from '@backend/goals/goals.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { HabitProgress } from '@backend/progress/progress.model';
 
 // ## wrap every component in div or matcard with card class?
 
 @Component({
   selector: 'app-goals',
-  imports: [RouterLink, MatIconModule, MatButtonModule],
+  imports: [RouterLink, MatIconModule, MatButtonModule, MatIconModule],
   template: `
 
     <div class="card head-card">
@@ -23,7 +24,16 @@ import { MatButtonModule } from '@angular/material/button';
         <div [routerLink]="['', 'goals', goal._id]" style="color: grey;"> {{goal.name}} </div>
 
         @for (habit of goal.habits; track $index){
-        <div> - {{habit.name}} </div>
+
+
+        <div class="habit-div"> 
+        <mat-icon
+          (click)="toggleCompleted(habit.latestProgress)"
+        >
+           {{ habit.latestProgress.completed ? 'task_alt' : 'radio_button_unchecked' }}
+        </mat-icon>
+          {{habit.name}} 
+        </div>
 
         }
         </div>
@@ -41,6 +51,14 @@ import { MatButtonModule } from '@angular/material/button';
       font-size: 18px;
       cursor: pointer; /* Changes mouse icon to hand */
     }
+
+  .habit-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
   .head-card {
     margin-top: 1px;
   }
@@ -52,6 +70,18 @@ export class OverviewComponent {
 
   #route = inject(ActivatedRoute);
 
+  toggleCompleted(progress: HabitProgress) {
+    console.log('toggling progress', progress);
+
+    progress.completed = !progress.completed;
+
+    this.goalsService.put_progress(progress).subscribe(response => {
+      if (response.success) {
+        console.log('progress updated: ', response.data);
+      }
+      // ### what if fails, retry or show error? 
+    });
+  }
 
  
 

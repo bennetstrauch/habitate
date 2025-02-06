@@ -1,7 +1,12 @@
 import { Component, effect, inject } from '@angular/core';
-import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
 import { intitialState, StateService } from '../../state.service';
-import { AuthenticationComponent } from "../../users/authentication.component";
+import { AuthenticationButtonComponent } from '../../users/authentication.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -9,34 +14,35 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-welcome',
   imports: [MatCardModule, MatButtonModule, RouterModule],
   template: `
-
     <div>
       <mat-card class="card">
-
         <mat-card-header>
           <p mat-card-title>Welcome to {{ title }}!</p>
         </mat-card-header>
-        <br>
+        <br />
 
         <mat-card-content>
           <p>
             Hey there! 😊
-            <br /> <br>
-            You are here to build up happy habits <br>
-            that help you pursue your goals <br>
-            in a <strong>natural, simple, and non-straining </strong> way ? 
+            <br />
+            <br />
+            You are here to build up happy habits <br />
+            that help you pursue your goals <br />
+            in a <strong>natural, simple, and non-straining </strong> way ?
           </p>
-          <br>
-          <p>
-            - Then you are in the perfectly right spot !
-          </p>
+          <br />
+          <p>- Then you are in the perfectly right spot !</p>
         </mat-card-content>
 
         <mat-card-actions>
-        
-          <button mat-raised-button color="primary" [routerLink]="['','register']"> Get Started </button>
+          <button
+            mat-raised-button
+            color="primary"
+            [routerLink]="['', 'register']"
+          >
+            Get Started
+          </button>
         </mat-card-actions>
-
       </mat-card>
     </div>
   `,
@@ -62,6 +68,4 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class WelcomeComponent {
   title = "' Habitate '";
-
-
 }

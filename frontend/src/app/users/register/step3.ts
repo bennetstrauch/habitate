@@ -1,7 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
 import { intitialState, StateService } from '../../state.service';
-import { AuthenticationComponent } from "../authentication.component";
+import { AuthenticationButtonComponent } from '../authentication.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -9,22 +14,18 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-register-step3',
   imports: [MatCardModule, MatButtonModule, RouterModule],
   template: `
-
     <div>
       <mat-card class="app-register-step3">
-
         <mat-card-content>
           <p>
-            To take out the strain <br> 
-            of sheduling something every time, <br> 
-            <br>
-            our daily meeting should be like tooth-brushing. <br>
+            To take out the strain <br />
+            of sheduling something every time, <br />
+            <br />
+            our daily meeting should be like tooth-brushing. <br />
             - Nothing to think about.
           </p>
-          <br>
-         
+          <br />
         </mat-card-content>
-
       </mat-card>
     </div>
   `,
@@ -61,6 +62,4 @@ import { MatButtonModule } from '@angular/material/button';
     `,
   ],
 })
-export class Step3 {
-  
-}
+export class Step3 {}

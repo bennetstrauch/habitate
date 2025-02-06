@@ -4,6 +4,8 @@ import { StandardResponse } from "../types/standardResponse";
 import { ErrorWithStatus } from "../utils/classes";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
+import { generateObjectIdAsString, getNewProgressForToday } from "../utils/functionsAndVariables";
+import { HabitProgressModel } from "../progress/progress.model";
 
 
 
@@ -32,9 +34,19 @@ export const addHabit: RequestHandler<{ goal_id: string; }, StandardResponse<num
     
     try {
         const { goal_id } = req.params;
+        const habit = req.body;
+        habit._id = generateObjectIdAsString();
+
+
+        const newProgress = getNewProgressForToday(habit._id);
+        const progress = await HabitProgressModel.create(newProgress);
+
+
+        habit.latestProgress = progress;
+
         const result = await GoalModel.updateOne(
             { _id: goal_id, createdByUserWithId: req.userId },
-            { $push: { habits: req.body } }
+            { $push: { habits: habit } }
         );
 
         res.status(200).json({ success: true, data: result.modifiedCount });

@@ -1,9 +1,17 @@
 import { Schema, model, InferSchemaType } from 'mongoose';
+import { HabitProgress, HabitProgressBase } from '../progress/progress.model';
 
 
 const habitSchema = new Schema({
     name: { type: String, required: true},
-    description: String
+    description: String,
+
+    latestProgress: {
+        type: Schema.Types.ObjectId,
+        ref: 'HabitProgress', // Reference to the HabitProgress model
+        default: null,
+        required: true
+    },
 })
 
 
@@ -33,13 +41,6 @@ const goalSchema = new Schema({
 
 
 
-export interface GoalBase extends EntityBase {}
-
-
-// export type GoalBase = InferSchemaType<typeof goalSchema>
-
-
-
 interface EntityBase {
     name: string,
     description?: string,
@@ -48,9 +49,12 @@ interface EntityBase {
 export interface HabitBase extends EntityBase {}
 
 export interface Habit extends HabitBase {
-    _id: string
+    _id: string,
+    latestProgress: HabitProgress;
 }
 
+
+export interface GoalBase extends EntityBase {}
 
 export interface Goal extends EntityBase {
     _id: string

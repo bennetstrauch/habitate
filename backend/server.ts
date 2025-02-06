@@ -8,6 +8,7 @@ import { goalRouter } from './goals/goals.router';
 import { checkToken } from './users/users.middleware';
 import { findSimilarGoals } from './database/queries';
 import { Goal, GoalModel } from './goals/goals.model';
+import { progressRouter } from './progress/progresses.router';
 
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(urlencoded())
 
 app.use('/users', userRouter)
 app.use('/goals', checkToken, goalRouter)
+app.use('/progresses', checkToken, progressRouter)
 
 app.use(routerNotFoundHandler)
 app.use(errorHandler)

@@ -4,6 +4,7 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.model'
 import { environment } from 'frontend/src/environments/environment.development';
 import { Router } from '@angular/router';
+import { HabitProgress } from '@backend/progress/progress.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class GoalsService {
   $habits = signal<Habit[]>([])
 
   $goals = signal<Goal[]>([])
+
 
 
 
@@ -72,6 +74,15 @@ export class GoalsService {
 
   remove_habit(goal_id: string, habit_id: string) {
     return this.#http.delete<StandardResponse<number>>(environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits' + '/' + habit_id);
+  }
+
+
+  get_progress(progress_id: string) {
+    return this.#http.get<StandardResponse<HabitProgress[]>>(environment.SERVER_URL + 'progresses' + '/' + progress_id);
+  }
+
+  put_progress(progress: HabitProgress) {
+    return this.#http.put<StandardResponse<number>>(environment.SERVER_URL + '/progresses' + '/' + progress._id, progress);
   }
 
 }

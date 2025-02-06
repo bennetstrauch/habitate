@@ -8,8 +8,10 @@ import { GoalsService } from '../../goals/goals.service';
 export const GoalsResolver : ResolveFn<Goal[]> = () => {
   const goalsService = inject(GoalsService)
 
+  
   return goalsService.get_goals().pipe(
     map(response => {
+
       if (response.success) {
         goalsService.$goals.set(response.data);
         return response.data;
@@ -18,5 +20,6 @@ export const GoalsResolver : ResolveFn<Goal[]> = () => {
       return [];
     })
   );
+
 
 }

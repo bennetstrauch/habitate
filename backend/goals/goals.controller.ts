@@ -1,117 +1,152 @@
 import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
-import { RequestHandler } from 'express'
-import { ErrorWithStatus } from '../utils/classes'
+import { RequestHandler } from "express";
+import { ErrorWithStatus } from "../utils/classes";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
+import { dateWithoutTime, getDateOnly } from "../utils/functionsAndVariables";
+import { createDailyHabitProgress } from "../progress/create.progress";
 
-
-type GetGoalsReqHandler = RequestHandler<unknown, StandardResponse<Goal[]>>
+type GetGoalsReqHandler = RequestHandler<
+  { createNewProgressesForToday?: boolean },
+  StandardResponse<Goal[]>
+>;
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
+  try {
+    let results: Goal[] = await getGoalsDB(req.userId);
 
-    try {
-        const results : Goal[] = await GoalModel.find(
-            { createdByUserWithId: req.userId },
-            { embedded_name: 0, __v: 0 }
-        )
-        res.json({ success: true, data: results });
-
-    } catch (err) {
-        next(err);
+    // #cleaner
+    for (const goal of results) {
+      if (goal.habits.length !== 0) {
+      
+        if (
+          dateWithoutTime(goal.habits[0].latestProgress.date) !== getDateOnly()
+        ) {
+          results = await createDailyHabitProgress(results);
+          break;
+        }
+      }
     }
+
+    res.json({ success: true, data: results });
+    
+  } catch (err) {
+    next(err);
+  }
 };
 
+export const getGoalsDB = async (userId: string | undefined) => {
+  // # how to check if createProgress needs to be triggered? frontend is responsible
+  // # , update: boolean)
 
-type GetGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<Goal | null>>
+  const results: Goal[] = await GoalModel.find(
+    { createdByUserWithId: userId },
+    { embedded_name: 0, __v: 0 }
+  ).populate({
+    path: "habits.latestProgress",
+    select: "-__v",
+  });
+
+  // # get progresses here and attach to goal? -might take longer?
+
+  return results;
+};
+
+type GetGoalReqHandler = RequestHandler<
+  { goal_id: string },
+  StandardResponse<Goal | null>
+>;
 
 export const getGoal: GetGoalReqHandler = async (req, res, next) => {
+  try {
+    const { goal_id } = req.params;
 
-    try {
-        const { goal_id } = req.params;
+    const goal = await findOneGoalHelper(goal_id, req.userId);
 
-        const goal = await findOneGoalHelper(goal_id, req.userId);
-
-        if (!goal) {
-            throw new ErrorWithStatus('Goal not found', 404);
-        }
-
-        res.json({ success: true, data: goal });
-
-    } catch (err) {
-        next(err);
+    if (!goal) {
+      throw new ErrorWithStatus("Goal not found", 404);
     }
+
+    res.json({ success: true, data: goal });
+  } catch (err) {
+    next(err);
+  }
 };
 
+export const postGoal: RequestHandler<
+  unknown,
+  StandardResponse<Goal>,
+  GoalBase
+> = async (req, res, next) => {
+  try {
+    const goalBase = req.body;
+    const embedded_name = await generateEmbedding(goalBase.name);
 
-export const postGoal: RequestHandler<unknown, StandardResponse<Goal>, GoalBase> = async (req, res, next) => {
+    const ranking = await findSimilarGoals(embedded_name);
+    console.log("ranking", ranking);
 
-    try {
-        const goalBase = req.body
-        const embedded_name = await generateEmbedding(goalBase.name)
+    const result = await GoalModel.create({
+      ...goalBase,
+      embedded_name,
+      createdByUserWithId: req.userId,
+      ranking,
+    });
 
-        const ranking = await findSimilarGoals(embedded_name)
-
-
-        const result = await GoalModel.create({
-            ...goalBase,
-            embedded_name,
-            createdByUserWithId: req.userId,
-            ranking
-        });
-
-
-        res.json({ success: true, data: result as Goal });
-
-    } catch (err) {
-        next(err);
-    }
+    res.json({ success: true, data: result as Goal });
+  } catch (err) {
+    next(err);
+  }
 };
 
-
-type PutGoalReqHandler = RequestHandler<{ goal_id: string; }, StandardResponse<number>, GoalBase>
+type PutGoalReqHandler = RequestHandler<
+  { goal_id: string },
+  StandardResponse<number>,
+  GoalBase
+>;
 
 export const putGoal: PutGoalReqHandler = async (req, res, next) => {
-    
-    try {
-        const { goal_id } = req.params;
-        const result = await GoalModel.updateOne(
-            { _id: goal_id, createdByUserWithId: req.userId },
-            { $set: req.body }
-        );
+  try {
+    const { goal_id } = req.params;
+    const result = await GoalModel.updateOne(
+      { _id: goal_id, createdByUserWithId: req.userId },
+      { $set: req.body }
+    );
 
-        res.status(200).json({ success: true, data: result.modifiedCount });
-
-    } catch (err) {
-        next(err);
-    }
+    res.status(200).json({ success: true, data: result.modifiedCount });
+  } catch (err) {
+    next(err);
+  }
 };
 
+export const deleteGoal: RequestHandler<
+  { goal_id: string },
+  StandardResponse<number>
+> = async (req, res, next) => {
+  try {
+    const { goal_id } = req.params;
 
+    const result = await GoalModel.deleteOne({
+      _id: goal_id,
+      createdByUserWithId: req.userId,
+    });
 
-export const deleteGoal: RequestHandler<{ goal_id: string; }, StandardResponse<number>> = async (req, res, next) => {
-    
-    try {
-        const { goal_id } = req.params;
-
-        const result = await GoalModel.deleteOne({ _id: goal_id, createdByUserWithId: req.userId });
-
-        res.status(200).json({ success: true, data: result.deletedCount });
-
-    } catch (err) {
-        next(err);
-    }
+    res.status(200).json({ success: true, data: result.deletedCount });
+  } catch (err) {
+    next(err);
+  }
 };
-
 
 // ## use in all getGoal / getHabit methods
 export const findOneGoalHelper = async (goal_id: string, userId?: string) => {
+  const query: { _id: string; createdByUserWithId?: string } = { _id: goal_id };
 
-    const query: { _id: string; createdByUserWithId?: string } = { _id: goal_id };
-    
-    if (userId) {
-        query.createdByUserWithId = userId;
-    }
+  if (userId) {
+    query.createdByUserWithId = userId;
+  }
 
-    return await GoalModel.findOne(query, { embedded_name: 0, __v: 0 }) as Goal | null;
-}
+  return (await GoalModel.findOne(query, {
+    embedded_name: 0,
+    __v: 0,
+  })) as Goal | null;
+};
