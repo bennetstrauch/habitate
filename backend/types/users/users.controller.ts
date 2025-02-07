@@ -57,6 +57,10 @@ export const login: LoginReqHandler = async (req, res, next) => {
     }
 
     // Generate token
+    if (!process.env.SECRET_KEY_FOR_SIGNING_TOKEN) {
+      throw new ErrorWithStatus("Secret not found", 401);
+    }
+
     const token = jwt.sign(
       { _id: user._id, name: user.name, email: user.email },
       process.env.SECRET_KEY_FOR_SIGNING_TOKEN,
