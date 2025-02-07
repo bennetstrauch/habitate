@@ -1,0 +1,38 @@
+name: Deploy Angular to S3 + CloudFront
+
+on:
+  push:
+    branches:
+      - main # Runs when pushing to 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies & build Angular
+        run: |
+          cd frontend  # Adjust if your Angular code is inside a folder
+          npm ci
+          npx ng build --configuration=production
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync frontend/dist/your-app s3://habitate-frontend-bucket --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id E3SBLBEKH3LS01 --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
