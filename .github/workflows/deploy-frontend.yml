@@ -25,7 +25,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/dist/your-app s3://habitate-frontend-bucket --delete
+          aws s3 sync frontend/dist/frontend s3://habitate-frontend-bucket --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
