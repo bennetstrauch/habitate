@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
-import { HabitProgress, HabitProgressModel } from "./progress.model";
+import { HabitProgress } from "./progress.model";
 import { StandardResponse } from "../types/standardResponse";
 import { toggleCompleted } from "./toggleValues.progress";
+import { HabitProgressModel } from "../database/schemas";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },

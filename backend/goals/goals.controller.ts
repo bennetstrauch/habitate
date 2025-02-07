@@ -1,4 +1,4 @@
-import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
+import { Goal, GoalBase } from "./goals.model";
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
 import { StandardResponse } from "../types/standardResponse";
@@ -6,6 +6,7 @@ import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
 import { dateWithoutTime, getDateOnly } from "../utils/functionsAndVariables";
 import { createDailyHabitProgress } from "../progress/create.progress";
+import { GoalModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
   { createNewProgressesForToday?: boolean },
