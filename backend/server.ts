@@ -1,11 +1,11 @@
 import express, { json, urlencoded } from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { userRouter } from "./types/users/users.router";
+import { userRouter } from "./users/users.router";
 import { errorHandler, routerNotFoundHandler } from "./utils/handlers";
 import { connectToDB } from "./database/connection";
 import { goalRouter } from "./goals/goals.router";
-import { checkToken } from "./types/users/users.middleware";
+import { checkToken } from "./users/users.middleware";
 import { findSimilarGoals } from "./database/queries";
 import { Goal, GoalModel } from "./goals/goals.model";
 import { progressRouter } from "./progress/progresses.router";

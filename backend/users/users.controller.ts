@@ -1,12 +1,12 @@
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../../utils/classes";
+import { ErrorWithStatus } from "../utils/classes";
 import { User, UserModel } from "./users.model";
-import { StandardResponse } from "../standardResponse";
+import { StandardResponse } from "../types/standardResponse";
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { LoginResponse } from "../login/loginResponse";
-import { LoginRequest } from "../login/loginRequest";
+import { LoginResponse } from "../types/login/loginResponse";
+import { LoginRequest } from "../types/login/loginRequest";
 
 type RegisterReqHandler = RequestHandler<
   unknown,

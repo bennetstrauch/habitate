@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { TokenExpiredError, verify } from "jsonwebtoken";
-import { Token } from "../token";
-import { ErrorWithStatus } from "../../utils/classes";
+import { Token } from "../types/token";
+import { ErrorWithStatus } from "../utils/classes";
 
 export const checkToken: RequestHandler = async (req, res, next) => {
   try {
