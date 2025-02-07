@@ -52,9 +52,10 @@ import { MatMenuModule } from '@angular/material/menu';
         </button>
       </mat-menu>
 
-      <button mat-button color="accent" [routerLink]="['', 'goals', 'add']">
+      <!-- implement## -->
+      <!-- <button mat-button color="accent" [routerLink]="['', 'goals', 'add']">
         Log
-      </button>
+      </button> -->
       }
     </div>
   `,

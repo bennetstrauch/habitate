@@ -51,7 +51,23 @@ import { GoalsService } from './goals.service';
 
         <mat-step>
 
-        <mat-checkbox [checked]="">{{habit.name}}</mat-checkbox>
+        <strong>{{habit.name}}</strong> <br>
+        <br>
+        @if (habit.latestProgress.completed) {
+            Congratulations! <br>
+
+            Did it feel good?  <br>
+        } @else {
+            No worries. <br>
+            Just tune in. <br>
+            <br>
+            What did hold you back from doing it? <br>
+            & <br>
+            <strong>What simple change</strong> to make it happen with ease tomorrow? <br>
+            <br>
+        }
+
+        
             <div>
             <button mat-button matStepperNext>
                 Next
