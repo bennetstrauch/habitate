@@ -1,6 +1,19 @@
 import { Schema, model, InferSchemaType } from 'mongoose';
 import { Goal, Habit } from '../goals/goals.model';
 import { HabitProgress } from '../progress/progress.model';
+import { User } from '../users/users.model';
+
+
+const userSchema = new Schema<User>({
+    name: { type: String, required: true, minlength: 3 },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true, minlength: 6 },
+
+    reflectionTrigger: { type: String, required: true}
+})
+
+export const UserModel = model<User>('user', userSchema)
+
 
 const habitSchema = new Schema({
     name: { type: String, required: true},

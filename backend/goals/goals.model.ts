@@ -1,9 +1,6 @@
 import { HabitProgress } from '../progress/progress.model';
 
 
-
-
-
 interface EntityBase {
     name: string,
     description?: string,
