@@ -21,7 +21,7 @@ jobs:
         run: |
           cd frontend  # Adjust if your Angular code is inside a folder
           npm ci
-          ng run build --configuration=production
+          npx run build --configuration=production
 
       - name: Deploy to S3
         run: |
