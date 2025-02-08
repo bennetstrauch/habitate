@@ -21,7 +21,7 @@ app.use(urlencoded());
 app.use("/users", userRouter);
 app.use("/goals", checkToken, goalRouter);
 app.use("/progresses", checkToken, progressRouter);
-app.post("/health", healthCheck)
+app.get("/health", healthCheck)
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);
