@@ -46,7 +46,7 @@ export const login: LoginReqHandler = async (req, res, next) => {
 
   try {
     // Find user
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       throw new ErrorWithStatus("Invalid email", 401);
     }
