@@ -9,6 +9,7 @@ import { checkToken } from "./users/users.middleware";
 import { findSimilarGoals } from "./database/queries";
 import { Goal, GoalModel } from "./goals/goals.model";
 import { progressRouter } from "./progress/progresses.router";
+import { healthCheck } from "./utils/healthcheck.router";
 
 const app = express();
 
@@ -22,19 +23,12 @@ app.use(urlencoded());
 app.use("/users", userRouter);
 app.use("/goals", checkToken, goalRouter);
 app.use("/progresses", checkToken, progressRouter);
+app.post("/health", healthCheck)
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);
 
 app.listen(3000, () => console.log("Server listening on Port 3000"));
 
-async function test() {
-  const vector = Array.from({ length: 1536 }, () => Math.random());
-  const goal = (await GoalModel.findOne({
-    _id: "676d5eaa1aa4b1c31543e47b",
-  })) as Goal;
-  console.log("goal", goal, "embeddedName:", goal.embedded_name);
-  findSimilarGoals(goal.embedded_name);
-}
 
 // test()
