@@ -6,8 +6,6 @@ import { errorHandler, routerNotFoundHandler } from "./utils/handlers";
 import { connectToDB } from "./database/connection";
 import { goalRouter } from "./goals/goals.router";
 import { checkToken } from "./users/users.middleware";
-import { findSimilarGoals } from "./database/queries";
-import { Goal, GoalModel } from "./goals/goals.model";
 import { progressRouter } from "./progress/progresses.router";
 import { healthCheck } from "./utils/healthcheck.router";
 
