@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
-import { Goal, GoalModel, Habit } from "./goals.model";
+import {  Habit } from "./goals.model";
 import { StandardResponse } from "../types/standardResponse";
 import { ErrorWithStatus } from "../utils/classes";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
 import { generateObjectIdAsString, getNewProgressForToday } from "../utils/functionsAndVariables";
-import { HabitProgressModel } from "../progress/progress.model";
+import { GoalModel, HabitProgressModel } from "../database/schemas";
 
 
 

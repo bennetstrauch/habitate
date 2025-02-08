@@ -1,4 +1,5 @@
-import { GoalModel } from "../goals/goals.model";
+import { GoalModel } from "./schemas";
+
 
 export const embeddedName = 'name'
 export const indexName = 'vector_index_goals'

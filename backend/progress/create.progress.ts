@@ -1,10 +1,8 @@
-import { getGoalsDB } from "../goals/goals.controller";
-import { Goal, GoalModel } from "../goals/goals.model";
+import { GoalModel, HabitProgressModel } from "../database/schemas";
+import { Goal } from "../goals/goals.model";
 import { getNewProgressForToday } from "../utils/functionsAndVariables";
 import {
-  HabitProgress,
-  HabitProgressBase,
-  HabitProgressModel,
+  HabitProgress
 } from "./progress.model";
 
 // create habit.latestProgress when creating new Habit !!! #####
