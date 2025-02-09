@@ -1,10 +1,10 @@
-import { Goal, GoalBase } from "./goals.model";
+import { Goal, GoalBase } from "./goals.types";
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { dateWithoutTime, getDateOnly } from "../utils/functionsAndVariables";
+import { dateToLuxonWithoutTime, dateWithoutTime, getDateOnly, getLocalLuxonDate } from "../utils/functionsAndVariables";
 import { createDailyHabitProgress } from "../progress/create.progress";
 import { GoalModel } from "../database/schemas";
 
@@ -14,24 +14,28 @@ type GetGoalsReqHandler = RequestHandler<
 >;
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
+  const { timezone = "UTC" } = req.query as { timezone?: string };
+
   try {
     let results: Goal[] = await getGoalsDB(req.userId);
 
     // #cleaner
     for (const goal of results) {
       if (goal.habits.length !== 0) {
-      
-        if (
-          dateWithoutTime(goal.habits[0].latestProgress.date) !== getDateOnly()
-        ) {
-          results = await createDailyHabitProgress(results);
+
+        const latestProgressDate =  dateToLuxonWithoutTime(goal.habits[0].latestProgress.date);
+        const localDate = getLocalLuxonDate(timezone);  
+
+        console.log("latestProgressDate", latestProgressDate, "localDate", localDate);
+
+        if (latestProgressDate < localDate) {
+          results = await createDailyHabitProgress(results, timezone);
           break;
         }
       }
     }
 
     res.json({ success: true, data: results });
-    
   } catch (err) {
     next(err);
   }

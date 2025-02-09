@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
-import { User } from "./users.model";
+import { User } from "./users.types";
 import { StandardResponse } from "../types/standardResponse";
 
 import bcrypt from "bcrypt";

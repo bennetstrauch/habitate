@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Resolve, ResolveFn } from '@angular/router';
 import { map } from 'rxjs/operators';
-import { Goal } from '@backend/goals/goals.model';
+import { Goal } from '@backend/goals/goals.types';
 import { GoalsService } from '../../goals/goals.service';
 
 

@@ -7,7 +7,7 @@ import { connectToDB } from "./database/connection";
 import { goalRouter } from "./goals/goals.router";
 import { checkToken } from "./users/users.middleware";
 import { progressRouter } from "./progress/progresses.router";
-import { healthCheck } from "./utils/healthcheck.router";
+import { healthCheck } from "./utils/healthcheck";
 
 const app = express();
 
@@ -21,12 +21,11 @@ app.use(urlencoded());
 app.use("/users", userRouter);
 app.use("/goals", checkToken, goalRouter);
 app.use("/progresses", checkToken, progressRouter);
-app.get("/health", healthCheck)
+app.get("/health", healthCheck);
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);
 
 app.listen(3000, () => console.log("Server listening on Port 3000"));
-
 
 // test()

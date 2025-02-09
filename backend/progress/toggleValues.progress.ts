@@ -1,7 +1,7 @@
 // ### not needed
 
 import { HabitProgressModel } from "../database/schemas";
-import { HabitProgress } from "./progress.model";
+import { HabitProgress } from "./progress.types";
 
 export async function toggleCompleted(
   habitId: string,

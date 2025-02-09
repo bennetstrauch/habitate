@@ -3,7 +3,7 @@ name: Deploy Angular to S3 + CloudFront
 on:
   push:
     branches:
-      - main # Runs when pushing to 'main' branch
+      - main # Runs when pushing to 'main' branch --> should only run if fe is effected ###
 
 jobs:
   deploy:

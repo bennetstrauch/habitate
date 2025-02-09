@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
-import { HabitProgress } from "./progress.model";
+import { HabitProgress } from "./progress.types";
 import { StandardResponse } from "../types/standardResponse";
 import { toggleCompleted } from "./toggleValues.progress";
 import { HabitProgressModel } from "../database/schemas";
@@ -53,8 +53,6 @@ export const getProgress: GetProgressReqHandler = async (req, res, next) => {
     next(err);
   }
 };
-
-
 
 // ## edit chatgpt suggestions, needed?
 type GetProgressesReqHandler = RequestHandler<

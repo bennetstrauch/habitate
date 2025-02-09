@@ -1,10 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Goal, Habit } from '@backend/goals/goals.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { HabitProgress } from '@backend/progress/progress.model';
+import { HabitProgress } from '@backend/progress/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
 
 // ## wrap every component in div or matcard with card class?
@@ -101,7 +100,6 @@ export class OverviewComponent {
     }
 
     console.log(this.goalsService.$goals(), 'goals');
-    // this.#goalsService.$habits.set(allHabits);
   }
 }
 

@@ -1,13 +1,11 @@
 import OpenAI from "openai";
-import { Goal } from "../goals.model";
+import { Goal } from "../goals.types";
 import { openaiClient } from "./embedding";
 import { findOneGoalHelper } from "../goals.controller";
 
-
-
 const context: OpenAI.Chat.ChatCompletionMessageParam[] = [
-    {
-    role: 'system',
+  {
+    role: "system",
     content: `The user is using an app 'habitate' that helps him to define goals 
     and for those goals he can define habits.
     He is reaching out to you, because he needs help to define a good habit for a goal he already defined.
@@ -30,71 +28,67 @@ const context: OpenAI.Chat.ChatCompletionMessageParam[] = [
     Definitely check the name, description and the habits he already defined for it,
     so you can take them into account when helping him to define a new one.
 
-    `
-    }
-    ];
+    `,
+  },
+];
 
-    const currentGoalId = ''
-   
+const currentGoalId = "";
 
 export const handleAddHabitHelp = async (goal_id: string) => {
-    console.log('Handling habit help for goal', goal_id)
+  console.log("Handling habit help for goal", goal_id);
 
-    if(context.length === 1){
-        context.push({
-            role: 'user',
-            content: `Could you help me to define a habit for my goal?
-                goal_id: ${goal_id}`
-            })
-    }
-    const response = await openaiClient.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: context,
-        tools: [tool_findOneGoalHelper]
-       });
-       
-       if (response.choices[0].finish_reason === 'tool_calls') {
-        const toolCall = response.choices[0].message.tool_calls![0];
-        const toolName = toolCall.function.name
+  if (context.length === 1) {
+    context.push({
+      role: "user",
+      content: `Could you help me to define a habit for my goal?
+                goal_id: ${goal_id}`,
+    });
+  }
+  const response = await openaiClient.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: context,
+    tools: [tool_findOneGoalHelper],
+  });
 
-        const stringArguments = toolCall.function.arguments;
-        const parsedArguments = JSON.parse(stringArguments);
+  if (response.choices[0].finish_reason === "tool_calls") {
+    const toolCall = response.choices[0].message.tool_calls![0];
+    const toolName = toolCall.function.name;
 
-        const callResult = await toolNamesToFunctionMap[toolName as keyof typeof toolNamesToFunctionMap](parsedArguments);
-        
-        context.push({
-            role: 'tool',
-            content: JSON.stringify(callResult),
-            tool_call_id: toolCall.id
-        }); 
+    const stringArguments = toolCall.function.arguments;
+    const parsedArguments = JSON.parse(stringArguments);
 
-    } else {
-        context.push({
-            role: 'assistant',
-            content: response.choices[0]?.message?.content
-        });
+    const callResult = await toolNamesToFunctionMap[
+      toolName as keyof typeof toolNamesToFunctionMap
+    ](parsedArguments);
 
+    context.push({
+      role: "tool",
+      content: JSON.stringify(callResult),
+      tool_call_id: toolCall.id,
+    });
+  } else {
+    context.push({
+      role: "assistant",
+      content: response.choices[0]?.message?.content,
+    });
+  }
 
-    }
-
-    return null
-}
-
+  return null;
+};
 
 export const toolNamesToFunctionMap = {
-    findOneGoalHelper
-}
+  findOneGoalHelper,
+};
 
-
-export const tool_findOneGoalHelper = { 
-    type: 'function' as const,
-    function: { 
-        name: 'findOneGoalHelper',
-        description: 'Returns a goal object by its id',
-        parameters: { 
-            type: 'object',
-            properties: { goal_id: { type: 'string', description: 'goal id' }},
-            required: ['goal_id'] 
-        }
-    }
-}
+export const tool_findOneGoalHelper = {
+  type: "function" as const,
+  function: {
+    name: "findOneGoalHelper",
+    description: "Returns a goal object by its id",
+    parameters: {
+      type: "object",
+      properties: { goal_id: { type: "string", description: "goal id" } },
+      required: ["goal_id"],
+    },
+  },
+};
