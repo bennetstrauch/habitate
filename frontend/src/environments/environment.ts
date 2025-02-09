@@ -1,3 +1,4 @@
 export const environment = {
-    SERVER_URL: 'https://habitate.onrender.com'
+  production: true,
+  SERVER_URL: 'https://habitate.onrender.com',
 };
