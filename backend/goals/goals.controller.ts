@@ -23,8 +23,8 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
     for (const goal of results) {
       if (goal.habits.length !== 0) {
 
-        const latestProgressDate =  dateToLuxonWithoutTime(goal.habits[0].latestProgress.date);
-        const localDate = getLocalLuxonDate(timezone);  
+        const latestProgressDate =  goal.habits[0].latestProgress.date.toISOString().split("T")[0];
+        const localDate = getDateOnly(timezone);  
 
         console.log("latestProgressDate", latestProgressDate, "localDate", localDate);
 
