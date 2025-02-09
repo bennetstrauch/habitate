@@ -28,6 +28,7 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 
         console.log("latestProgressDate", latestProgressDate, "localDate", localDate);
 
+        console.log('latestProgressDate < localDate', latestProgressDate < localDate);
         if (latestProgressDate < localDate) {
           results = await createDailyHabitProgress(results, timezone);
           break;
