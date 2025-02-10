@@ -128,9 +128,9 @@ import { AddHelpComponent } from './addHelp.component';
   `,
   styles: `
     .mat-stepper-horizontal {
-  width: 100%; /* Ensures it does not overflow */
-  max-width: 80vw; /* Prevents it from exceeding the screen width */
-  overflow-x: hidden; /* Hides any potential overflow */
+      width: fit
+      max-width: 80vw; /* Prevents it from exceeding the screen width */
+      overflow-x: hidden; /* Hides any potential overflow */
 }
   `,
 })
