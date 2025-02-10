@@ -127,11 +127,7 @@ import { AddHelpComponent } from './addHelp.component';
     </mat-stepper>
   `,
   styles: `
-    .mat-stepper-horizontal {
-      width: fit
-      max-width: 80vw; /* Prevents it from exceeding the screen width */
-      overflow-x: hidden; /* Hides any potential overflow */
-}
+    
   `,
 })
 export class AddHabitComponent {

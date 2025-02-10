@@ -1,26 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 .card {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
 
-    max-width: 500px;
-    padding: 1rem;
-    margin: 1rem;
-    border-radius: 8px;
+  max-width: 500px;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 8px;
 
-    background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-
-
-
-  
-
+.mat-stepper-horizontal {
+  width: fit;
+  max-width: 80vw; /* Prevents it from exceeding the screen width */
+  overflow-x: hidden; /* Hides any potential overflow */
+}
