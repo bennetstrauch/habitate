@@ -4,7 +4,7 @@ import { ErrorWithStatus } from "../utils/classes";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { dateToLuxonWithoutTime, dateWithoutTime, getDateOnly, getLocalLuxonDate } from "../utils/functionsAndVariables";
+import { getDateOnly } from "../utils/functionsAndVariables";
 import { createDailyHabitProgress } from "../progress/create.progress";
 import { GoalModel } from "../database/schemas";
 
@@ -23,12 +23,17 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
     for (const goal of results) {
       if (goal.habits.length !== 0) {
 
+        // # if no progress for today, create, for test
+        // if(goal.habits[0].latestProgress === null) {
+        //   results = await createDailyHabitProgress(results, timezone);
+        //   break;
+        // }
         const latestProgressDate =  goal.habits[0].latestProgress.date.toISOString().split("T")[0];
         const localDate = getDateOnly(timezone);  
 
         console.log("latestProgressDate", latestProgressDate, "localDate", localDate);
-
         console.log('latestProgressDate < localDate', latestProgressDate < localDate);
+
         if (latestProgressDate < localDate) {
           results = await createDailyHabitProgress(results, timezone);
           break;

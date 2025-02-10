@@ -5,8 +5,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
 .card {
+    display: flex;
     align-items: center;
     text-align: center;
+    flex-direction: column;
 
     max-width: 500px;
     padding: 1rem;
@@ -16,6 +18,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+
+
 
   
 

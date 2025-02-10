@@ -126,7 +126,13 @@ import { AddHelpComponent } from './addHelp.component';
       </mat-step>
     </mat-stepper>
   `,
-  styles: ``,
+  styles: `
+    .mat-stepper-horizontal {
+  width: 100%; /* Ensures it does not overflow */
+  max-width: 80vw; /* Prevents it from exceeding the screen width */
+  overflow-x: hidden; /* Hides any potential overflow */
+}
+  `,
 })
 export class AddHabitComponent {
   #goalsService = inject(GoalsService);

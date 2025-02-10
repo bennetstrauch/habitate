@@ -38,6 +38,9 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
   template: `
     <mat-stepper class="card" linear #stepper>
       <mat-step>
+      <ng-template matStepperIcon="number">
+      <!-- Empty template removes the number -->
+    </ng-template>
         <p>
           Take your time for this.
           <br />
@@ -183,8 +186,26 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
       </mat-step>
     </mat-stepper>
   `,
-  // ### hiding does not work
-  styles: [``],
+  // ### remove all icons from stepper header
+  styles: [`
+
+::ng-deep .mat-horizontal-stepper-header-container {
+  display: none !important;
+}
+
+@media screen and (max-width: 768px) {
+  ::ng-deep .mat-stepper {
+    max-width: 100vw important!;  /* Ensure it does not exceed screen width */
+  width: 100%;        /* Take full available width */
+  margin: auto; 
+  }
+
+  ::ng-deep .mat-step {
+    padding: 8px;
+  }
+}
+
+    `],
 })
 export class AddGoalComponent {
   #goalsService = inject(GoalsService);
