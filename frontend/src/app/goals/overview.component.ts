@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { HabitProgress } from '@backend/progress/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
+import { ProgressService } from '../progresses/progresses.service';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -29,6 +30,8 @@ import { CommonModule, NgClass } from '@angular/common';
           class="habit-div"
           [ngClass]="{ 'completed-habit': habit.latestProgress.completed }"
         >
+        <!-- ## make like english -->
+        @if (! progressService.$displayStats()) {
           <mat-icon (click)="toggleCompleted(habit.latestProgress)">
             {{
               habit.latestProgress.completed
@@ -36,6 +39,13 @@ import { CommonModule, NgClass } from '@angular/common';
                 : 'radio_button_unchecked'
             }}
           </mat-icon>
+        } @else {
+          <!-- ## make more readable with let -->
+           <button mat-button class="progress-display">
+            <strong>{{progressService.$progressStats().get(habit._id)?.completed}}</strong>/{{progressService.$progressStats().get(habit._id)?.total}}
+          </button>
+        }
+
           {{ habit.name }}
         </div>
 
@@ -59,7 +69,7 @@ import { CommonModule, NgClass } from '@angular/common';
   .habit-div {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     gap: 7px;
   }
 
@@ -70,11 +80,19 @@ import { CommonModule, NgClass } from '@angular/common';
   .completed-habit {
     color: darkgreen;
   }
+
+  .progress-display {
+  padding: 2px 4x; /* Minimal padding for content */
+  margin: 0;
+  line-height: 1; /* Remove extra line height spacing */
+  height: auto; /* Ensure no extra height */
+}
   `,
 })
 export class OverviewComponent {
   #router = inject(Router);
-  goalsService = inject(GoalsService);
+  readonly goalsService = inject(GoalsService);
+  readonly progressService = inject(ProgressService);
 
   #route = inject(ActivatedRoute);
 

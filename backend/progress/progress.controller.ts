@@ -1,9 +1,18 @@
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
-import { HabitProgress } from "./progress.types";
+import { HabitProgress, ProgressStat } from "./progress.types";
 import { StandardResponse } from "../types/standardResponse";
 import { toggleCompleted } from "./toggleValues.progress";
 import { HabitProgressModel } from "../database/schemas";
+import {
+  startOfWeek,
+  startOfMonth,
+  endOfWeek,
+  endOfMonth,
+  subWeeks,
+} from "date-fns";
+import { idsToArrayOfObjectIds } from "../utils/functionsAndVariables";
+import { ObjectId } from "../types/ObjectId.type";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },
@@ -45,7 +54,7 @@ export const getProgress: GetProgressReqHandler = async (req, res, next) => {
     )) as HabitProgress | null;
 
     if (!progress) {
-      throw new ErrorWithStatus("Progress not found", 404);
+      throw new ErrorWithStatus("getProgressError: Progress not found", 404);
     }
 
     res.json({ success: true, data: progress });
@@ -101,6 +110,78 @@ export const putProgress: PutProgressReqHandler = async (req, res, next) => {
     );
 
     res.status(200).json({ success: true, data: result.modifiedCount });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+const getProgressStatsForDateRange = async (
+  habit_ids: ObjectId[],
+  startDate: Date,
+  endDate: Date
+) => {
+
+  console.log('habit_ids', habit_ids, 'startDate', startDate, 'endDate', endDate);
+
+  const progressStats = await HabitProgressModel.aggregate([
+    {
+      $match: {
+        // do i have to convert habit_ids to ObjectIds? ##
+        habit_id: {
+          $in: habit_ids,
+          // $in: habit_ids.map((id) => new mongoose.Types.ObjectId(id)),
+        },
+        date: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $group: {
+        _id: "$habit_id",
+        total: { $sum: 1 }, // Count all progress records
+        completed: { $sum: { $cond: ["$completed", 1, 0] } }, // Count only completed ones
+      },
+    },
+  ]);
+
+  return progressStats as ProgressStat[];
+};
+
+type GetProgressStatsReqHandler = RequestHandler<
+  undefined,
+  StandardResponse<ProgressStat[]>,
+  undefined,
+  { period: "week" | "month"; offset: string; habit_ids: string }
+>;
+
+
+export const getProgressStats: GetProgressStatsReqHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { period, offset, habit_ids } = req.query; // "week" or "month"
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (period === "month") {
+      startDate = startOfMonth(new Date());
+      endDate = endOfMonth(new Date());
+    } else {
+      const offsetAsInt = parseInt(offset as string) || 0;
+      startDate = startOfWeek(subWeeks(new Date(), offsetAsInt));
+      endDate = endOfWeek(subWeeks(new Date(), offsetAsInt));
+    }
+
+    const progressStats = await getProgressStatsForDateRange(
+      idsToArrayOfObjectIds(habit_ids),
+      startDate,
+      endDate
+    );
+
+    res.json({ success: true, data: progressStats });
   } catch (err) {
     next(err);
   }

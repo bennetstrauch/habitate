@@ -14,6 +14,7 @@ const userSchema = new Schema<User>({
   },
   password: { type: String, required: true, minlength: 6 },
 
+  // # type: { name: string, completedYesterday: boolean }
   reflectionTrigger: { type: String, required: true },
 });
 

@@ -1,10 +1,14 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.types';
-import { environment } from 'frontend/src/environments/environment.development';
+import { environment } from 'frontend/src/environments/environment';
 import { Router } from '@angular/router';
-import { HabitProgress } from '@backend/progress/progress.types';
+import {
+  HabitProgress,
+  ProgressStat,
+  ProgressStatBase,
+} from '@backend/progress/progress.types';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +18,17 @@ export class GoalsService {
 
   #http = inject(HttpClient);
 
-  $habits = signal<Habit[]>([]);
-
   $goals = signal<Goal[]>([]);
+
+  $habitIds = computed(() =>
+    this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
+  );
+
+
+
+  // #does it trigger reload of component? if yes, or even anyway: seperate service!
+ 
+
 
   getTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -43,7 +55,7 @@ export class GoalsService {
 
   get_goals(page: number = 1) {
     const userTimezone = this.getTimezone();
-   
+
     return this.#http.get<StandardResponse<Goal[]>>(
       environment.SERVER_URL + '/goals' + '?timezone=' + userTimezone
     );
@@ -80,7 +92,7 @@ export class GoalsService {
   add_habit(goal_id: string, habit: HabitBase) {
     return this.#http.post<StandardResponse<number>>(
       environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits',
-      {habit, timezone: this.getTimezone()}
+      { habit, timezone: this.getTimezone() }
     );
   }
 
@@ -97,6 +109,7 @@ export class GoalsService {
     );
   }
 
+  // #seperate in own service
   get_progress(progress_id: string) {
     return this.#http.get<StandardResponse<HabitProgress[]>>(
       environment.SERVER_URL + 'progresses' + '/' + progress_id
@@ -109,4 +122,6 @@ export class GoalsService {
       progress
     );
   }
+
+ 
 }

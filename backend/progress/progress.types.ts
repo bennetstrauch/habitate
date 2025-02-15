@@ -10,3 +10,11 @@ export interface HabitProgress extends HabitProgressBase {
 
   habit_id: string;
 }
+
+export interface ProgressStatBase {
+  total: number;
+  completed: number;
+}
+export interface ProgressStat extends ProgressStatBase {  
+  _id: string;
+}
