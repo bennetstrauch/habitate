@@ -5,7 +5,7 @@ import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
 import { getDateOnly } from "../utils/functionsAndVariables";
-import { createDailyHabitProgress } from "../progress/create.progress";
+import { createDailyHabitProgressForGoals } from "../progress/create.progress.cron";
 import { GoalModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
@@ -22,22 +22,31 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
     // #cleaner
     for (const goal of results) {
       if (goal.habits.length !== 0) {
-
         // # if no progress for today, create, for test
         // if(goal.habits[0].latestProgress === null) {
         //   results = await createDailyHabitProgress(results, timezone);
         //   break;
         // }
-        const latestProgressDate =  goal.habits[0].latestProgress.date.toISOString().split("T")[0];
-        const localDate = getDateOnly(timezone);  
+        const latestProgressDate = goal.habits[0].latestProgress.date
+          .toISOString()
+          .split("T")[0];
+        const localDate = getDateOnly(timezone);
 
-        console.log("latestProgressDate", latestProgressDate, "localDate", localDate);
-        console.log('latestProgressDate < localDate', latestProgressDate < localDate);
+        console.log(
+          "latestProgressDate",
+          latestProgressDate,
+          "localDate",
+          localDate
+        );
+        console.log(
+          "latestProgressDate < localDate",
+          latestProgressDate < localDate
+        );
 
         if (latestProgressDate < localDate) {
-          results = await createDailyHabitProgress(results, timezone);
-          break;
+          results = await createDailyHabitProgressForGoals(results, new Date(localDate));
         }
+        break;
       }
     }
 

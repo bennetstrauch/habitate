@@ -9,6 +9,8 @@ import { checkToken } from "./users/users.middleware";
 import { progressRouter } from "./progress/progresses.router";
 import { healthCheck } from "./utils/healthcheck";
 
+import "./progress/create.progress.cron";
+
 const app = express();
 
 connectToDB();

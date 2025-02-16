@@ -18,3 +18,13 @@ export interface ProgressStatBase {
 export interface ProgressStat extends ProgressStatBase {  
   _id: string;
 }
+
+
+
+export interface dailyLog {
+  _id: string;
+  user_id: string;
+
+  date: Date;
+  progresses: HabitProgress[];
+}

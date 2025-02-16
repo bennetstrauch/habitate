@@ -13,6 +13,7 @@ const userSchema = new Schema<User>({
     trim: true,
   },
   password: { type: String, required: true, minlength: 6 },
+  timezone: { type: String, required: true },
 
   // # type: { name: string, completedYesterday: boolean }
   reflectionTrigger: { type: String, required: true },
@@ -56,12 +57,17 @@ const goalSchema = new Schema({
 
 export const GoalModel = model<Goal>("goal", goalSchema);
 
+
+
 const habitProgressSchema = new Schema({
   habit_id: { type: Schema.Types.ObjectId, ref: "Habit", required: true },
   date: { type: Date, required: true }, // Use ISO date without time for daily tracking
   completed: { type: Boolean, required: true }, // Indicates if the habit was done on this date
   attempted: { type: Boolean, required: true }, // Indicates if the habit was attempted on this date
 });
+
+
+// ##consider adding an index on habit_id and date
 
 export const HabitProgressModel = model<HabitProgress>(
   "HabitProgress",
