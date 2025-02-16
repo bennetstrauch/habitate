@@ -21,10 +21,13 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
     let results: Goal[] = await getGoalsDB(req.userId);
 
     //#do wee need await, I guess not?
-    UserModel.updateOne(
+    const result = await UserModel.updateOne(
       { _id: req.userId, timezone: { $ne: timezone } }, 
       { $set: { timezone: timezone } }
     );
+
+    console.log("timezone", timezone, 'updating timezone', result.modifiedCount);
+
     
 
 
