@@ -6,7 +6,7 @@ import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
 import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
 import { createDailyHabitProgressForGoals } from "../progress/create.progress.cron";
-import { GoalModel } from "../database/schemas";
+import { GoalModel, UserModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
   { createNewProgressesForToday?: boolean },
@@ -17,9 +17,18 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   const { timezone = "UTC" } = req.query as { timezone?: string };
 
   try {
+
     let results: Goal[] = await getGoalsDB(req.userId);
 
-    // #cleaner
+    //#do wee need await, I guess not?
+    UserModel.updateOne(
+      { _id: req.userId, timezone: { $ne: timezone } }, 
+      { $set: { timezone: timezone } }
+    );
+    
+
+
+    // #cleaner, needed if cron-job? not really??? ###
     for (const goal of results) {
       if (goal.habits.length !== 0) {
         // # if no progress for today, create, for test
