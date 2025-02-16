@@ -17,6 +17,7 @@ function getTimeZonesStartingNewDay() {
 }
 
 // Runs every hour, on the hour
+// # should we check for existing progress and only create if not existing?
 cron.schedule("0 * * * *", async () => {
   console.log("Running create progress cron job at: ", new Date());
 

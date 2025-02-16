@@ -5,6 +5,8 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { getTimezone } from '../utils/utils';
+import { Habit } from '@backend/goals/goals.types';
 
 @Injectable({
   providedIn: 'root'
@@ -63,7 +65,8 @@ export class ProgressService {
    getProgressStats(period: 'week' | 'month', offset = 0, habitIds: string[]) {
     const params = new HttpParams()
       .set('period', period)
-      .set('offset', offset.toString()) // #standardize with BE
+      .set('offset', offset.toString()) 
+      .set('timezone', getTimezone()) // #standardize with BE
       .set('habit_ids', habitIds.join(',')); // Converting array to CSV format
 
     return this.#http.get<StandardResponse<ProgressStat[]>>(

@@ -29,7 +29,7 @@ export class GoalsService {
   // #does it trigger reload of component? if yes, or even anyway: seperate service!
  
 
-
+// ## replace with utils
   getTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   update_goals() {

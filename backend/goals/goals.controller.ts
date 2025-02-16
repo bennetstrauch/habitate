@@ -13,36 +13,31 @@ type GetGoalsReqHandler = RequestHandler<
   StandardResponse<Goal[]>
 >;
 
+// #refactor
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   const { timezone = "UTC" } = req.query as { timezone?: string };
 
   try {
 
-    let results: Goal[] = await getGoalsDB(req.userId);
+    let userGoals: Goal[] = await getGoalsDB(req.userId);
 
-    //#do wee need await, I guess not?
-    const result = await UserModel.updateOne(
-      { _id: req.userId, timezone: { $ne: timezone } }, 
-      { $set: { timezone: timezone } }
-    );
-
-    console.log("timezone", timezone, 'updating timezone', result.modifiedCount);
-
+ 
     
 
 
     // #cleaner, needed if cron-job? not really??? ###
-    for (const goal of results) {
+    for (const goal of userGoals) {
       if (goal.habits.length !== 0) {
-        // # if no progress for today, create, for test
-        // if(goal.habits[0].latestProgress === null) {
-        //   results = await createDailyHabitProgress(results, timezone);
-        //   break;
-        // }
-        const latestProgressDate = goal.habits[0].latestProgress.date
+      
+        let latestProgressDate = '';
+
+        if (goal.habits[0].latestProgress) {
+        latestProgressDate = goal.habits[0].latestProgress.date
           .toISOString()
           .split("T")[0];
-        const localDate = getDateOnlyForTimeZone(timezone);
+      }
+
+      const localDate = getDateOnlyForTimeZone(timezone);
 
         console.log(
           "latestProgressDate",
@@ -56,8 +51,8 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
         );
 
         if (latestProgressDate < localDate) {
-          results = await createDailyHabitProgressForGoals(
-            results,
+          userGoals = await createDailyHabitProgressForGoals(
+            userGoals,
             new Date(localDate)
           );
         }
@@ -65,7 +60,17 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
       }
     }
 
-    res.json({ success: true, data: results });
+    res.json({ success: true, data: userGoals });
+
+       //#move to bottom and modify fe to only send timezone if different
+       const updateTimezoneResult = await UserModel.updateOne(
+        { _id: req.userId, timezone: { $ne: timezone } }, 
+        { $set: { timezone: timezone } }
+      );
+  
+      console.log("timezone", timezone, 'updating timezone', updateTimezoneResult.modifiedCount);
+  
+    
   } catch (err) {
     next(err);
   }

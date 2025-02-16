@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Habit, HabitBase } from '@backend/goals/goals.types';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { MatSliderModule } from '@angular/material/slider';
 import {
   MatFormField,
   MatFormFieldModule,
@@ -26,6 +27,7 @@ import { AddHelpComponent } from './addHelp.component';
     MatStepperModule,
     MatFormField,
     MatLabel,
+    MatSliderModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -46,7 +48,7 @@ import { AddHelpComponent } from './addHelp.component';
       <mat-step>
         <p>
           A small step towards your goal. <br />
-          You feel you can do it day by day without strain. <br />
+          You feel you can do it without strain. <br />
           Should require 1 - 30 minutes. <br />
         </p>
 
@@ -89,6 +91,43 @@ import { AddHelpComponent } from './addHelp.component';
               placeholder="Enter description"
             />
           </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button
+              mat-button
+              matStepperNext
+              [disabled]="habitForm.step2.invalid"
+            >
+              Next
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+
+      <mat-step [stepControl]="habitForm.step3">
+        <form [formGroup]="habitForm.step3">
+          <!-- <mat-form-field> -->
+            <mat-label>How often do you intend to to this habit?</mat-label>
+            <br> <br>
+           <!-- more distance to top than to bottom -->
+            <mat-slider
+              discrete showTickMarks
+              min="1"
+              max="7"
+              step="1"
+              thumbLabel
+            >
+               <input matSliderThumb formControlName="frequency" />
+            </mat-slider>
+          <!-- </mat-form-field> -->
+          <br />
+          <p> <strong>{{ habitForm.step3.value.frequency }}</strong>     times a week </p>
+          <br><br>
+          <!-- ## maybe in extra field or so, revise: -->
+          <p>Feels <strong>doable in an easy way</strong> without strain? <br>
+            If not, better reduce the number :)
+          </p>
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button
@@ -147,12 +186,16 @@ export class AddHabitComponent {
     step2: this.formBuilder.group({
       description: [''],
     }),
+    step3: this.formBuilder.group({
+      frequency: [7],
+    }),
   };
 
   addHabit() {
     const newHabit: HabitBase = {
       name: this.habitForm.step1.value.name!,
       description: this.habitForm.step2.value.description ?? '',
+      frequency: this.habitForm.step3.value.frequency!,
     };
 
     this.#goalsService.add_habit(this._id(), newHabit).subscribe((response) => {

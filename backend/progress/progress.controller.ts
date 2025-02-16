@@ -13,6 +13,7 @@ import {
 } from "date-fns";
 import { idsToArrayOfObjectIds } from "../utils/functionsAndVariables";
 import { ObjectId } from "../types/ObjectId.type";
+import moment from "moment-timezone";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },
@@ -115,14 +116,19 @@ export const putProgress: PutProgressReqHandler = async (req, res, next) => {
   }
 };
 
-
 const getProgressStatsForDateRange = async (
   habit_ids: ObjectId[],
   startDate: Date,
   endDate: Date
 ) => {
-
-  console.log('habit_ids', habit_ids, 'startDate', startDate, 'endDate', endDate);
+  console.log(
+    "habit_ids",
+    habit_ids,
+    "startDate",
+    startDate,
+    "endDate",
+    endDate
+  );
 
   const progressStats = await HabitProgressModel.aggregate([
     {
@@ -151,9 +157,13 @@ type GetProgressStatsReqHandler = RequestHandler<
   undefined,
   StandardResponse<ProgressStat[]>,
   undefined,
-  { period: "week" | "month"; offset: string; habit_ids: string }
+  {
+    period: "week" | "month";
+    offset: string;
+    timezone: string;
+    habit_ids: string;
+  }
 >;
-
 
 export const getProgressStats: GetProgressStatsReqHandler = async (
   req,
@@ -161,7 +171,7 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
   next
 ) => {
   try {
-    const { period, offset, habit_ids } = req.query; // "week" or "month"
+    const { period, offset, timezone, habit_ids } = req.query; // "week" or "month"
 
     let startDate: Date;
     let endDate: Date;
@@ -172,12 +182,25 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
     } else {
       const offsetAsInt = parseInt(offset as string) || 0;
       // sendTimezone to get the correct date!###
-      startDate = startOfWeek(subWeeks(new Date(), offsetAsInt));
-      endDate = endOfWeek(subWeeks(new Date(), offsetAsInt));
 
+      const startMoment = moment().tz(timezone).subtract(offsetAsInt, "weeks");
+
+      startDate = startMoment.startOf("isoWeek").toDate(); // isoWeek starts on Monday
+
+      endDate = startMoment.endOf("isoWeek").endOf("day").toDate(); // Ends on Sunday
     }
 
-    console.log('startDateSTATS', startDate, 'endDate', endDate, 'newDate', new Date());
+    console.log(
+      "getProgressStats called with: ",
+      "timezone",
+      timezone,
+      "startDate",
+      startDate,
+      "endDate",
+      endDate,
+      "newDate",
+      new Date()
+    );
 
     const progressStats = await getProgressStatsForDateRange(
       idsToArrayOfObjectIds(habit_ids),

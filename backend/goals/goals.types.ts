@@ -5,7 +5,10 @@ interface EntityBase {
   description?: string;
 }
 
-export interface HabitBase extends EntityBase {}
+export interface HabitBase extends EntityBase {
+  //#remove ? after test done, also defualt value?
+  frequency?: number;
+}
 
 export interface Habit extends HabitBase {
   _id: string;

@@ -41,6 +41,8 @@ export const addHabit: RequestHandler<
   try {
     const { goal_id } = req.params;
     const { habit, timezone } = req.body;
+
+    console.log("habit", habit);
     habit._id = generateObjectIdAsString();
 
     const newProgress = getNewProgressForToday(habit._id, getDateForTimezone(timezone));
