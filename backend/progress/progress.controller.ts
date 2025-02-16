@@ -173,6 +173,8 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
       const offsetAsInt = parseInt(offset as string) || 0;
       startDate = startOfWeek(subWeeks(new Date(), offsetAsInt));
       endDate = endOfWeek(subWeeks(new Date(), offsetAsInt));
+
+      console.log('startDate', startDate, 'endDate', endDate, 'newDate', new Date());
     }
 
     const progressStats = await getProgressStatsForDateRange(
