@@ -118,6 +118,9 @@ export class RegisterComponent {
   }
 
   register() {
+    const userDetails = this.userDetailsForm.value as User;
+    userDetails.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
     this.#usersService
       .register(this.userDetailsForm.value as User)
       .subscribe((response) => {
