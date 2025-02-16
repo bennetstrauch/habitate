@@ -171,11 +171,13 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
       endDate = endOfMonth(new Date());
     } else {
       const offsetAsInt = parseInt(offset as string) || 0;
+      // sendTimezone to get the correct date!###
       startDate = startOfWeek(subWeeks(new Date(), offsetAsInt));
       endDate = endOfWeek(subWeeks(new Date(), offsetAsInt));
 
-      console.log('startDate', startDate, 'endDate', endDate, 'newDate', new Date());
     }
+
+    console.log('startDateSTATS', startDate, 'endDate', endDate, 'newDate', new Date());
 
     const progressStats = await getProgressStatsForDateRange(
       idsToArrayOfObjectIds(habit_ids),

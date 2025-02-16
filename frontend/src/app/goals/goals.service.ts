@@ -109,19 +109,5 @@ export class GoalsService {
     );
   }
 
-  // #seperate in own service
-  get_progress(progress_id: string) {
-    return this.#http.get<StandardResponse<HabitProgress[]>>(
-      environment.SERVER_URL + 'progresses' + '/' + progress_id
-    );
-  }
-
-  put_progress(progress: HabitProgress) {
-    return this.#http.put<StandardResponse<number>>(
-      environment.SERVER_URL + '/progresses' + '/' + progress._id,
-      progress
-    );
-  }
-
  
 }

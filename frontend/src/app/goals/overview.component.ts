@@ -32,7 +32,7 @@ import { ProgressService } from '../progresses/progresses.service';
         >
         <!-- ## make like english -->
         @if (! progressService.$displayStats()) {
-          <mat-icon (click)="toggleCompleted(habit.latestProgress)">
+          <mat-icon (click)="toggleCompleted(habit.latestProgress, habit._id)">
             {{
               habit.latestProgress.completed
                 ? 'task_alt'
@@ -96,16 +96,20 @@ export class OverviewComponent {
 
   #route = inject(ActivatedRoute);
 
-  toggleCompleted(progress: HabitProgress) {
+  toggleCompleted(progress: HabitProgress, habitId: string) {
     console.log('toggling progress', progress);
 
     progress.completed = !progress.completed;
 
-    this.goalsService.put_progress(progress).subscribe((response) => {
+    this.progressService.put_progress(progress).subscribe((response) => {
       if (response.success) {
         console.log('progress updated: ', response.data);
       }
       // ### what if fails, retry or show error?
+
+      // update the Stats-Signal Completed value accordingly
+      this.progressService.$progressStats().get(habitId)!.completed += progress.completed ? 1 : -1;
+     
     });
   }
 

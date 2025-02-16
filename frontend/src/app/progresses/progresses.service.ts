@@ -1,5 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { ProgressStat, ProgressStatBase } from '@backend/progress/progress.types';
+import { HabitProgress, ProgressStat, ProgressStatBase } from '@backend/progress/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 // ### import the other environment variable!!!#######
 import { environment } from 'frontend/src/environments/environment';
@@ -27,6 +27,20 @@ export class ProgressService {
 
       }
     });
+  }
+
+  // ## not used so far.
+  get_progress(progress_id: string) {
+    return this.#http.get<StandardResponse<HabitProgress[]>>(
+      environment.SERVER_URL + 'progresses' + '/' + progress_id
+    );
+  }
+
+  put_progress(progress: HabitProgress) {
+    return this.#http.put<StandardResponse<number>>(
+      environment.SERVER_URL + '/progresses' + '/' + progress._id,
+      progress
+    );
   }
 
   loadProgressStats() {
