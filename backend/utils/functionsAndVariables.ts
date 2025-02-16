@@ -8,13 +8,14 @@ export const idsToArrayOfObjectIds = (ids: string): ObjectId[] => {
   return ids.split(",").map((id) => new mongoose.Types.ObjectId(id));
 };
 
-export const getDateOnly = (timezone: string) => {
+export const getDateOnlyForTimeZone = (timezone: string) => {
   return moment.tz(timezone).format("YYYY-MM-DD");
 };
 
-//## rmv this and luxon dependency
-export const getLocalLuxonDate = (timezone: string): DateTime =>
-  DateTime.now().setZone("America/Chicago").startOf("day");
+//## rmv this and luxon dependency, and we could unify those two.
+export const getDateForTimezone = (timezone: string): Date => {
+  return moment.tz(timezone).toDate();
+};
 
 export const getNewProgressForToday = (
   habit_id: string,

@@ -4,7 +4,7 @@ import { ErrorWithStatus } from "../utils/classes";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { getDateOnly } from "../utils/functionsAndVariables";
+import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
 import { createDailyHabitProgressForGoals } from "../progress/create.progress.cron";
 import { GoalModel } from "../database/schemas";
 
@@ -30,7 +30,7 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
         const latestProgressDate = goal.habits[0].latestProgress.date
           .toISOString()
           .split("T")[0];
-        const localDate = getDateOnly(timezone);
+        const localDate = getDateOnlyForTimeZone(timezone);
 
         console.log(
           "latestProgressDate",
@@ -44,7 +44,10 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
         );
 
         if (latestProgressDate < localDate) {
-          results = await createDailyHabitProgressForGoals(results, new Date(localDate));
+          results = await createDailyHabitProgressForGoals(
+            results,
+            new Date(localDate)
+          );
         }
         break;
       }
