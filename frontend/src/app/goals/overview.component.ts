@@ -11,7 +11,7 @@ import { ProgressService } from '../progresses/progresses.service';
 // test
 @Component({
   selector: 'app-goals',
-  imports: [RouterLink, MatIconModule, MatButtonModule, MatIconModule, NgClass],
+  imports: [RouterLink, MatIconModule, MatButtonModule, MatIconModule, NgClass, CommonModule],
   template: `
     <div class="card head-card">
       <strong>My Habitate</strong>
@@ -42,7 +42,10 @@ import { ProgressService } from '../progresses/progresses.service';
         } @else {
           <!-- ## make more readable with let -->
            <button mat-button class="progress-display">
-            <strong>{{progressService.$progressStats().get(habit._id)?.completed}}</strong>/{{progressService.$progressStats().get(habit._id)?.total}}
+            <strong>{{progressService.$progressStats().get(habit._id)?.completed ?? 0}}</strong>
+            <!-- move that in method # -->
+            /{{ (((habit.frequency ?? 7)/7) * (progressService.$progressStats().get(habit._id)?.total ?? 0)) | number:'1.0-1' }}
+
           </button>
         }
 
@@ -97,7 +100,6 @@ export class OverviewComponent {
   #route = inject(ActivatedRoute);
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
-    console.log('toggling progress', progress);
 
     progress.completed = !progress.completed;
 
