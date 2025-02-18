@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,8 +13,21 @@ import { ProgressService } from '../progresses/progresses.service';
   selector: 'app-goals',
   imports: [RouterLink, MatIconModule, MatButtonModule, MatIconModule, NgClass, CommonModule],
   template: `
-    <div class="card head-card">
-      <strong>My Habitate</strong>
+
+  <!-- maybe change design of head later## -->
+    <div class="flex-row">
+      <button class="change-day" [disabled]="$currentDayStep()<=-2" (click)="$currentDayStep.set($currentDayStep() - 1)"> 
+        <!-- <mat-icon>arrow_circle_left</mat-icon> -->
+        <mat-icon>navigate_before</mat-icon>
+      </button>
+      <div class="card head-card">
+        <strong>My</strong> Habitate <strong>{{ $dateToShow() | date:'EEEE' }}</strong>
+      </div>
+      <button class="change-day" [disabled]="$currentDayStep()>=0" (click)="$currentDayStep.set($currentDayStep() + 1)"> 
+        <!-- <mat-icon>arrow_circle_right</mat-icon> -->
+        <mat-icon>navigate_next</mat-icon>
+
+    </button>
     </div>
 
     <div class="card">
@@ -63,11 +76,32 @@ import { ProgressService } from '../progresses/progresses.service';
     </div>
   `,
   styles: `
-  .hover-div {
-    padding: 10 px;
-      font-size: 18px;
-      cursor: pointer; /* Changes mouse icon to hand */
-    }
+  .completed-habit {
+    color: darkgreen;
+  }
+
+  .change-day {
+    background-color: transparent; /* Removes the background color */
+    color: blue;       /* Sets the text color to grey */
+    // font-weight: bold;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .change-day[disabled] {
+  opacity: 0.2; /* 90% transparent */
+  cursor: not-allowed; /* change cursor to indicate it's not clickable */
+  pointer-events: none;
+}
+
+  .flex-row {
+    // border: 1px solid black;
+    display: flex;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding: 0px;
+  }
 
   .habit-div {
     display: flex;
@@ -77,11 +111,18 @@ import { ProgressService } from '../progresses/progresses.service';
   }
 
   .head-card {
-    margin-top: 1px;
+    flex-direction: row;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  
   }
 
-  .completed-habit {
-    color: darkgreen;
+  .hover-div {
+    padding: 10 px;
+      font-size: 18px;
+      cursor: pointer; /* Changes mouse icon to hand */
   }
 
   .progress-display {
@@ -89,7 +130,8 @@ import { ProgressService } from '../progresses/progresses.service';
   margin: 0;
   line-height: 1; /* Remove extra line height spacing */
   height: auto; /* Ensure no extra height */
-}
+  }
+
   `,
 })
 export class OverviewComponent {
@@ -97,7 +139,15 @@ export class OverviewComponent {
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
 
-  #route = inject(ActivatedRoute);
+  $currentDayStep = signal(0);
+
+  $dateToShow = computed(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + this.$currentDayStep());
+    return date;
+  }
+  );
+
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
 

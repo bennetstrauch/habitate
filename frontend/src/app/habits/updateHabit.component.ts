@@ -2,32 +2,35 @@ import { Component, computed, effect, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { GoalsService } from './goals.service';
+import { GoalsService } from '../goals/goals.service';
 import { MatInputModule } from '@angular/material/input';
-import { Goal } from '@backend/goals/goals.types';
+import { Goal, Habit } from '@backend/goals/goals.types';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
-  selector: 'app-update',
+  selector: 'app-update-habit',
   imports: [
     MatCardModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    RouterLink,
     MatIconModule,
+    MatSliderModule,
   ],
   template: `
-    <mat-card>
-      <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+  <!-- #make it all centered, look nicer -->
+    <mat-card class="card">
+      <form [formGroup]="habitForm" (ngSubmit)="onSubmit()">
+
         <mat-form-field>
-          <mat-label>Goal</mat-label>
+          <mat-label>Habit</mat-label>
           <input
             matInput
-            [formControl]="goalForm.controls.name"
+            [formControl]="habitForm.controls.name"
             placeholder="your heartfelt goal"
           />
         </mat-form-field>
@@ -38,61 +41,36 @@ import { MatIconModule } from '@angular/material/icon';
           <mat-label>Description</mat-label>
           <input
             matInput
-            [formControl]="goalForm.controls.description"
+            [formControl]="habitForm.controls.description"
             placeholder="Enter description"
           />
         </mat-form-field>
 
-        <mat-card-content>
-          <strong>Habits :</strong>
+        <br>
 
-          @for( habit of $goal()!.habits; track $index) {
-          <mat-card class="habit-card">
-            <div class="habit-container">
-              <span class="habit-name">{{ habit.name }}</span>
-
-              <div>
-                <button
-                  type="button"
-                  class="small-delete-btn"
-                  mat-mini-fab
-                  aria-label="Edit"
-                  (click)="updateHabit(habit._id)"
-                >
-                  <mat-icon>edit</mat-icon>
-                </button>
-                &nbsp;
-                <button
-                  type="button"
-                  class="small-delete-btn"
-                  mat-mini-fab
-                  aria-label="Delete"
-                  (click)="deleteHabit(habit._id)"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-          </mat-card>
-          }
-
-          <!-- not hardcode number ## -->
-          @if($goal()!.habits.length! < 3){
-          <button
-            mat-button
-            type="button"
-            [routerLink]="['', 'goals', _id(), 'habits', 'add']"
+          <mat-label>Frequency</mat-label>
+          <br>
+          <mat-slider
+            discrete
+            showTickMarks
+            min="1"
+            max="7"
+            step="1"
+            thumbLabel
           >
-            Add Habit
-          </button>
-          }
-        </mat-card-content>
+            <input 
+            matInput
+            matSliderThumb 
+            [formControl]="habitForm.controls.frequency"
+             />
+          </mat-slider>
+
         <br />
 
         <button
           mat-raised-button
           type="submit"
-          [disabled]="this.goalForm.invalid || this.goalForm.pristine"
+          [disabled]="this.habitForm.invalid || this.habitForm.pristine"
         >
           Update
         </button>
@@ -142,12 +120,21 @@ import { MatIconModule } from '@angular/material/icon';
   }
   `,
 })
-export class UpdateGoalComponent {
+export class UpdateHabitComponent {
   #router = inject(Router);
   #goalsService = inject(GoalsService);
+
   readonly _id = input.required<string>();
+  readonly habit_id = input.required<string>();
+
+  //# create a find_habit method in goals service similar to find_goal ?
   $goal = computed(() => this.#goalsService.find_goal(this._id()));
 
+  $habit = computed(() =>
+    this.$goal()?.habits.find((habit) => habit._id === this.habit_id())
+  );
+
+  //
   updateHabits = () => {
     this.#goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
       if (response.success) this.$goal()!.habits = response.data;
@@ -156,29 +143,37 @@ export class UpdateGoalComponent {
 
   formBuilder = inject(FormBuilder);
 
-  goalForm = this.formBuilder.group({
+  habitForm = this.formBuilder.group({
     name: ['', Validators.required],
     description: [''],
+    frequency: [7, Validators.required],
   });
 
   ngOnInit() {
-    const goal = this.$goal();
+    console.log('update habit component, habit_id: ', this.habit_id(), ' goal_id: ', this._id());
+    const habit = this.$habit();
 
-    this.goalForm.patchValue({
-      name: goal!.name || '',
-      description: goal!.description || '',
+    this.habitForm.patchValue({
+      name: habit!.name || '',
+      description: habit!.description || '',
+      frequency: habit!.frequency,
     });
-    this.goalForm.markAsPristine();
+    this.habitForm.markAsPristine();
   }
 
   onSubmit = () => {
-    const goal: Goal = {
-      ...this.$goal()!,
-      name: this.goalForm.controls.name.value!, // ! because we check validity on button
-      description: this.goalForm.controls.description.value ?? '',
-    };
+    // const goal: Goal = {
+    //   ...this.$goal()!,
+    //   name: this.habitForm.controls.name.value!, // ! because we check validity on button
+    //   description: this.habitForm.controls.description.value ?? '',
+    //   // frequency: this.habitForm.controls.frequency.value
+    // };
 
-    this.#goalsService.put_goal(goal).subscribe((response) => {
+    this.$habit()!.name = this.habitForm.controls.name.value!;
+    this.$habit()!.description = this.habitForm.controls.description.value!;
+    this.$habit()!.frequency = this.habitForm.controls.frequency.value!;
+
+    this.#goalsService.put_goal(this.$goal()!).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
         // this.updateHabits()
@@ -194,10 +189,6 @@ export class UpdateGoalComponent {
         this.#goalsService.update_goals();
       }
     });
-  };
-
-  updateHabit = (habit_id: string) => {
-    this.#router.navigate(['', 'goals', this.$goal()!._id, 'habits', habit_id, 'update']);
   };
 
   deleteHabit = (habit_id: string) => {

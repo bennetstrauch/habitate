@@ -25,7 +25,7 @@ const habitSchema = new Schema({
   name: { type: String, required: true },
   description: String,
   // #make it required later on, default maybee 7?
-  frequency: { type: Number },
+  frequency: { type: Number, default: 7 },
 
   latestProgress: {
     type: Schema.Types.ObjectId,

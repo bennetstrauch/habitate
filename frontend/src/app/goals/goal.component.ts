@@ -25,7 +25,7 @@ import { MatButtonModule } from '@angular/material/button';
       <br />
       <div>{{ $goal()!.description }}</div>
       <br />
-      <button mat-raised-button aria-label="Update" (click)="onUpdate()">
+      <button mat-raised-button aria-label="Edit" (click)="updateGoal()">
         <mat-icon>edit</mat-icon> Edit
       </button>
     </mat-card>
@@ -47,7 +47,8 @@ export class GoalComponent {
     });
   }
 
-  onUpdate = () => {
+  updateGoal = () => {
+    // # should be edit
     this.#router.navigate(['', 'goals', this.$goal()!._id, 'update']);
   };
 }

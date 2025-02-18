@@ -24,12 +24,9 @@ export class GoalsService {
     this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   );
 
-
-
   // #does it trigger reload of component? if yes, or even anyway: seperate service!
- 
 
-// ## replace with utils
+  // ## replace with utils
   getTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   update_goals() {
@@ -83,7 +80,9 @@ export class GoalsService {
     );
   }
 
-  get_habits(goal_id: string) {
+  // get_habit()
+
+  get_habits_for_goal(goal_id: string) {
     return this.#http.get<StandardResponse<Habit[]>>(
       environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits'
     );
@@ -108,6 +107,4 @@ export class GoalsService {
         habit_id
     );
   }
-
- 
 }
