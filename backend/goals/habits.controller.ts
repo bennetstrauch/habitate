@@ -4,12 +4,10 @@ import { StandardResponse } from "../types/standardResponse";
 import { ErrorWithStatus } from "../utils/classes";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
-import {
-  generateObjectIdAsString,
-  getDateForTimezone,
-  getNewProgressForToday,
-} from "../utils/functionsAndVariables";
+import { getDateForTimezone } from "../utils/functionsAndVariables";
 import { GoalModel, HabitProgressModel } from "../database/schemas";
+import { getNewProgressForDate } from "../progress/newProgress";
+import { generateObjectIdAsString } from "../utils/generateObjectId";
 
 type GetHabbitsReqHandler = RequestHandler<
   { goal_id: string },
@@ -45,7 +43,10 @@ export const addHabit: RequestHandler<
     console.log("habit", habit);
     habit._id = generateObjectIdAsString();
 
-    const newProgress = getNewProgressForToday(habit._id, getDateForTimezone(timezone));
+    const newProgress = getNewProgressForDate(
+      habit._id,
+      getDateForTimezone(timezone)
+    );
     const progress = await HabitProgressModel.create(newProgress);
 
     habit.latestProgress = progress;

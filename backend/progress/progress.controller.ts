@@ -14,6 +14,7 @@ import {
 import { idsToArrayOfObjectIds } from "../utils/functionsAndVariables";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
+import { getNewProgressForDate } from "./newProgress";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },
@@ -66,9 +67,10 @@ export const getProgress: GetProgressReqHandler = async (req, res, next) => {
 
 // ## edit chatgpt suggestions, needed?
 type GetProgressesReqHandler = RequestHandler<
-  { date: string },
+  unknown,
   StandardResponse<HabitProgress[] | null>,
-  { habit_ids: string[] }
+  unknown,
+  { date: string; habit_ids: string }
 >;
 
 export const getProgresses: GetProgressesReqHandler = async (
@@ -77,11 +79,26 @@ export const getProgresses: GetProgressesReqHandler = async (
   next
 ) => {
   try {
-    const { date } = req.params;
-    const { habit_ids } = req.body;
+    console.log("getProgresses called with: ", req.query);
+
+    const {  date, habit_ids } = req.query;
+
+  
+    const startOfDay = moment.utc(date, "YYYY-MM-DD").startOf("day").toDate();
+    const endOfDay = moment.utc(date, "YYYY-MM-DD").endOf("day").toDate();
+
+
+    console.log("Querying progresses between:", startOfDay, "and", endOfDay);
+
+    console.log("Converted habit IDs:", idsToArrayOfObjectIds(habit_ids));
+
 
     const progresses = (await HabitProgressModel.find(
-      { habit_id: { $in: habit_ids }, date },
+      // change date to Datetype
+      { 
+        habit_id: { $in: idsToArrayOfObjectIds(habit_ids) }, 
+        date: { $gte: startOfDay, $lte: endOfDay },
+       },
       { embedded_name: 0, __v: 0 }
     )) as HabitProgress[] | null;
 
@@ -90,6 +107,34 @@ export const getProgresses: GetProgressesReqHandler = async (
     }
 
     res.json({ success: true, data: progresses });
+  } catch (err) {
+    next(err);
+  }
+};
+
+type CreateProgressReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<HabitProgress>,
+  { date: string; habit_id: string }
+>;
+
+export const createProgress: CreateProgressReqHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { date, habit_id } = req.body;
+
+    const newProgress = getNewProgressForDate(habit_id, new Date(date));
+
+    const createdProgress = (await HabitProgressModel.create(
+      newProgress
+    )) as HabitProgress;
+
+    console.log("createdProgress", createdProgress);
+
+    res.json({ success: true, data: createdProgress });
   } catch (err) {
     next(err);
   }

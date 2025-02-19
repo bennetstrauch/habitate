@@ -181,8 +181,9 @@ export class UpdateGoalComponent {
     this.#goalsService.put_goal(goal).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
-        // this.updateHabits()
+        // this.updateHabits() ##whatsthat used or not?
         this.#goalsService.update_goals();
+        // ### update message somehow, also in habitUpdateModule
       }
     });
   };
@@ -197,7 +198,14 @@ export class UpdateGoalComponent {
   };
 
   updateHabit = (habit_id: string) => {
-    this.#router.navigate(['', 'goals', this.$goal()!._id, 'habits', habit_id, 'update']);
+    this.#router.navigate([
+      '',
+      'goals',
+      this.$goal()!._id,
+      'habits',
+      habit_id,
+      'update',
+    ]);
   };
 
   deleteHabit = (habit_id: string) => {

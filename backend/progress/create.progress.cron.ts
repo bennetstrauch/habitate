@@ -2,7 +2,7 @@ import cron from "node-cron";
 import moment from "moment-timezone";
 import { GoalModel, HabitProgressModel, UserModel } from "../database/schemas";
 import { Goal } from "../goals/goals.types";
-import { getNewProgressForToday as getNewProgressForDate } from "../utils/functionsAndVariables";
+import { getNewProgressForDate as getNewProgressForDate } from "../utils/functionsAndVariables";
 import { HabitProgress } from "./progress.types";
 //
 
@@ -31,8 +31,14 @@ cron.schedule("0 * * * *", async () => {
   })) as String[];
 
   if (userIds.length > 0) {
-
-    console.log("Creating progress for users: ", userIds, "and timeZones: ", timeZones, "at date: ", date);
+    console.log(
+      "Creating progress for users: ",
+      userIds,
+      "and timeZones: ",
+      timeZones,
+      "at date: ",
+      date
+    );
     await createHabitProgressesForUserIds(userIds, date);
   }
 });
@@ -57,6 +63,7 @@ export async function createDailyHabitProgressForGoals(
 ) {
   const newProgresses: HabitProgress[] = [];
 
+  //# ask chatgpt for cleaner code
   for (const goal of goals) {
     for (const habit of goal.habits) {
       const newProgress = getNewProgressForDate(habit._id, date);

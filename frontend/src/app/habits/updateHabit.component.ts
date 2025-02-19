@@ -48,8 +48,9 @@ import { MatSliderModule } from '@angular/material/slider';
 
         <br>
 
+        <div class="card">
           <mat-label>Frequency</mat-label>
-          <br>
+      
           <mat-slider
             discrete
             showTickMarks
@@ -65,6 +66,9 @@ import { MatSliderModule } from '@angular/material/slider';
              />
           </mat-slider>
 
+          <p class="display-frequency"> <strong>{{ habitForm.value.frequency }}</strong> times a week </p>
+
+        </div>
         <br />
 
         <button
@@ -118,6 +122,10 @@ import { MatSliderModule } from '@angular/material/slider';
   font-size: 16px;
   font-weight: 500;
   }
+
+.display-frequency {
+  margin: 2px;
+}
   `,
 })
 export class UpdateHabitComponent {
@@ -162,12 +170,6 @@ export class UpdateHabitComponent {
   }
 
   onSubmit = () => {
-    // const goal: Goal = {
-    //   ...this.$goal()!,
-    //   name: this.habitForm.controls.name.value!, // ! because we check validity on button
-    //   description: this.habitForm.controls.description.value ?? '',
-    //   // frequency: this.habitForm.controls.frequency.value
-    // };
 
     this.$habit()!.name = this.habitForm.controls.name.value!;
     this.$habit()!.description = this.habitForm.controls.description.value!;

@@ -144,6 +144,10 @@ export class OverviewComponent {
   $dateToShow = computed(() => {
     const date = new Date();
     date.setDate(date.getDate() + this.$currentDayStep());
+
+    console.log('dateToShow: ', date);
+
+    this.progressService.mapProgressesForDayToHabits(date);
     return date;
   }
   );
