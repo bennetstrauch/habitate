@@ -10,6 +10,7 @@ function getTimeZonesStartingNewDay() {
   const now = moment.utc();
   const timeZones = moment.tz.names();
 
+  
   return timeZones.filter((tz) => {
     const zoneTime = now.clone().tz(tz);
     return zoneTime.hours() === 0;

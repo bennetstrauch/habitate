@@ -4,18 +4,19 @@ import {
   ProgressStat,
   ProgressStatBase,
 } from '@backend/progress/progress.types';
-import { getNewProgressForDate } from '@backend/progress/newProgress';
 import { StandardResponse } from '@backend/types/standardResponse';
 // ### import the other environment variable!!!#######
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { getTimezone } from '../utils/utils';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProgressService {
+  #router = inject(Router);
   #http = inject(HttpClient);
   readonly goalsService = inject(GoalsService);
 
@@ -49,7 +50,7 @@ export class ProgressService {
   }
 
   mapProgressesForDayToHabits(date: Date) {
-    const dateString = date.toLocaleDateString("en-CA");  // en-CA returns in YYYY-MM-DD format
+    const dateString = date.toLocaleDateString('en-CA'); // en-CA returns in YYYY-MM-DD format
 
     this.get_progresses_for_day(dateString).subscribe((response) => {
       if (response.success) {
@@ -57,27 +58,39 @@ export class ProgressService {
 
         this.goalsService.$goals().forEach((goal) => {
           goal.habits.forEach((habit) => {
-            
-            const progress : HabitProgress | undefined = progresses.find((progress) => progress.habit_id === habit._id)
-              
-            if(progress){
+            const progress: HabitProgress | undefined = progresses.find(
+              (progress) => progress.habit_id === habit._id
+            );
+
+            if (progress) {
               habit.latestProgress = progress;
             }
-               // not a goos solution # throw error or beter maybe: create new progress in db
-            else{
+            // not a goos solution # throw error or beter maybe: create new progress in db
+            else {
               console.log('No progress found for habit: ', habit._id);
-              console.log('Creating new progress for habit: ', habit._id, ' and date: ', dateString);
-               this.create_progress(dateString, habit._id).subscribe(
+              console.log(
+                'Creating new progress for habit: ',
+                habit._id,
+                ' and date: ',
+                dateString
+              );
+              this.create_progress(dateString, habit._id).subscribe(
                 (response) => {
                   if (response.success) {
                     habit.latestProgress = response.data;
-                  }
-                  else{
-                  // sth similar to this:##
-                  alert('ERROR: SORRY! - Progress for that day could not be saved in database. Changes made for that day will not be saved. Please try again later or switch day.');
-                  console.error('No progress created. Error: ', response.data);
+                  } else {
+                    // sth similar to this:##
+                    alert(
+                      'ERROR: SORRY! - Progress for that day could not be saved in database. Please try again later. We switched to today.'
+                    );
+                    console.error(
+                      'No progress created. Error: ',
+                      response.data
+                    );
 
-                  habit.latestProgress = getNewProgressForDate(habit._id, date);
+                    this.#router.navigate(['', 'goals']).then(() => {
+                      window.location.reload();
+                    });
                   }
                 }
               );
