@@ -2,8 +2,8 @@ import cron from "node-cron";
 import moment from "moment-timezone";
 import { GoalModel, HabitProgressModel, UserModel } from "../database/schemas";
 import { Goal } from "../goals/goals.types";
-import { getNewProgressForDate as getNewProgressForDate } from "../utils/functionsAndVariables";
 import { HabitProgress } from "./progress.types";
+import { getNewProgressForDate } from "./newProgress";
 //
 
 function getTimeZonesStartingNewDay() {
