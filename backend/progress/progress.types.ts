@@ -15,11 +15,15 @@ export interface ProgressStatBase {
   total: number;
   completed: number;
 }
-export interface ProgressStat extends ProgressStatBase {  
+export interface ProgressStat extends ProgressStatBase {
   _id: string;
 }
 
-
+export interface ProgressStatsForDateRange {
+  progressStats: ProgressStat[];
+  startDate: String;
+  endDate: String;
+}
 
 export interface dailyLog {
   _id: string;

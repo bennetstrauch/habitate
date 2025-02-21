@@ -1,6 +1,10 @@
 import { RequestHandler } from "express";
 import { ErrorWithStatus } from "../utils/classes";
-import { HabitProgress, ProgressStat } from "./progress.types";
+import {
+  HabitProgress,
+  ProgressStat,
+  ProgressStatsForDateRange,
+} from "./progress.types";
 import { StandardResponse } from "../types/standardResponse";
 import { toggleCompleted } from "./toggleValues.progress";
 import { HabitProgressModel } from "../database/schemas";
@@ -11,7 +15,10 @@ import {
   endOfMonth,
   subWeeks,
 } from "date-fns";
-import { idsToArrayOfObjectIds } from "../utils/functionsAndVariables";
+import {
+  calculateStartAndEndDate,
+  idsToArrayOfObjectIds,
+} from "../utils/functionsAndVariables";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
 import { getNewProgressForDate } from "./newProgress";
@@ -81,24 +88,21 @@ export const getProgresses: GetProgressesReqHandler = async (
   try {
     console.log("getProgresses called with: ", req.query);
 
-    const {  date, habit_ids } = req.query;
+    const { date, habit_ids } = req.query;
 
-  
     const startOfDay = moment.utc(date, "YYYY-MM-DD").startOf("day").toDate();
     const endOfDay = moment.utc(date, "YYYY-MM-DD").endOf("day").toDate();
-
 
     console.log("Querying progresses between:", startOfDay, "and", endOfDay);
 
     console.log("Converted habit IDs:", idsToArrayOfObjectIds(habit_ids));
 
-
     const progresses = (await HabitProgressModel.find(
       // change date to Datetype
-      { 
-        habit_id: { $in: idsToArrayOfObjectIds(habit_ids) }, 
+      {
+        habit_id: { $in: idsToArrayOfObjectIds(habit_ids) },
         date: { $gte: startOfDay, $lte: endOfDay },
-       },
+      },
       { embedded_name: 0, __v: 0 }
     )) as HabitProgress[] | null;
 
@@ -198,14 +202,15 @@ const getProgressStatsForDateRange = async (
   return progressStats as ProgressStat[];
 };
 
+//## already map the states here instead of in fe and change type as well?
 type GetProgressStatsReqHandler = RequestHandler<
   undefined,
-  StandardResponse<ProgressStat[]>,
+  StandardResponse<ProgressStatsForDateRange>,
   undefined,
   {
     period: "week" | "month";
     offset: string;
-    timezone: string;
+    date: string;
     habit_ids: string;
   }
 >;
@@ -216,29 +221,18 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
   next
 ) => {
   try {
-    const { period, offset, timezone, habit_ids } = req.query; // "week" or "month"
+    const { period, offset, date, habit_ids } = req.query;
 
-    let startDate: Date;
-    let endDate: Date;
-
-    if (period === "month") {
-      startDate = startOfMonth(new Date());
-      endDate = endOfMonth(new Date());
-    } else {
-      const offsetAsInt = parseInt(offset as string) || 0;
-      // sendTimezone to get the correct date!###
-
-      const startMoment = moment().tz(timezone).subtract(offsetAsInt, "weeks");
-
-      startDate = startMoment.startOf("isoWeek").toDate(); // isoWeek starts on Monday
-
-      endDate = startMoment.endOf("isoWeek").endOf("day").toDate(); // Ends on Sunday
-    }
+    const { startDate, endDate } = calculateStartAndEndDate(
+      period,
+      offset,
+      date
+    );
 
     console.log(
       "getProgressStats called with: ",
-      "timezone",
-      timezone,
+      "date",
+      date,
       "startDate",
       startDate,
       "endDate",
@@ -253,7 +247,11 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
       endDate
     );
 
-    res.json({ success: true, data: progressStats });
+    //##extra method
+
+    const data = { progressStats, startDate: startDate.toDateString().split('T')[0], endDate: endDate.toDateString().split('T')[0] };
+
+    res.json({ success: true, data: data });
   } catch (err) {
     next(err);
   }

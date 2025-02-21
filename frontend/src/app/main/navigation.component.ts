@@ -44,7 +44,7 @@ import { ProgressService } from '../progresses/progresses.service';
         color="primary"
         (click)="toggleStatsButton()"
       >
-        @if (!progressService.$displayStats()) {
+        @if (progressService.$displayDailyProgress()) {
         <mat-icon>bar_chart</mat-icon>
         } @else {
           <mat-icon>task_alt</mat-icon>

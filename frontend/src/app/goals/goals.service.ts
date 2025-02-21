@@ -24,6 +24,8 @@ export class GoalsService {
     this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   );
 
+  $currentTimeStep = signal(0);
+
   // #does it trigger reload of component? if yes, or even anyway: seperate service!
 
   // ## replace with utils

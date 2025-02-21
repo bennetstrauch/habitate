@@ -10,7 +10,7 @@ export const idsToArrayOfObjectIds = (ids: string): ObjectId[] => {
 
 export const idToObjectId = (id: string): ObjectId => {
   return new mongoose.Types.ObjectId(id);
-}
+};
 
 export const getDateOnlyForTimeZone = (timezone: string) => {
   return moment.tz(timezone).format("YYYY-MM-DD");
@@ -21,6 +21,27 @@ export const getDateForTimezone = (timezone: string): Date => {
   return moment.tz(timezone).toDate();
 };
 
+// type DateString = `${number}-${number}-${number}`;
+// ##could be used
 
+//# take out period in type
+export const calculateStartAndEndDate = (
+  period: "week" | "month",
+  offset: string,
+  date: string
+) => {
+  let startDate: Date;
+  let endDate: Date;
 
+  const offsetAsInt = parseInt(offset as string) || 0;
 
+  const startMoment = moment.utc(date, "YYYY-MM-DD").add(offsetAsInt, period);
+
+  const periodForMoment: "isoWeek" | "month" =
+    period === "week" ? "isoWeek" : period;
+
+  startDate = startMoment.startOf(periodForMoment).toDate(); // isoWeek starts on Monday
+  endDate = startMoment.endOf(periodForMoment).endOf("day").toDate();
+
+  return { startDate, endDate };
+};

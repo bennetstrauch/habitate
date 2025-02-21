@@ -1,15 +1,16 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
   HabitProgress,
   ProgressStat,
   ProgressStatBase,
+  ProgressStatsForDateRange,
 } from '@backend/progress/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 // ### import the other environment variable!!!#######
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { getTimezone } from '../utils/utils';
+import { toLocalDateString } from '../utils/utils';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -20,37 +21,57 @@ export class ProgressService {
   #http = inject(HttpClient);
   readonly goalsService = inject(GoalsService);
 
-  $progressStats = signal<Map<string, ProgressStatBase>>(new Map());
+  $progressStatsMap = signal<Map<string, ProgressStatBase>>(new Map());
+  // ### own type!
+  $progressDateRange = signal<{ startDate: string; endDate: string }>({
+    startDate: '',
+    endDate: '',
+  });
+
+  // loadProgressStatsForTimeframe = effect(() => {
+  //     this.loadProgressStats(this.goalsService.$currentTimeStep());
+  // });
+
   $displayStats = signal<boolean>(false);
+  $displayDailyProgress = computed(() => !this.$displayStats());
 
   constructor() {
-    // Automatically fetch progress stats whenever habit IDs change
+    // Automatically fetch progress stats whenever habit IDs change ## need first comparison?
+    //# also gets fetched everytie we toggle, do different?#
     effect(() => {
-      if (this.goalsService.$habitIds().length > 0) {
-        this.loadProgressStats();
+      if (this.goalsService.$habitIds().length > 0 && this.$displayStats()) {
+        console.log('loading progress stats');
+        this.loadProgressStats(this.goalsService.$currentTimeStep());
       }
     });
   }
 
-  loadProgressStats() {
-    this.getProgressStats('week', 0, this.goalsService.$habitIds()).subscribe(
-      (response) => {
-        if (response.success) {
-          const statsMap = new Map(
-            response.data.map((progressStat) => [
-              progressStat._id,
-              { total: progressStat.total, completed: progressStat.completed },
-            ])
-          );
-          console.log('statsMap: ', statsMap);
-          this.$progressStats.set(statsMap); // Update the signal
-        }
+  // ## change!!!
+  loadProgressStats(currentTimeStep: number) {
+    this.getProgressStats(
+      'week',
+      currentTimeStep,
+      this.goalsService.$habitIds()
+    ).subscribe((response) => {
+      if (response.success) {
+        const statsMap = new Map(
+          response.data.progressStats.map((progressStat) => [
+            progressStat._id,
+            { total: progressStat.total, completed: progressStat.completed },
+          ])
+        );
+        console.log('statsMap: ', statsMap);
+        this.$progressStatsMap.set(statsMap); // Update the signal
+        this.$progressDateRange.set({
+          startDate: response.data.startDate.split('T')[0],
+          endDate: response.data.endDate.split('T')[0],
+        });
       }
-    );
+    });
   }
 
   mapProgressesForDayToHabits(date: Date) {
-    const dateString = date.toLocaleDateString('en-CA'); // en-CA returns in YYYY-MM-DD format
+    const dateString = toLocalDateString(date); // en-CA returns in YYYY-MM-DD format
 
     this.get_progresses_for_day(dateString).subscribe((response) => {
       if (response.success) {
@@ -139,10 +160,10 @@ export class ProgressService {
     const params = new HttpParams()
       .set('period', period)
       .set('offset', offset.toString())
-      .set('timezone', getTimezone()) // #standardize with BE
+      .set('date', new Date().toLocaleDateString('en-CA')) // #have a method in utils
       .set('habit_ids', habitIds.join(',')); // Converting array to CSV format
 
-    return this.#http.get<StandardResponse<ProgressStat[]>>(
+    return this.#http.get<StandardResponse<ProgressStatsForDateRange>>(
       environment.SERVER_URL + '/progresses/stats',
       {
         params,

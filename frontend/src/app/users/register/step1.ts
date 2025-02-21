@@ -31,7 +31,6 @@ import { validators } from './register.component';
     MatInput,
     MatButton,
     KeyValuePipe,
-    JsonPipe,
   ],
   template: `
     <form [formGroup]="userDetailsForm">

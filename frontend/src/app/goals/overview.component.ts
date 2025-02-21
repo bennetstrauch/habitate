@@ -11,23 +11,43 @@ import { ProgressService } from '../progresses/progresses.service';
 // test
 @Component({
   selector: 'app-goals',
-  imports: [RouterLink, MatIconModule, MatButtonModule, MatIconModule, NgClass, CommonModule],
+  imports: [
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    MatIconModule,
+    NgClass,
+    CommonModule,
+  ],
   template: `
-
-  <!-- maybe change design of head later## -->
+    <!-- maybe change design of head later## -->
     <div class="flex-row">
-      <button class="change-day" [disabled]="$currentDayStep()<=-2" (click)="$currentDayStep.set($currentDayStep() - 1)"> 
+      <button
+        class="change-day"
+        [disabled]="$currentTimeStep() <= -2"
+        (click)="$currentTimeStep.set($currentTimeStep() - 1)"
+      >
         <!-- <mat-icon>arrow_circle_left</mat-icon> -->
         <mat-icon>navigate_before</mat-icon>
       </button>
       <div class="card head-card">
-        <strong>My</strong> Habitate <strong>{{ $dateToShow() | date:'EEEE' }}</strong>
+        @if (progressService.$displayDailyProgress()) {
+        <strong>My</strong> Habitate
+        <strong>{{ $dateToShow() | date : 'EEEE' }}</strong>
+        } @else {
+          {{progressService.$progressDateRange().startDate}} -
+          {{progressService.$progressDateRange().endDate}} 
+
+         }
       </div>
-      <button class="change-day" [disabled]="$currentDayStep()>=0" (click)="$currentDayStep.set($currentDayStep() + 1)"> 
+      <button
+        class="change-day"
+        [disabled]="$currentTimeStep() >= 0"
+        (click)="$currentTimeStep.set($currentTimeStep() + 1)"
+      >
         <!-- <mat-icon>arrow_circle_right</mat-icon> -->
         <mat-icon>navigate_next</mat-icon>
-
-    </button>
+      </button>
     </div>
 
     <div class="card">
@@ -43,8 +63,8 @@ import { ProgressService } from '../progresses/progresses.service';
           class="habit-div"
           [ngClass]="{ 'completed-habit': habit.latestProgress.completed }"
         >
-        <!-- ## make like english -->
-        @if (! progressService.$displayStats()) {
+          <!-- ## make like english -->
+          @if (progressService.$displayDailyProgress()) {
           <mat-icon (click)="toggleCompleted(habit.latestProgress, habit._id)">
             {{
               habit.latestProgress.completed
@@ -52,15 +72,20 @@ import { ProgressService } from '../progresses/progresses.service';
                 : 'radio_button_unchecked'
             }}
           </mat-icon>
-        } @else {
+          } @else {
           <!-- ## make more readable with let -->
-           <button mat-button class="progress-display">
-            <strong>{{progressService.$progressStats().get(habit._id)?.completed ?? 0}}</strong>
+          <button mat-button class="progress-display">
+            <strong>{{
+              progressService.$progressStatsMap().get(habit._id)?.completed ?? 0
+            }}</strong>
             <!-- move that in method # -->
-            /{{ (((habit.frequency ?? 7)/7) * (progressService.$progressStats().get(habit._id)?.total ?? 0)) | number:'1.0-1' }}
-
+            /{{
+              ((habit.frequency ?? 7) / 7) *
+                (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
+                | number : '1.0-1'
+            }}
           </button>
-        }
+          }
 
           {{ habit.name }}
         </div>
@@ -139,22 +164,20 @@ export class OverviewComponent {
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
 
-  $currentDayStep = signal(0);
+  // ## currentTimeStep and we need another one for DayStep or different components?
+  $currentTimeStep = this.goalsService.$currentTimeStep;
 
   $dateToShow = computed(() => {
     const date = new Date();
-    date.setDate(date.getDate() + this.$currentDayStep());
+    date.setDate(date.getDate() + this.$currentTimeStep());
 
     console.log('dateToShow: ', date);
 
     this.progressService.mapProgressesForDayToHabits(date);
     return date;
-  }
-  );
-
+  });
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
-
     progress.completed = !progress.completed;
 
     this.progressService.put_progress(progress).subscribe((response) => {
@@ -164,8 +187,8 @@ export class OverviewComponent {
       // ### what if fails, retry or show error?
 
       // update the Stats-Signal Completed value accordingly
-      this.progressService.$progressStats().get(habitId)!.completed += progress.completed ? 1 : -1;
-     
+      this.progressService.$progressStatsMap().get(habitId)!.completed +=
+        progress.completed ? 1 : -1;
     });
   }
 

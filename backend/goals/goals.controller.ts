@@ -25,40 +25,40 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
     
 
 
-    // #cleaner, needed if cron-job? not really??? ###
-    for (const goal of userGoals) {
-      if (goal.habits.length !== 0) {
+    // #cleaner, needed if cron-job? not really??? ### cut out finally
+    // for (const goal of userGoals) {
+    //   if (goal.habits.length !== 0) {
       
-        let latestProgressDate = '';
+    //     let latestProgressDate = '';
 
-        if (goal.habits[0].latestProgress) {
-        latestProgressDate = goal.habits[0].latestProgress.date
-          .toISOString()
-          .split("T")[0];
-      }
+    //     if (goal.habits[0].latestProgress) {
+    //     latestProgressDate = goal.habits[0].latestProgress.date
+    //       .toISOString()
+    //       .split("T")[0];
+    //   }
 
-      const localDate = getDateOnlyForTimeZone(timezone);
+    //   const localDate = getDateOnlyForTimeZone(timezone);
 
-        console.log(
-          "latestProgressDate",
-          latestProgressDate,
-          "localDate",
-          localDate
-        );
-        console.log(
-          "latestProgressDate < localDate",
-          latestProgressDate < localDate
-        );
+    //     console.log(
+    //       "latestProgressDate",
+    //       latestProgressDate,
+    //       "localDate",
+    //       localDate
+    //     );
+    //     console.log(
+    //       "latestProgressDate < localDate",
+    //       latestProgressDate < localDate
+    //     );
 
-        if (latestProgressDate < localDate) {
-          userGoals = await createDailyHabitProgressForGoals(
-            userGoals,
-            new Date(localDate)
-          );
-        }
-        break;
-      }
-    }
+    //     if (latestProgressDate < localDate) {
+    //       userGoals = await createDailyHabitProgressForGoals(
+    //         userGoals,
+    //         new Date(localDate)
+    //       );
+    //     }
+    //     break;
+    //   }
+    // }
 
     res.json({ success: true, data: userGoals });
 
