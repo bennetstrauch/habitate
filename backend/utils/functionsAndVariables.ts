@@ -3,6 +3,7 @@ import { HabitProgress } from "../progress/progress.types";
 import { DateTime } from "luxon";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
+import { CustomDate } from "./classes";
 
 export const idsToArrayOfObjectIds = (ids: string): ObjectId[] => {
   return ids.split(",").map((id) => idToObjectId(id));

@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { HabitProgress } from '@backend/progress/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
 import { ProgressService } from '../progresses/progresses.service';
+import { formatDateRangeToDisplay } from '../utils/utils';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -35,8 +36,7 @@ import { ProgressService } from '../progresses/progresses.service';
         <strong>My</strong> Habitate
         <strong>{{ $dateToShow() | date : 'EEEE' }}</strong>
         } @else {
-          {{progressService.$progressDateRange().startDate}} -
-          {{progressService.$progressDateRange().endDate}} 
+          <span [innerHTML]="$dateRangeToShow()"> </span>
 
          }
       </div>
@@ -80,9 +80,9 @@ import { ProgressService } from '../progresses/progresses.service';
             }}</strong>
             <!-- move that in method # -->
             /{{
-              ((habit.frequency ?? 7) / 7) *
-                (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
-                | number : '1.0-1'
+            habit.frequency 
+                // (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
+                // | number : '1.0-1'
             }}
           </button>
           }
@@ -176,6 +176,12 @@ export class OverviewComponent {
     this.progressService.mapProgressesForDayToHabits(date);
     return date;
   });
+
+  $dateRangeToShow = computed(() => formatDateRangeToDisplay(
+    this.progressService.$progressDateRange().startDate,
+    this.progressService.$progressDateRange().endDate
+  ));
+  
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;

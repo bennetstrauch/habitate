@@ -60,7 +60,7 @@ export class ProgressService {
             { total: progressStat.total, completed: progressStat.completed },
           ])
         );
-        console.log('statsMap: ', statsMap);
+        console.log('statsMap: ', statsMap, 'response.data: ', response.data);
         this.$progressStatsMap.set(statsMap); // Update the signal
         this.$progressDateRange.set({
           startDate: response.data.startDate.split('T')[0],

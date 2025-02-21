@@ -248,7 +248,6 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
     );
 
     //##extra method
-
     const data = { progressStats, startDate: startDate.toDateString().split('T')[0], endDate: endDate.toDateString().split('T')[0] };
 
     res.json({ success: true, data: data });
