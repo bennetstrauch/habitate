@@ -62,13 +62,13 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 
     res.json({ success: true, data: userGoals });
 
-       //#move to bottom and modify fe to only send timezone if different
+       
        const updateTimezoneResult = await UserModel.updateOne(
         { _id: req.userId, timezone: { $ne: timezone } }, 
         { $set: { timezone: timezone } }
       );
   
-      console.log("timezone", timezone, 'updating timezone', updateTimezoneResult.modifiedCount);
+      console.log("usersNewTimezone", timezone, 'updatedCount:', updateTimezoneResult.modifiedCount);
   
     
   } catch (err) {

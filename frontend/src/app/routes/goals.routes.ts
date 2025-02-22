@@ -15,7 +15,7 @@ export const goalsRoutes: Routes = [
     { path: 'overview', component: OverviewComponent, 
         // canActivate: [noGoalGuard] 
     },
-    { path: 'reflection', component: ReflectionComponent },
+    { path: 'reflection/:date', component: ReflectionComponent },
 
     { path: 'add', 
         loadComponent: () => import('../goals/add/addGoal.component').then(c => c.AddGoalComponent),
@@ -32,3 +32,4 @@ export const goalsRoutes: Routes = [
 
     
 ]
+

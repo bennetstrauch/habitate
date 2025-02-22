@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { HabitProgress } from '@backend/progress/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
 import { ProgressService } from '../progresses/progresses.service';
-import { formatDateRangeToDisplay } from '../utils/utils';
+import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -18,7 +18,7 @@ import { formatDateRangeToDisplay } from '../utils/utils';
     MatButtonModule,
     MatIconModule,
     NgClass,
-    CommonModule,
+    CommonModule
   ],
   template: `
     <!-- maybe change design of head later## -->
@@ -32,13 +32,7 @@ import { formatDateRangeToDisplay } from '../utils/utils';
         <mat-icon>navigate_before</mat-icon>
       </button>
       <div class="card head-card">
-        @if (progressService.$displayDailyProgress()) {
-        <strong>My</strong> Habitate
-        <strong>{{ $dateToShow() | date : 'EEEE' }}</strong>
-        } @else {
-          <span [innerHTML]="$dateRangeToShow()"> </span>
-
-         }
+          <span [innerHTML]="this.progressService.$dateOrDateRangeToShow()"> </span>
       </div>
       <button
         class="change-day"
@@ -94,7 +88,8 @@ import { formatDateRangeToDisplay } from '../utils/utils';
       </div>
       <br />
       }
-      <button mat-raised-button [routerLink]="['', 'goals', 'reflection']">
+      <!-- change this methoduse -->
+      <button mat-raised-button [routerLink]="['', 'goals', 'reflection', $dateToShow().toISOString().split('T')[0]]">
         Start Daily Reflection
       </button>
       <br />
@@ -165,7 +160,7 @@ export class OverviewComponent {
   readonly progressService = inject(ProgressService);
 
   // ## currentTimeStep and we need another one for DayStep or different components?
-  $currentTimeStep = this.goalsService.$currentTimeStep;
+  $currentTimeStep = this.progressService.$currentTimeStep;
 
   $dateToShow = computed(() => {
     const date = new Date();
@@ -176,6 +171,8 @@ export class OverviewComponent {
     this.progressService.mapProgressesForDayToHabits(date);
     return date;
   });
+
+  //## two different things for two different components?
 
   $dateRangeToShow = computed(() => formatDateRangeToDisplay(
     this.progressService.$progressDateRange().startDate,

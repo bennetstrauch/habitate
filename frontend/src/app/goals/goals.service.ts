@@ -4,11 +4,8 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.types';
 import { environment } from 'frontend/src/environments/environment';
 import { Router } from '@angular/router';
-import {
-  HabitProgress,
-  ProgressStat,
-  ProgressStatBase,
-} from '@backend/progress/progress.types';
+import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils';
+
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +21,6 @@ export class GoalsService {
     this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   );
 
-  $currentTimeStep = signal(0);
 
   // #does it trigger reload of component? if yes, or even anyway: seperate service!
 
@@ -91,9 +87,11 @@ export class GoalsService {
   }
 
   add_habit(goal_id: string, habit: HabitBase) {
+    const date = getTodaysDateOnlyAsString();
+
     return this.#http.post<StandardResponse<number>>(
       environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits',
-      { habit, timezone: this.getTimezone() }
+      { habit, date }
     );
   }
 

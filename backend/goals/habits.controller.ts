@@ -4,10 +4,13 @@ import { StandardResponse } from "../types/standardResponse";
 import { ErrorWithStatus } from "../utils/classes";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
-import { getDateForTimezone } from "../utils/functionsAndVariables";
 import { GoalModel, HabitProgressModel } from "../database/schemas";
-import { getNewProgressForDate } from "../progress/newProgress";
+import {
+  createAndSaveNewProgressForDate,
+  getNewProgressForDate,
+} from "../progress/newProgress";
 import { generateObjectIdAsString } from "../utils/generateObjectId";
+import { dateOnlyStringToUTCDate } from "backend/utils/date.utils";
 
 type GetHabbitsReqHandler = RequestHandler<
   { goal_id: string },
@@ -33,22 +36,20 @@ export const getHabits: GetHabbitsReqHandler = async (req, res, next) => {
 export const addHabit: RequestHandler<
   { goal_id: string },
   StandardResponse<number>,
-  { habit: Habit; timezone: string }
+  { habit: Habit; date: string }
   // ## correct fe request
 > = async (req, res, next) => {
   try {
     const { goal_id } = req.params;
-    const { habit, timezone } = req.body;
+    const { habit, date } = req.body;
 
-    console.log("habit", habit);
+    console.log("habit", habit, "date", date);
     habit._id = generateObjectIdAsString();
 
-    const newProgress = getNewProgressForDate(
+    const progress = await createAndSaveNewProgressForDate(
       habit._id,
-      getDateForTimezone(timezone)
+      dateOnlyStringToUTCDate(date)
     );
-    const progress = await HabitProgressModel.create(newProgress);
-
     habit.latestProgress = progress;
 
     const result = await GoalModel.updateOne(

@@ -1,9 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router, RouterLink } from '@angular/router';
 import { GoalsService } from './goals.service';
+import { ProgressService } from '../progresses/progresses.service';
+import { ActivatedRoute } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-reflection',
@@ -13,7 +16,13 @@ import { GoalsService } from './goals.service';
 
     <mat-step>
 
+
+    <!-- implement as head component. -->
     <p>
+        <strong>{{$formattedDate()}} - Reflection </strong><br>
+        <br>----------<br>
+        <br>
+
         Hello my friend. <br>
         I am Happy to reflect with you today. <br>
     </p>
@@ -101,7 +110,24 @@ export class ReflectionComponent {
     #router = inject(Router);
     goalsService = inject(GoalsService);
 
+    progressService = inject(ProgressService);
 
+      
+    $formattedDate = signal<string>('');
 
+    constructor(private route: ActivatedRoute, private datePipe: DatePipe) {}
+  
+    ngOnInit() {
+      // triggers when route parameters changes
+      this.route.paramMap.subscribe(params => {
+        const dateString = params.get('date'); // Get ':date' parameter
+  
+        if (dateString) {
+          const dateObj = new Date(dateString); // Convert string to Date object
+          this.$formattedDate.set(this.datePipe.transform(dateObj, 'EEE MMM d')!); // Format date
+        }
+      });
+    }
+  
 
 }

@@ -10,7 +10,11 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { toLocalDateString } from '../utils/utils';
+import {
+  formatDateRangeToDisplay,
+  formatDateToDisplayAsWeekMonthDay,
+  toLocalDateString,
+} from '../utils/utils';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -20,6 +24,47 @@ export class ProgressService {
   #router = inject(Router);
   #http = inject(HttpClient);
   readonly goalsService = inject(GoalsService);
+
+  $displayStats = signal<boolean>(false);
+  $displayDailyProgress = computed(() => !this.$displayStats());
+
+  $currentTimeStep = signal(0);
+  // ## to seperate limit of only -2 for prgoress stats:
+  // $currentDayStep = signal(0)
+
+  resetTimeStep = effect(() => {
+    if(this.$displayStats())
+    this.$currentTimeStep.set(0);
+  })
+
+  $dateOrDateRangeToShow = computed(() => {
+    if (this.$displayDailyProgress()) {
+      console.log('handleDateChange', this.handleDateChange());
+      return this.handleDateChange();
+    }
+
+    if (this.$displayStats()) {
+      return formatDateRangeToDisplay(
+        this.$progressDateRange().startDate,
+        this.$progressDateRange().endDate
+      );
+    }
+
+    return '';
+  });
+
+  handleDateChange = () => {
+    const date = this.calculateDateWithTimestep();
+    this.mapProgressesForDayToHabits(date);
+
+    return formatDateToDisplayAsWeekMonthDay(date);
+  };
+
+  calculateDateWithTimestep = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + this.$currentTimeStep());
+    return date;
+  };
 
   $progressStatsMap = signal<Map<string, ProgressStatBase>>(new Map());
   // ### own type!
@@ -32,16 +77,13 @@ export class ProgressService {
   //     this.loadProgressStats(this.goalsService.$currentTimeStep());
   // });
 
-  $displayStats = signal<boolean>(false);
-  $displayDailyProgress = computed(() => !this.$displayStats());
-
   constructor() {
     // Automatically fetch progress stats whenever habit IDs change ## need first comparison?
     //# also gets fetched everytie we toggle, do different?#
     effect(() => {
       if (this.goalsService.$habitIds().length > 0 && this.$displayStats()) {
         console.log('loading progress stats');
-        this.loadProgressStats(this.goalsService.$currentTimeStep());
+        this.loadProgressStats(this.$currentTimeStep());
       }
     });
   }
