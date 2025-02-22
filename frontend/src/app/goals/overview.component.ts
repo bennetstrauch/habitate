@@ -18,7 +18,7 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
     MatButtonModule,
     MatIconModule,
     NgClass,
-    CommonModule
+    CommonModule,
   ],
   template: `
     <!-- maybe change design of head later## -->
@@ -32,7 +32,8 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
         <mat-icon>navigate_before</mat-icon>
       </button>
       <div class="card head-card">
-          <span [innerHTML]="this.progressService.$dateOrDateRangeToShow()"> </span>
+        <span [innerHTML]="this.progressService.$dateOrDateRangeToShow()">
+        </span>
       </div>
       <button
         class="change-day"
@@ -74,8 +75,7 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
             }}</strong>
             <!-- move that in method # -->
             /{{
-            habit.frequency 
-                // (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
+              habit.frequency // (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
                 // | number : '1.0-1'
             }}
           </button>
@@ -89,9 +89,19 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
       <br />
       }
       <!-- change this methoduse -->
-      <button mat-raised-button [routerLink]="['', 'goals', 'reflection', $dateToShow().toISOString().split('T')[0]]">
-        Start Daily Reflection
-      </button>
+       @if(progressService.$displayDailyProgress()){
+        <button
+          mat-raised-button
+          [routerLink]="[
+            '',
+            'goals',
+            'reflection',
+            $dateToShow().toISOString().split('T')[0]
+          ]"
+        >
+          Start Daily Reflection
+        </button>
+       }
       <br />
     </div>
   `,
@@ -174,11 +184,12 @@ export class OverviewComponent {
 
   //## two different things for two different components?
 
-  $dateRangeToShow = computed(() => formatDateRangeToDisplay(
-    this.progressService.$progressDateRange().startDate,
-    this.progressService.$progressDateRange().endDate
-  ));
-  
+  $dateRangeToShow = computed(() =>
+    formatDateRangeToDisplay(
+      this.progressService.$progressDateRange().startDate,
+      this.progressService.$progressDateRange().endDate
+    )
+  );
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;
