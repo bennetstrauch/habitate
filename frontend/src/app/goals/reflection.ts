@@ -7,6 +7,7 @@ import { GoalsService } from './goals.service';
 import { ProgressService } from '../progresses/progresses.service';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
 
 @Component({
     selector: 'app-reflection',
@@ -20,7 +21,7 @@ import { DatePipe } from '@angular/common';
     <!-- implement as head component. -->
     <p>
         <strong>{{$formattedDate()}} - Reflection </strong><br>
-        <br>----------<br>
+        ___________________________<br>
         <br>
 
         Hello my friend. <br>
@@ -115,7 +116,7 @@ export class ReflectionComponent {
       
     $formattedDate = signal<string>('');
 
-    constructor(private route: ActivatedRoute, private datePipe: DatePipe) {}
+    constructor(private route: ActivatedRoute) {}
   
     ngOnInit() {
       // triggers when route parameters changes
@@ -124,7 +125,7 @@ export class ReflectionComponent {
   
         if (dateString) {
           const dateObj = new Date(dateString); // Convert string to Date object
-          this.$formattedDate.set(this.datePipe.transform(dateObj, 'EEE MMM d')!); // Format date
+          this.$formattedDate.set(dateObj.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })); // Format date
         }
       });
     }

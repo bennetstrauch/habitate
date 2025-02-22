@@ -18,3 +18,5 @@ export function formatDateRangeToDisplay(startDate: string, endDate: string): st
 export function formatDateToDisplayAsWeekMonthDay(date: Date): string {
     return `<b>${date.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}</b>`;
   }
+
+
