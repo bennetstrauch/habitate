@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,132 +17,113 @@ import { DatePipe } from '@angular/common';
 import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
 
 @Component({
-    selector: 'app-reflection',
-    imports: [MatStepperModule, MatButtonModule, MatCheckboxModule, RouterLink],
-    template: `
-    <mat-stepper class="card" linear #stepper >
+  selector: 'app-reflection',
+  imports: [MatStepperModule, MatButtonModule, MatCheckboxModule, RouterLink],
+  template: `
+    <mat-stepper class="card" linear #stepper>
+      <mat-step>
+        <!-- implement as head component. -->
+        <p>
+          <strong>{{ $formattedDate() }} - Reflection </strong><br />
+          ___________________________<br />
+          <br />
 
-    <mat-step>
-        
+          Hello my friend. <br />
+          I am Happy to reflect with you today. <br />
+        </p>
 
+        <button mat-button matStepperNext>Next</button>
+      </mat-step>
 
-    <!-- implement as head component. -->
-    <p>
-        <strong>{{$formattedDate()}} - Reflection </strong><br>
-        ___________________________<br>
-        <br>
+      <mat-step>
+        <p>Take a minute to settle down. <br /></p>
 
-        Hello my friend. <br>
-        I am Happy to reflect with you today. <br>
-    </p>
+        <button mat-button matStepperNext>Next</button>
+      </mat-step>
 
-    <button mat-button matStepperNext>
-            Next
-    </button>
-    </mat-step>
+      @for(goal of this.goalsService.$goals(); track $index) {
 
-    <mat-step>
-    <p>
-        Take a minute to settle down. <br>
-    </p>
+      <mat-step>
+        <p>Intention</p>
+        <strong>" {{ goal.name }} "</strong>
+        <br />
+        <br />
 
-    <button mat-button matStepperNext>
-            Next
-    </button>
-    </mat-step>
+        <button mat-button matStepperNext>Check Habits</button>
+      </mat-step>
 
+      @for(habit of goal.habits; track $index) {
 
-    @for(goal of this.goalsService.$goals(); track $index) {
+      <mat-step>
+        <strong>{{ habit.name }}</strong> <br />
+        <br />
+        @if (habit.latestProgress.completed) { Congratulations! <br />
 
-     <mat-step>
-        <p>Intention</p> 
-        <strong>" {{goal.name}} "</strong>
-        <br> <br>
-
-        <button mat-button matStepperNext>
-                Check Habits
-            </button>
-     </mat-step>
-
-
-     @for(habit of goal.habits; track $index) {
-
-        <mat-step>
-
-        <strong>{{habit.name}}</strong> <br>
-        <br>
-        @if (habit.latestProgress.completed) {
-            Congratulations! <br>
-
-            Did it feel good?  <br>
-        } @else {
-            No worries. <br>
-            Just tune in. <br>
-            <br>
-            What did hold you back from doing it? <br>
-            & <br>
-            <strong>What simple change</strong> to make it happen with ease tomorrow? <br>
-            <br>
+        Did it feel good? <br />
+        } @else { No worries. <br />
+        Just tune in. <br />
+        <br />
+        What did hold you back from doing it? <br />
+        & <br />
+        <strong>What simple change</strong> to make it happen with ease
+        tomorrow? <br />
+        <br />
         }
 
-        
-            <div>
-            <button mat-button matStepperNext>
-                Next
-            </button>
-            </div>
-        </mat-step>
-     }
-        
-    }
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+      } }
 
-    <mat-step>
+      <mat-step>
         <p>
-        <strong>Thank you</strong> <br> 
-        for taking the time to take care of yourself. <br>
+          <strong>Thank you</strong> <br />
+          for taking the time to take care of yourself. <br />
         </p>
         <div>
-        <button mat-button matStepperPrevious>Back</button>
-        <button mat-button [routerLink]="['', 'goals', 'overview']">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button [routerLink]="['', 'goals', 'overview']">
             Finish Reflection
-        </button>
+          </button>
         </div>
-    </mat-step>
-
-  
-</mat-stepper>
+      </mat-step>
+    </mat-stepper>
   `,
-    styles: `
+  styles: `
     
     ::ng-deep .mat-horizontal-stepper-header-container {
         display: none !important;
         // removes icons from stepper
     }
-`
+`,
 })
 export class ReflectionComponent {
+  #router = inject(Router);
+  goalsService = inject(GoalsService);
 
-    #router = inject(Router);
-    goalsService = inject(GoalsService);
+  progressService = inject(ProgressService);
 
-    progressService = inject(ProgressService);
+  $formattedDate = signal<string>('');
 
-      
-    $formattedDate = signal<string>('');
+  constructor(private route: ActivatedRoute) {}
 
-    constructor(private route: ActivatedRoute) {}
-  
-    ngOnInit() {
-      // triggers when route parameters changes
-      this.route.paramMap.subscribe(params => {
-        const dateString = params.get('date'); // Get ':date' parameter
-  
-        if (dateString) {
-          const dateObj = new Date(dateString); // Convert string to Date object
-          this.$formattedDate.set(dateObj.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })); // Format date
-        }
-      });
-    }
-  
+  ngOnInit() {
+    // triggers when route parameters changes
+    this.route.paramMap.subscribe((params) => {
+      const dateString = params.get('date'); // Get ':date' parameter
 
+      if (dateString) {
+        const dateObj = new Date(dateString); // Convert string to Date object
+        this.$formattedDate.set(
+          dateObj.toLocaleDateString('en-CA', {
+            weekday: 'short', // e.g., "Mon"
+            month: 'short', // e.g., "Feb"
+            day: 'numeric', // e.g., "16"
+            timeZone: 'UTC', // Use UTC to avoid timezone conversion
+          })
+        );
+      }
+    });
+  }
 }
