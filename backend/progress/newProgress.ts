@@ -1,6 +1,6 @@
 import { HabitProgress } from "./progress.types";
 import { generateObjectIdAsString } from "../utils/generateObjectId";
-import { HabitProgressModel } from "backend/database/schemas";
+import { HabitProgressModel } from "../database/schemas";
 
 export const getNewProgressForDate = (
   habit_id: string,

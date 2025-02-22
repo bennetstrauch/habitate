@@ -10,7 +10,7 @@ import {
   getNewProgressForDate,
 } from "../progress/newProgress";
 import { generateObjectIdAsString } from "../utils/generateObjectId";
-import { dateOnlyStringToUTCDate } from "backend/utils/date.utils";
+import { dateOnlyStringToUTCDate } from "../utils/date.utils";
 
 type GetHabbitsReqHandler = RequestHandler<
   { goal_id: string },
