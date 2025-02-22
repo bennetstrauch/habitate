@@ -16,6 +16,7 @@ import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
     <mat-stepper class="card" linear #stepper >
 
     <mat-step>
+        
 
 
     <!-- implement as head component. -->
@@ -104,7 +105,13 @@ import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
   
 </mat-stepper>
   `,
-    styles: ``
+    styles: `
+    
+    ::ng-deep .mat-horizontal-stepper-header-container {
+        display: none !important;
+        // removes icons from stepper
+    }
+`
 })
 export class ReflectionComponent {
 
