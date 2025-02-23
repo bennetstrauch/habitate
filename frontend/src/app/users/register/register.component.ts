@@ -28,6 +28,7 @@ import { Step4 } from './step4';
 import { Step5 } from './step5';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { StateService } from '../../state.service';
+import { Step6 } from "./step6";
 
 // # make it generic and loop through steps when building
 
@@ -43,7 +44,8 @@ import { StateService } from '../../state.service';
     Step3,
     Step4,
     Step5,
-  ],
+    Step6
+],
 
   template: `
     <mat-stepper
@@ -89,6 +91,15 @@ import { StateService } from '../../state.service';
 
         <div>
           <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+
+      <mat-step>
+        <app-register-step6/>
+
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
           <button mat-button (click)="register()">Submit Registration</button>
         </div>
       </mat-step>
@@ -120,7 +131,7 @@ export class RegisterComponent {
   register() {
     const userDetails = this.userDetailsForm.value as User;
     userDetails.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
+
     this.#usersService
       .register(this.userDetailsForm.value as User)
       .subscribe((response) => {

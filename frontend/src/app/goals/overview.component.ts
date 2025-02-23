@@ -89,19 +89,22 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
       <br />
       }
       <!-- change this methoduse -->
-       @if(progressService.$displayDailyProgress()){
-        <button
-          mat-raised-button
-          [routerLink]="[
-            '',
-            'goals',
-            'reflection',
-            $dateToShow().toISOString().split('T')[0]
-          ]"
-        >
-          Start Daily Reflection
-        </button>
-       }
+      @if(progressService.$displayDailyProgress()){
+        <!-- @if($reflectionStatus().completed == false){
+          
+        } -->
+      <button
+        mat-raised-button
+        [routerLink]="[
+          '',
+          'goals',
+          'reflection',
+          $dateToShow().toISOString().split('T')[0]
+        ]"
+      >
+        Start Daily Reflection
+      </button>
+      }
       <br />
     </div>
   `,
@@ -178,7 +181,7 @@ export class OverviewComponent {
 
     console.log('dateToShow: ', date);
 
-    this.progressService.mapProgressesForDayToHabits(date);
+    this.progressService.handleProgressMappingToHabits(date);
     return date;
   });
 

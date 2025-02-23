@@ -16,6 +16,7 @@ import {
   toLocalDateString,
 } from '../utils/utils';
 import { Router } from '@angular/router';
+import { Habit } from '@backend/goals/goals.types';
 
 @Injectable({
   providedIn: 'root',
@@ -33,9 +34,8 @@ export class ProgressService {
   // $currentDayStep = signal(0)
 
   resetTimeStep = effect(() => {
-    if(this.$displayStats())
-    this.$currentTimeStep.set(0);
-  })
+    if (this.$displayStats()) this.$currentTimeStep.set(0);
+  });
 
   $dateOrDateRangeToShow = computed(() => {
     if (this.$displayDailyProgress()) {
@@ -55,7 +55,7 @@ export class ProgressService {
 
   handleDateChange = () => {
     const date = this.calculateDateWithTimestep();
-    this.mapProgressesForDayToHabits(date);
+    this.handleProgressMappingToHabits(date);
 
     return formatDateToDisplayAsWeekMonthDay(date);
   };
@@ -112,58 +112,60 @@ export class ProgressService {
     });
   }
 
-  mapProgressesForDayToHabits(date: Date) {
+  //#refactor
+  handleProgressMappingToHabits(date: Date) {
     const dateString = toLocalDateString(date); // en-CA returns in YYYY-MM-DD format
 
     this.get_progresses_for_day(dateString).subscribe((response) => {
       if (response.success) {
         const progresses = response.data;
 
-        this.goalsService.$goals().forEach((goal) => {
-          goal.habits.forEach((habit) => {
-            const progress: HabitProgress | undefined = progresses.find(
-              (progress) => progress.habit_id === habit._id
-            );
-
-            if (progress) {
-              habit.latestProgress = progress;
-            }
-            // not a goos solution # throw error or beter maybe: create new progress in db
-            else {
-              console.log('No progress found for habit: ', habit._id);
-              console.log(
-                'Creating new progress for habit: ',
-                habit._id,
-                ' and date: ',
-                dateString
-              );
-              this.create_progress(dateString, habit._id).subscribe(
-                (response) => {
-                  if (response.success) {
-                    habit.latestProgress = response.data;
-                  } else {
-                    // sth similar to this:##
-                    alert(
-                      'ERROR: SORRY! - Progress for that day could not be saved in database. Please try again later. We switched to today.'
-                    );
-                    console.error(
-                      'No progress created. Error: ',
-                      response.data
-                    );
-
-                    this.#router.navigate(['', 'goals']).then(() => {
-                      window.location.reload();
-                    });
-                  }
-                }
-              );
-            }
-          });
-        });
+        this.mapProgressesToHabits(progresses, dateString);
       }
     });
   }
 
+  mapProgressesToHabits(progresses: HabitProgress[], dateString: string) {
+    this.goalsService.$goals().forEach((goal) => {
+      goal.habits.forEach((habit) => {
+        const progress: HabitProgress | undefined = progresses.find(
+          (progress) => progress.habit_id === habit._id
+        );
+
+        if (progress) {
+          habit.latestProgress = progress;
+        } else {
+          console.log('No progress found for habit: ', habit._id);
+          this.createNewProgressAndMapToHabit(habit, dateString);
+        }
+      });
+    });
+  }
+
+  createNewProgressAndMapToHabit(habit: Habit, dateString: string) {
+    console.log(
+      'Creating new progress for habit: ',
+      habit._id,
+      ' and date: ',
+      dateString
+    );
+
+    this.create_progress(dateString, habit._id).subscribe((response) => {
+      if (response.success) {
+        habit.latestProgress = response.data;
+      } else {
+        
+        alert(
+          'ERROR: SORRY! - Progress for that day could not be saved in database. Please try again later. We switched to today.'
+        );
+        console.error('No progress created. Error: ', response.data);
+
+        this.#router.navigate(['', 'goals']).then(() => {
+          window.location.reload();
+        });
+      }
+    });
+  }
   // _______ http calls __________________________________________
 
   // ## not used so far.
