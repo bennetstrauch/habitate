@@ -90,7 +90,7 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
       }
       <!-- change this methoduse -->
       @if(progressService.$displayDailyProgress()){
-        <!-- @if($reflectionStatus().completed == false){
+      <!-- @if($reflectionStatus().completed == false){
           
         } -->
       <button
@@ -178,8 +178,6 @@ export class OverviewComponent {
   $dateToShow = computed(() => {
     const date = new Date();
     date.setDate(date.getDate() + this.$currentTimeStep());
-
-    console.log('dateToShow: ', date);
 
     this.progressService.handleProgressMappingToHabits(date);
     return date;
