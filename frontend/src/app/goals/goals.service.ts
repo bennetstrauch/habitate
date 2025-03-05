@@ -4,7 +4,7 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.types';
 import { environment } from 'frontend/src/environments/environment';
 import { Router } from '@angular/router';
-import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils';
+import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils.shared';
 
 
 @Injectable({
@@ -17,8 +17,10 @@ export class GoalsService {
 
   $goals = signal<Goal[]>([]);
 
-  $habitIds = computed(() =>
-    this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
+  $habitIds = computed(() =>{
+    console.log('habitIds computed');
+    return this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
+  }
   );
 
 

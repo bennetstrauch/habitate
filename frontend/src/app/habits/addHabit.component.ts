@@ -19,7 +19,6 @@ import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Location } from '@angular/common';
 import { AddHelpComponent } from './addHelp.component';
-import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils';
 
 @Component({
   selector: 'app-add-habit',

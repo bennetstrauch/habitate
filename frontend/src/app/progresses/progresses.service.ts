@@ -1,10 +1,10 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import {
   HabitProgress,
   ProgressStat,
   ProgressStatBase,
   ProgressStatsForDateRange,
-} from '@backend/progress/progress.types';
+} from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 // ### import the other environment variable!!!#######
 import { environment } from 'frontend/src/environments/environment';
@@ -33,38 +33,43 @@ export class ProgressService {
   // ## to seperate limit of only -2 for prgoress stats:
   // $currentDayStep = signal(0)
 
-  resetTimeStep = effect(() => {
-    if (this.$displayStats()) this.$currentTimeStep.set(0);
-  });
+  // resetTimeStep = effect(() => {
+  //   if (this.$displayStats()) this.$currentTimeStep.set(0);
+  // });
 
-  $dateOrDateRangeToShow = computed(() => {
-    if (this.$displayDailyProgress()) {
-      console.log('handleDateChange', this.handleDateChange());
-      return this.handleDateChange();
+  // ##this is a mess, separate things better
+  currentTimeStepForStats = computed(() => this.$currentTimeStep());
+
+  handleTimeStepChange = effect(() => {
+    if (this.$displayDailyProgress() && this.goalsService.$habitIds().length > 0) {
+      this.$dailyProgressDate.set(this.calculateDateWithTimestep());
+      this.handleProgressMappingToHabits(this.$dailyProgressDate());
+
+      const dateToShow = formatDateToDisplayAsWeekMonthDay(
+        this.$dailyProgressDate()
+      );
+      this.$dateOrDateRangeToShow.set(dateToShow);
+
+      console.log('dateToShow: ', dateToShow);
     }
+    // ##extra method
 
     if (this.$displayStats()) {
-      return formatDateRangeToDisplay(
+      const dateRangeToShow = formatDateRangeToDisplay(
         this.$progressDateRange().startDate,
         this.$progressDateRange().endDate
       );
-    }
 
-    return '';
+      this.$dateOrDateRangeToShow.set(dateRangeToShow);
+
+      //# doesnt work because it retriggers
+      // this.loadProgressStats(this.$currentTimeStep());
+     
+    }
   });
 
-  handleDateChange = () => {
-    const date = this.calculateDateWithTimestep();
-    this.handleProgressMappingToHabits(date);
-
-    return formatDateToDisplayAsWeekMonthDay(date);
-  };
-
-  calculateDateWithTimestep = () => {
-    const date = new Date();
-    date.setDate(date.getDate() + this.$currentTimeStep());
-    return date;
-  };
+  $dailyProgressDate = signal(new Date());
+  $dateOrDateRangeToShow = signal<string>('');
 
   $progressStatsMap = signal<Map<string, ProgressStatBase>>(new Map());
   // ### own type!
@@ -72,6 +77,20 @@ export class ProgressService {
     startDate: '',
     endDate: '',
   });
+
+
+  // ##might break
+  handleDateChange = () => {
+    this.handleProgressMappingToHabits(this.$dailyProgressDate());
+
+    return formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate());
+  };
+
+  calculateDateWithTimestep = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + this.$currentTimeStep());
+    return date;
+  };
 
   // loadProgressStatsForTimeframe = effect(() => {
   //     this.loadProgressStats(this.goalsService.$currentTimeStep());
@@ -154,7 +173,6 @@ export class ProgressService {
       if (response.success) {
         habit.latestProgress = response.data;
       } else {
-        
         alert(
           'ERROR: SORRY! - Progress for that day could not be saved in database. Please try again later. We switched to today.'
         );
@@ -201,6 +219,7 @@ export class ProgressService {
   }
 
   getProgressStats(period: 'week' | 'month', offset = 0, habitIds: string[]) {
+
     const params = new HttpParams()
       .set('period', period)
       .set('offset', offset.toString())

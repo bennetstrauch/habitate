@@ -1,16 +1,16 @@
 import { RequestHandler } from "express";
 import { Habit } from "./goals.types";
 import { StandardResponse } from "../types/standardResponse";
-import { ErrorWithStatus } from "../utils/classes";
+import { ErrorWithStatus } from "../utils/error.class";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
 import { GoalModel, HabitProgressModel } from "../database/schemas";
 import {
-  createAndSaveNewProgressForDate,
+  createAndSaveProgressForDate,
   getNewProgressForDate,
-} from "../progress/newProgress";
+} from "../progresses/newProgress";
 import { generateObjectIdAsString } from "../utils/generateObjectId";
-import { dateOnlyStringToUTCDate } from "../utils/date.utils";
+import { dateOnlyStringToUTCDate } from "../utils/date.utils.shared";
 
 type GetHabbitsReqHandler = RequestHandler<
   { goal_id: string },
@@ -46,7 +46,7 @@ export const addHabit: RequestHandler<
     console.log("habit", habit, "date", date);
     habit._id = generateObjectIdAsString();
 
-    const progress = await createAndSaveNewProgressForDate(
+    const progress = await createAndSaveProgressForDate(
       habit._id,
       dateOnlyStringToUTCDate(date)
     );

@@ -16,7 +16,7 @@ export const getNewProgressForDate = (
   } as HabitProgress;
 };
 
-export const createAndSaveNewProgressForDate = async (
+export const createAndSaveProgressForDate = async (
   habit_id: string,
   date: Date
 ): Promise<HabitProgress> => {
@@ -24,3 +24,6 @@ export const createAndSaveNewProgressForDate = async (
   const newProgress = getNewProgressForDate(habit_id, date);
   return await HabitProgressModel.create(newProgress);
 };
+
+
+

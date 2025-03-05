@@ -1,11 +1,11 @@
 import { Goal, GoalBase } from "./goals.types";
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../utils/classes";
+import { ErrorWithStatus } from "../utils/error.class";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
 import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
-import { createDailyHabitProgressForGoals } from "../progress/create.progress.cron";
+import { createDailyHabitProgressForGoals } from "../progresses/create.progress.cron";
 import { GoalModel, UserModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
@@ -18,17 +18,12 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   const { timezone = "UTC" } = req.query as { timezone?: string };
 
   try {
-
     let userGoals: Goal[] = await getGoalsDB(req.userId);
-
- 
-    
-
 
     // #cleaner, needed if cron-job? not really??? ### cut out finally
     // for (const goal of userGoals) {
     //   if (goal.habits.length !== 0) {
-      
+
     //     let latestProgressDate = '';
 
     //     if (goal.habits[0].latestProgress) {
@@ -62,15 +57,17 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
 
     res.json({ success: true, data: userGoals });
 
-       
-       const updateTimezoneResult = await UserModel.updateOne(
-        { _id: req.userId, timezone: { $ne: timezone } }, 
-        { $set: { timezone: timezone } }
-      );
-  
-      console.log("usersNewTimezone", timezone, 'updatedCount:', updateTimezoneResult.modifiedCount);
-  
-    
+    const updateTimezoneResult = await UserModel.updateOne(
+      { _id: req.userId, timezone: { $ne: timezone } },
+      { $set: { timezone: timezone } }
+    );
+
+    console.log(
+      "usersNewTimezone",
+      timezone,
+      "updatedCount:",
+      updateTimezoneResult.modifiedCount
+    );
   } catch (err) {
     next(err);
   }

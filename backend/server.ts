@@ -4,12 +4,13 @@ import morgan from "morgan";
 import { userRouter } from "./users/users.router";
 import { errorHandler, routerNotFoundHandler } from "./utils/handlers";
 import { connectToDB } from "./database/connection";
-import { goalRouter } from "./goals/goals.router";
+import { goalsRouter } from "./goals/goals.router";
 import { checkToken } from "./users/users.middleware";
-import { progressRouter } from "./progress/progresses.router";
+import { progressRouter } from "./progresses/progresses.router";
 import { healthCheck } from "./utils/healthcheck";
 
-import "./progress/create.progress.cron";
+import "./progresses/create.progress.cron";
+import { reflectionsRouter } from "./reflections/reflections.router";
 
 const app = express();
 
@@ -21,8 +22,10 @@ app.use(json());
 app.use(urlencoded());
 
 app.use("/users", userRouter);
-app.use("/goals", checkToken, goalRouter);
+app.use("/goals", checkToken, goalsRouter);
 app.use("/progresses", checkToken, progressRouter);
+app.use("/reflections", checkToken, reflectionsRouter);
+
 app.get("/health", healthCheck);
 
 app.use(routerNotFoundHandler);

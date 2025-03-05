@@ -10,11 +10,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router, RouterLink } from '@angular/router';
-import { GoalsService } from './goals.service';
+import { GoalsService } from '../goals/goals.service';
 import { ProgressService } from '../progresses/progresses.service';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
+import { ReflectionsService } from './reflections.service';
+import { Reflection } from '@backend/reflections/reflections.types';
 
 @Component({
   selector: 'app-reflection',
@@ -83,7 +83,9 @@ import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
         </p>
         <div>
           <button mat-button matStepperPrevious>Back</button>
-          <button mat-button [routerLink]="['', 'goals', 'overview']">
+
+          <button mat-button 
+          (click)="completeReflection()">
             Finish Reflection
           </button>
         </div>
@@ -101,10 +103,12 @@ import { formatDateToDisplayAsWeekMonthDay } from '../utils/utils';
 export class ReflectionComponent {
   #router = inject(Router);
   goalsService = inject(GoalsService);
+  reflectionsService = inject(ReflectionsService);
 
   progressService = inject(ProgressService);
 
   $formattedDate = signal<string>('');
+
 
   constructor(private route: ActivatedRoute) {}
 
@@ -125,5 +129,18 @@ export class ReflectionComponent {
         );
       }
     });
+  }
+
+  completeReflection() {
+    if (this.reflectionsService.$reflection()) {
+      this.reflectionsService.$reflection()!.completed = true;
+
+      this.reflectionsService.put_reflection(this.reflectionsService.$reflection()!).subscribe((response) => {
+        if (response.success) {
+        console.log('Reflection updated: ', response.data);
+        }
+      this.#router.navigate(['', 'goals', 'overview']);
+      });
+    }
   }
 }

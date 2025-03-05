@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../utils/classes";
+import { ErrorWithStatus } from "../utils/error.class";
 import {
   HabitProgress,
   ProgressStat,
@@ -8,26 +8,20 @@ import {
 import { StandardResponse } from "../types/standardResponse";
 import { toggleCompleted } from "./toggleValues.progress";
 import { HabitProgressModel } from "../database/schemas";
-import {
-  startOfWeek,
-  startOfMonth,
-  endOfWeek,
-  endOfMonth,
-  subWeeks,
-} from "date-fns";
+
 import {
   calculateStartAndEndDate,
   idsToArrayOfObjectIds,
 } from "../utils/functionsAndVariables";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
-import { getNewProgressForDate } from "./newProgress";
+import { createAndSaveProgressForDate } from "./newProgress";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },
   StandardResponse<HabitProgress>
 >;
-
+// remove#
 export const toggleProgress: ToggleProgressReqHandler = async (
   req,
   res,
@@ -130,12 +124,10 @@ export const createProgress: CreateProgressReqHandler = async (
   try {
     const { date, habit_id } = req.body;
 
-    const newProgress = getNewProgressForDate(habit_id, new Date(date));
-
-    const createdProgress = (await HabitProgressModel.create(
-      newProgress
-    )) as HabitProgress;
-
+    const createdProgress = await createAndSaveProgressForDate(
+      habit_id,
+      new Date(date)
+    );
     console.log("createdProgress", createdProgress);
 
     res.json({ success: true, data: createdProgress });
@@ -248,7 +240,11 @@ export const getProgressStats: GetProgressStatsReqHandler = async (
     );
 
     //##extra method
-    const data = { progressStats, startDate: startDate.toDateString().split('T')[0], endDate: endDate.toDateString().split('T')[0] };
+    const data = {
+      progressStats,
+      startDate: startDate.toDateString().split("T")[0],
+      endDate: endDate.toDateString().split("T")[0],
+    };
 
     res.json({ success: true, data: data });
   } catch (err) {

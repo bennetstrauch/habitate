@@ -3,10 +3,15 @@ import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { HabitProgress } from '@backend/progress/progress.types';
+import { HabitProgress } from '@backend/progresses/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
 import { ProgressService } from '../progresses/progresses.service';
 import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
+import { ReflectionsService } from '../reflections/reflections.service';
+import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
+import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
+import { DisplayGoalWithLinkComponent } from './display-goal-with-link.component';
+import { DateHeaderWithTimestepComponent } from "../progresses/display/date-header-with-timestep.component";
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -19,94 +24,23 @@ import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
     MatIconModule,
     NgClass,
     CommonModule,
-  ],
+    DailyProgressComponent,
+    ProgressStatsComponent,
+    DisplayGoalWithLinkComponent,
+    DateHeaderWithTimestepComponent
+],
   template: `
-    <!-- maybe change design of head later## -->
-    <div class="flex-row">
-      <button
-        class="change-day"
-        [disabled]="$currentTimeStep() <= -2"
-        (click)="$currentTimeStep.set($currentTimeStep() - 1)"
-      >
-        <!-- <mat-icon>arrow_circle_left</mat-icon> -->
-        <mat-icon>navigate_before</mat-icon>
-      </button>
-      <div class="card head-card">
-        <span [innerHTML]="this.progressService.$dateOrDateRangeToShow()">
-        </span>
-      </div>
-      <button
-        class="change-day"
-        [disabled]="$currentTimeStep() >= 0"
-        (click)="$currentTimeStep.set($currentTimeStep() + 1)"
-      >
-        <!-- <mat-icon>arrow_circle_right</mat-icon> -->
-        <mat-icon>navigate_next</mat-icon>
-      </button>
-    </div>
+
+    <app-date-header-with-timestep/>
 
     <div class="card">
-      @for (goal of goalsService.$goals(); track $index) {
-      <div class="hover-div">
-        <div [routerLink]="['', 'goals', goal._id]" style="color: grey;">
-          {{ goal.name }}
-        </div>
-
-        @for (habit of goal.habits; track $index){
-
-        <div
-          class="habit-div"
-          [ngClass]="{ 'completed-habit': habit.latestProgress.completed }"
-        >
-          <!-- ## make like english -->
-          @if (progressService.$displayDailyProgress()) {
-          <mat-icon (click)="toggleCompleted(habit.latestProgress, habit._id)">
-            {{
-              habit.latestProgress.completed
-                ? 'task_alt'
-                : 'radio_button_unchecked'
-            }}
-          </mat-icon>
-          } @else {
-          <!-- ## make more readable with let -->
-          <button mat-button class="progress-display">
-            <strong>{{
-              progressService.$progressStatsMap().get(habit._id)?.completed ?? 0
-            }}</strong>
-            <!-- move that in method # -->
-            /{{
-              habit.frequency // (progressService.$progressStatsMap().get(habit._id)?.total ?? 0)
-                // | number : '1.0-1'
-            }}
-          </button>
-          }
-
-          {{ habit.name }}
-        </div>
-
-        }
-      </div>
-      <br />
+      @if (progressService.$displayDailyProgress()) {
+      <app-daily-progress></app-daily-progress>
+      } @if (progressService.$displayStats()) {
+      <app-progress-stats></app-progress-stats>
       }
-      <!-- change this methoduse -->
-      @if(progressService.$displayDailyProgress()){
-      <!-- @if($reflectionStatus().completed == false){
-          
-        } -->
-      <button
-        mat-raised-button
-        [routerLink]="[
-          '',
-          'goals',
-          'reflection',
-          $dateToShow().toISOString().split('T')[0]
-        ]"
-      >
-        Start Daily Reflection
-      </button>
-      }
-      <br />
     </div>
+  
   `,
   styles: `
   .completed-habit {
@@ -171,26 +105,11 @@ export class OverviewComponent {
   #router = inject(Router);
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
+  readonly reflectionsService = inject(ReflectionsService);
 
   // ## currentTimeStep and we need another one for DayStep or different components?
   $currentTimeStep = this.progressService.$currentTimeStep;
 
-  $dateToShow = computed(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + this.$currentTimeStep());
-
-    this.progressService.handleProgressMappingToHabits(date);
-    return date;
-  });
-
-  //## two different things for two different components?
-
-  $dateRangeToShow = computed(() =>
-    formatDateRangeToDisplay(
-      this.progressService.$progressDateRange().startDate,
-      this.progressService.$progressDateRange().endDate
-    )
-  );
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;

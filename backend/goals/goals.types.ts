@@ -1,4 +1,4 @@
-import { HabitProgress } from "../progress/progress.types";
+import { HabitProgress } from "../progresses/progress.types";
 
 interface EntityBase {
   name: string;

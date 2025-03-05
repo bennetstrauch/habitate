@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../utils/classes";
+import { ErrorWithStatus } from "../utils/error.class";
 import { User } from "./users.types";
 import { StandardResponse } from "../types/standardResponse";
 
@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import { LoginResponse } from "../types/login/loginResponse";
 import { LoginRequest } from "../types/login/loginRequest";
 import { UserModel } from "../database/schemas";
+import { createDailyReflectionForUserIds } from "../progresses/create.progress.cron";
+import { getDateForTimezone } from "../utils/functionsAndVariables";
 
 type RegisterReqHandler = RequestHandler<
   unknown,
@@ -26,6 +28,12 @@ export const register: RegisterReqHandler = async (req, res, next) => {
     const savedUser = await UserModel.create(newUserHashed);
     const newUserId = savedUser._id.toString();
 
+    await createDailyReflectionForUserIds(
+      [newUserId],
+      getDateForTimezone(savedUser.timezone)
+    );
+
+    //
     res.status(201).json({ success: true, data: newUserId });
 
     console.log("User created successfully: ", savedUser);

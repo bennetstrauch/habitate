@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { HabitProgress } from "../progress/progress.types";
+import { HabitProgress } from "../progresses/progress.types";
 import { DateTime } from "luxon";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
@@ -18,7 +18,7 @@ export const getDateOnlyForTimeZone = (timezone: string) => {
 
 //## rmv this and luxon dependency, and we could unify those two.
 export const getDateForTimezone = (timezone: string): Date => {
-  return moment.tz(timezone).toDate();
+  return moment.tz(timezone).startOf('day').toDate();
 };
 
 // type DateString = `${number}-${number}-${number}`;

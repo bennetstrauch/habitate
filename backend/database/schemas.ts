@@ -1,7 +1,8 @@
 import { Schema, model, InferSchemaType } from "mongoose";
 import { Goal, Habit } from "../goals/goals.types";
-import { HabitProgress } from "../progress/progress.types";
+import { HabitProgress } from "../progresses/progress.types";
 import { User } from "../users/users.types";
+import { Reflection } from "../reflections/reflections.types";
 
 const userSchema = new Schema<User>({
   name: { type: String, required: true, minlength: 3 },
@@ -59,8 +60,6 @@ const goalSchema = new Schema({
 
 export const GoalModel = model<Goal>("goal", goalSchema);
 
-
-
 const habitProgressSchema = new Schema({
   habit_id: { type: Schema.Types.ObjectId, ref: "Habit", required: true },
   date: { type: Date, required: true }, // Use ISO date without time for daily tracking
@@ -68,10 +67,27 @@ const habitProgressSchema = new Schema({
   attempted: { type: Boolean, required: true }, // Indicates if the habit was attempted on this date
 });
 
-
 // ##consider adding an index on habit_id and date
 
 export const HabitProgressModel = model<HabitProgress>(
   "HabitProgress",
   habitProgressSchema
 );
+
+
+
+const reflectionSchema = new Schema({
+  _id: { type: Schema.Types.ObjectId, required: true },
+  user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+
+  type: { type: String, enum: ["daily", "weekly"], required: true }, 
+  date: { type: Date, required: true },
+  completed: { type: Boolean, required: true },
+
+  intention: { type: String, required: false },
+  whatWentWell: { type: String, required: false },
+
+  dailyReflectionsCompleted: { type: Number, required: false },
+});
+
+export const ReflectionModel = model<Reflection>("Reflection", reflectionSchema);
