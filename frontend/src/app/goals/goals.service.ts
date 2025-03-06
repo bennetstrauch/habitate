@@ -18,7 +18,7 @@ export class GoalsService {
   $goals = signal<Goal[]>([]);
 
   $habitIds = computed(() =>{
-    console.log('habitIds computed');
+    console.log('habitIds computed', 'goals:', this.$goals());
     return this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   }
   );
