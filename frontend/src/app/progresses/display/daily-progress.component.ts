@@ -17,10 +17,9 @@ import { MatButton } from '@angular/material/button';
     NgClass,
     MatIcon,
     RouterLink,
-    MatButton
+    MatButton,
   ],
   template: `
-
     @for (goal of goalsService.$goals(); track $index) {
     <div class="hover-div">
       <app-display-goal-with-link [goalId]="goal._id" [goalName]="goal.name" />
@@ -43,31 +42,31 @@ import { MatButton } from '@angular/material/button';
       }
     </div>
     <br />
-    }
-
-    
-      @if(reflectionsService.$reflection()?.completed){
-      <div>
-        <mat-icon> 'task_alt' </mat-icon>
+    } @if(reflectionsService.$reflection()?.completed){
+    <!-- no need for copleted habit and maybe habit-div if button is left in there  -->
+    <!-- # redo? then with alert -->
+    <div class="completed-habit habit-div">
+      <button mat-raised-button>
+        <mat-icon> task_alt </mat-icon>
         <strong> Reflection Completed :) </strong>
-      </div>
-
-      } @if(!reflectionsService.$reflection()?.completed){
-
-      <button
-        mat-raised-button
-        [routerLink]="[
-          '',
-          'goals',
-          'reflection',
-          progressService.$dailyProgressDate().toISOString().split('T')[0]
-        ]"
-      >
-        Start Daily Reflection
       </button>
-      } 
-      <br />
-   
+    </div>
+
+    } @if(!reflectionsService.$reflection()?.completed){
+
+    <button
+      mat-raised-button
+      [routerLink]="[
+        '',
+        'goals',
+        'reflection',
+        progressService.$dailyProgressDate().toISOString().split('T')[0]
+      ]"
+    >
+      Start Daily Reflection
+    </button>
+    <br />
+    }
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: ``,
@@ -76,8 +75,6 @@ export class DailyProgressComponent {
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
   reflectionsService = inject(ReflectionsService);
-
-
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;
