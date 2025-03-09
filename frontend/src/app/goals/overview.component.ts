@@ -31,12 +31,16 @@ import { DateHeaderWithTimestepComponent } from "../progresses/display/date-head
 ],
   template: `
 
-    <app-date-header-with-timestep/>
+    <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/>
 
     <div class="card">
       @if (progressService.$displayDailyProgress()) {
+
+        <!-- <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/> -->
+
       <app-daily-progress></app-daily-progress>
       } @if (progressService.$displayStats()) {
+
       <app-progress-stats></app-progress-stats>
       }
     </div>

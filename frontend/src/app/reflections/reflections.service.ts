@@ -5,6 +5,7 @@ import { Reflection } from '@backend/reflections/reflections.types';
 import { environment } from 'frontend/src/environments/environment';
 import { ProgressService } from '../progresses/progresses.service';
 import { toLocalDateString } from '../utils/utils';
+import { StatBase } from '@backend/progresses/progress.types';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,9 @@ export class ReflectionsService {
   progressService = inject(ProgressService);
 
   $reflection = signal<Reflection | null>(null);
+
+  $reflectionStats = signal<StatBase | null>(null);
+  // ## effect on change of timestep, but we need separted timesteps for stats and dailyprogress
 
   setReflectionOnDateChange = effect(() => {
     const dateString = toLocalDateString(
@@ -29,8 +33,6 @@ export class ReflectionsService {
   });
 
   constructor() {}
-
-
 
   // __________ HTTP REQUESTS __________
 

@@ -1,4 +1,4 @@
-import { Component, inject, input, Input } from '@angular/core';
+import { Component, inject, input, Input, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ProgressService } from '../progresses.service';
 
@@ -71,8 +71,10 @@ export class DateHeaderWithTimestepComponent {
 
   progressService = inject(ProgressService);
 
-  $currentTimeStep = this.progressService.$currentTimeStep;
+  @Input({ required: true }) $currentTimeStep!: Signal<number> & { set: (value: number) => void };
 
-  readonly minStep = input<number>(-2);
+
+  // ##cange back to -2
+  readonly minStep = input<number>(-7);
   readonly maxStep = input<number>(0);
 }

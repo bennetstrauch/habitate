@@ -1,13 +1,7 @@
 import { Routes } from '@angular/router';
 import { OverviewComponent } from '../goals/overview.component';
-import { AddGoalComponent } from '../goals/add/addGoal.component';
-import { SetupFirstGoalComponent } from '../goals/setupFirstGoal/setupFirstGoal.component';
-import { inject } from '@angular/core';
-import { StateService } from '../state.service';
-import { GoalComponent } from '../goals/goal.component';
 import { ReflectionComponent } from '../reflections/reflection';
 import { addGoalGuard } from './resolver and guards/addGoal.guard';
-import { noGoalGuard } from './resolver and guards/noGoal.guard';
 
 export const goalsRoutes: Routes = [
   // replace with goalscomponent ##

@@ -9,6 +9,7 @@ import { HabitProgress } from '@backend/progresses/progress.types';
 import { RouterLink } from '@angular/router';
 import { ReflectionsService } from '../../reflections/reflections.service';
 import { MatButton } from '@angular/material/button';
+import { WeeklyReflectionComponent } from "../../reflections/display/weekly-reflection.component";
 
 @Component({
   selector: 'app-daily-progress',
@@ -18,7 +19,8 @@ import { MatButton } from '@angular/material/button';
     MatIcon,
     RouterLink,
     MatButton,
-  ],
+    WeeklyReflectionComponent
+],
   template: `
     @for (goal of goalsService.$goals(); track $index) {
     <div class="hover-div">
@@ -66,6 +68,10 @@ import { MatButton } from '@angular/material/button';
       Start Daily Reflection
     </button>
     <br />
+
+    <!-- @if (dailyProgressDateIsSunday()){
+      <app-weekly-reflection/>
+    } -->
     }
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
@@ -90,4 +96,11 @@ export class DailyProgressComponent {
         progress.completed ? 1 : -1;
     });
   }
+
+  
+  dailyProgressDateIsSunday() {
+    return this.progressService.$dailyProgressDate().getDay() === 0;
+  }
 }
+
+

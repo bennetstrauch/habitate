@@ -1,12 +1,17 @@
-import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import {
+  computed,
+  effect,
+  inject,
+  Injectable,
+  signal,
+  untracked,
+} from '@angular/core';
 import {
   HabitProgress,
-  ProgressStat,
-  ProgressStatBase,
+  StatBase,
   ProgressStatsForDateRange,
 } from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
-// ### import the other environment variable!!!#######
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -29,6 +34,7 @@ export class ProgressService {
   $displayStats = signal<boolean>(false);
   $displayDailyProgress = computed(() => !this.$displayStats());
 
+  // ########### divide in two time steps, move to their components
   $currentTimeStep = signal(0);
   // ## to seperate limit of only -2 for prgoress stats:
   // $currentDayStep = signal(0)
@@ -41,7 +47,10 @@ export class ProgressService {
   currentTimeStepForStats = computed(() => this.$currentTimeStep());
 
   handleTimeStepChange = effect(() => {
-    if (this.$displayDailyProgress() && this.goalsService.$habitIds().length > 0) {
+    if (
+      this.$displayDailyProgress() &&
+      this.goalsService.$habitIds().length > 0
+    ) {
       this.$dailyProgressDate.set(this.calculateDateWithTimestep());
       this.handleProgressMappingToHabits(this.$dailyProgressDate());
 
@@ -61,25 +70,25 @@ export class ProgressService {
       );
 
       this.$dateOrDateRangeToShow.set(dateRangeToShow);
+      console.log('dateRangeToShow: ', dateRangeToShow);
 
       //# doesnt work because it retriggers
       // this.loadProgressStats(this.$currentTimeStep());
-     
     }
   });
 
   $dailyProgressDate = signal(new Date());
   $dateOrDateRangeToShow = signal<string>('');
 
-  $progressStatsMap = signal<Map<string, ProgressStatBase>>(new Map());
-  // ### own type!
+  // #################################################
+  $progressStatsMap = signal<Map<string, StatBase>>(new Map());
+  // ### own type!, move map to progressstats component maybe
   $progressDateRange = signal<{ startDate: string; endDate: string }>({
     startDate: '',
     endDate: '',
   });
 
-
-  // ##might break
+  // #######################################################might break
   handleDateChange = () => {
     this.handleProgressMappingToHabits(this.$dailyProgressDate());
 
@@ -218,8 +227,8 @@ export class ProgressService {
     );
   }
 
+  // ###################################################################second service
   getProgressStats(period: 'week' | 'month', offset = 0, habitIds: string[]) {
-
     const params = new HttpParams()
       .set('period', period)
       .set('offset', offset.toString())
