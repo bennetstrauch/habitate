@@ -9,7 +9,8 @@ import { HabitProgress } from '@backend/progresses/progress.types';
 import { RouterLink } from '@angular/router';
 import { ReflectionsService } from '../../reflections/reflections.service';
 import { MatButton } from '@angular/material/button';
-import { WeeklyReflectionComponent } from "../../reflections/display/weekly-reflection.component";
+import { WeeklyReflectionComponent } from '../../reflections/display/weekly-reflection.component';
+import { StatsService } from '../stats.service';
 
 @Component({
   selector: 'app-daily-progress',
@@ -19,60 +20,71 @@ import { WeeklyReflectionComponent } from "../../reflections/display/weekly-refl
     MatIcon,
     RouterLink,
     MatButton,
-    WeeklyReflectionComponent
-],
+    WeeklyReflectionComponent,
+    DateHeaderWithTimestepComponent,
+  ],
   template: `
-    @for (goal of goalsService.$goals(); track $index) {
-    <div class="hover-div">
-      <app-display-goal-with-link [goalId]="goal._id" [goalName]="goal.name" />
+    <app-date-header-with-timestep
+      [$currentTimeStep]="progressService.$dailyProgressTimeStep"
+      [$dateOrDateRangeToShow]="progressService.$dateToShow()"
+    ></app-date-header-with-timestep>
 
-      @for (habit of goal.habits; track $index){ @let progress =
-      habit.latestProgress;
+    <div class="card">
+      @for (goal of goalsService.$goals(); track $index) {
+      <div class="hover-div">
+        <app-display-goal-with-link
+          [goalId]="goal._id"
+          [goalName]="goal.name"
+        />
 
-      <div
-        class="habit-div"
-        [ngClass]="{ 'completed-habit': progress.completed }"
-      >
-        <!-- ## make like english -->
-        <mat-icon (click)="toggleCompleted(progress, habit._id)">
-          {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
-        </mat-icon>
+        @for (habit of goal.habits; track $index){ @let progress =
+        habit.latestProgress;
 
-        {{ habit.name }}
+        <div
+          class="habit-div"
+          [ngClass]="{ 'completed-habit': progress.completed }"
+        >
+          <!-- ## make like english -->
+          <mat-icon (click)="toggleCompleted(progress, habit._id)">
+            {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
+          </mat-icon>
+
+          {{ habit.name }}
+        </div>
+
+        }
+      </div>
+      <br />
+      } @if(reflectionsService.$reflection()?.completed){
+      <!-- no need for copleted habit and maybe habit-div if button is left in there  -->
+      <!-- # redo? then with alert -->
+      <div class="completed-habit habit-div">
+        <button mat-raised-button>
+          <mat-icon> task_alt </mat-icon>
+          <strong> Reflection Completed :) </strong>
+        </button>
       </div>
 
+      } @if(!reflectionsService.$reflection()?.completed){
+
+      <button
+        mat-raised-button
+        [routerLink]="[
+          '',
+          'goals',
+          'reflection',
+          progressService.$dailyProgressDate().toISOString().split('T')[0]
+        ]"
+      >
+        Start Daily Reflection
+      </button>
+      <br />
+
+        <!-- @if (dailyProgressDateIsSunday()){
+        <app-weekly-reflection/>
+        } -->
       }
     </div>
-    <br />
-    } @if(reflectionsService.$reflection()?.completed){
-    <!-- no need for copleted habit and maybe habit-div if button is left in there  -->
-    <!-- # redo? then with alert -->
-    <div class="completed-habit habit-div">
-      <button mat-raised-button>
-        <mat-icon> task_alt </mat-icon>
-        <strong> Reflection Completed :) </strong>
-      </button>
-    </div>
-
-    } @if(!reflectionsService.$reflection()?.completed){
-
-    <button
-      mat-raised-button
-      [routerLink]="[
-        '',
-        'goals',
-        'reflection',
-        progressService.$dailyProgressDate().toISOString().split('T')[0]
-      ]"
-    >
-      Start Daily Reflection
-    </button>
-    <br />
-
-    <!-- @if (dailyProgressDateIsSunday()){
-      <app-weekly-reflection/>
-    } -->
-    }
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: ``,
@@ -80,6 +92,7 @@ import { WeeklyReflectionComponent } from "../../reflections/display/weekly-refl
 export class DailyProgressComponent {
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
+  statsService = inject(StatsService);
   reflectionsService = inject(ReflectionsService);
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
@@ -92,15 +105,12 @@ export class DailyProgressComponent {
       // ### what if fails, retry or show error?
 
       // update the Stats-Signal Completed value accordingly
-      this.progressService.$progressStatsMap().get(habitId)!.completed +=
+      this.statsService.$progressStatsMap().get(habitId)!.completed +=
         progress.completed ? 1 : -1;
     });
   }
 
-  
   dailyProgressDateIsSunday() {
     return this.progressService.$dailyProgressDate().getDay() === 0;
   }
 }
-
-

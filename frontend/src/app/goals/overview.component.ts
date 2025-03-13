@@ -11,7 +11,7 @@ import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
 import { DisplayGoalWithLinkComponent } from './display-goal-with-link.component';
-import { DateHeaderWithTimestepComponent } from "../progresses/display/date-header-with-timestep.component";
+import { DateHeaderWithTimestepComponent } from '../progresses/display/date-header-with-timestep.component';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -26,25 +26,23 @@ import { DateHeaderWithTimestepComponent } from "../progresses/display/date-head
     CommonModule,
     DailyProgressComponent,
     ProgressStatsComponent,
-    DisplayGoalWithLinkComponent,
-    DateHeaderWithTimestepComponent
-],
+    DateHeaderWithTimestepComponent,
+  ],
   template: `
+    <!-- <app-date-header-with-timestep
+      [$currentTimeStep]="progressService.$currentTimeStep",
+      [$dateOrDateRangeToShow]="progressService.$dateOrDateRangeToShow()"
+    /> -->
 
-    <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/>
+    @if (progressService.$displayDailyProgress()) {
 
-    <div class="card">
-      @if (progressService.$displayDailyProgress()) {
+    <!-- <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/> -->
 
-        <!-- <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/> -->
+    <app-daily-progress></app-daily-progress>
+    } @if (progressService.$displayStats()) {
 
-      <app-daily-progress></app-daily-progress>
-      } @if (progressService.$displayStats()) {
-
-      <app-progress-stats></app-progress-stats>
-      }
-    </div>
-  
+    <app-progress-stats></app-progress-stats>
+    }
   `,
   styles: `
   .completed-habit {
@@ -106,29 +104,14 @@ import { DateHeaderWithTimestepComponent } from "../progresses/display/date-head
   `,
 })
 export class OverviewComponent {
+  hello = 'world';
   #router = inject(Router);
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
   readonly reflectionsService = inject(ReflectionsService);
 
   // ## currentTimeStep and we need another one for DayStep or different components?
-  $currentTimeStep = this.progressService.$currentTimeStep;
-
-
-  toggleCompleted(progress: HabitProgress, habitId: string) {
-    progress.completed = !progress.completed;
-
-    this.progressService.put_progress(progress).subscribe((response) => {
-      if (response.success) {
-        console.log('progress updated: ', response.data);
-      }
-      // ### what if fails, retry or show error?
-
-      // update the Stats-Signal Completed value accordingly
-      this.progressService.$progressStatsMap().get(habitId)!.completed +=
-        progress.completed ? 1 : -1;
-    });
-  }
+  $currentTimeStep = this.progressService.$dailyProgressTimeStep;
 
   // ####ideax: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
   // signature const function if(condition : boolean)navigateTo(path: string){}

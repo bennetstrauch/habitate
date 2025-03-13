@@ -1,19 +1,30 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
   ProgressStatsForDateRange,
   StatBase,
 } from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
+import { GoalsService } from '../goals/goals.service';
+import { formatDateRangeToDisplay } from '../utils/utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StatsService {
   #http = inject(HttpClient);
+  goalsService = inject(GoalsService);
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+   
+          if (this.goalsService.$habitIds().length > 0 ) {
+            console.log('loading progress stats');
+            this.loadProgressStats(this.$statsTimeStep());
+          }
+        });
+  }
 
   $statsTimeStep = signal(0);
 
@@ -22,7 +33,41 @@ export class StatsService {
     endDate: '',
   });
 
+  $dateRangeToShow = computed(() => formatDateRangeToDisplay(
+    this.$progressDateRange().startDate,
+    this.$progressDateRange().endDate
+  ));
+
+
   $progressStatsMap = signal<Map<string, StatBase>>(new Map());
+
+ 
+
+
+  // ____________________ METHODS ____________________
+
+  loadProgressStats(currentTimeStep: number) {
+    this.getProgressStats(
+      'week',
+      currentTimeStep,
+      this.goalsService.$habitIds()
+    ).subscribe((response) => {
+      if (response.success) {
+        const statsMap = new Map(
+          response.data.progressStats.map((progressStat) => [
+            progressStat._id,
+            { total: progressStat.total, completed: progressStat.completed },
+          ])
+        );
+        console.log('statsMap: ', statsMap, 'response.data: ', response.data);
+        this.$progressStatsMap.set(statsMap); // Update the signal
+        this.$progressDateRange.set({
+          startDate: response.data.startDate.split('T')[0],
+          endDate: response.data.endDate.split('T')[0],
+        });
+      }
+    });
+  }
 
   // ____________________ HTTP REQUESTS ____________________
 

@@ -34,61 +34,27 @@ export class ProgressService {
   $displayStats = signal<boolean>(false);
   $displayDailyProgress = computed(() => !this.$displayStats());
 
-  // ########### divide in two time steps, move to their components
-  $currentTimeStep = signal(0);
-  // ## to seperate limit of only -2 for prgoress stats:
-  // $currentDayStep = signal(0)
-
-  // resetTimeStep = effect(() => {
-  //   if (this.$displayStats()) this.$currentTimeStep.set(0);
-  // });
-
-  // ##this is a mess, separate things better
-  currentTimeStepForStats = computed(() => this.$currentTimeStep());
+  // ########### rename dailyTimeStep
+  $dailyProgressTimeStep = signal(0);
+  // ## reset timestep?
 
   handleTimeStepChange = effect(() => {
-    if (
-      this.$displayDailyProgress() &&
-      this.goalsService.$habitIds().length > 0
-    ) {
-      this.$dailyProgressDate.set(this.calculateDateWithTimestep());
-      this.handleProgressMappingToHabits(this.$dailyProgressDate());
-
-      const dateToShow = formatDateToDisplayAsWeekMonthDay(
-        this.$dailyProgressDate()
-      );
-      this.$dateOrDateRangeToShow.set(dateToShow);
-
-      console.log('dateToShow: ', dateToShow);
-    }
-    // ##extra method
-
-    if (this.$displayStats()) {
-      const dateRangeToShow = formatDateRangeToDisplay(
-        this.$progressDateRange().startDate,
-        this.$progressDateRange().endDate
-      );
-
-      this.$dateOrDateRangeToShow.set(dateRangeToShow);
-      console.log('dateRangeToShow: ', dateRangeToShow);
-
-      //# doesnt work because it retriggers
-      // this.loadProgressStats(this.$currentTimeStep());
-    }
+    this.handleProgressMappingToHabits(this.$dailyProgressDate());
   });
 
-  $dailyProgressDate = signal(new Date());
-  $dateOrDateRangeToShow = signal<string>('');
+  $dailyProgressDate = computed(() => this.calculateDateWithTimestep());
 
-  // #################################################
-  $progressStatsMap = signal<Map<string, StatBase>>(new Map());
+  $dateToShow = computed(() =>
+    formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate())
+  );
+
   // ### own type!, move map to progressstats component maybe
   $progressDateRange = signal<{ startDate: string; endDate: string }>({
     startDate: '',
     endDate: '',
   });
 
-  // #######################################################might break
+  // ________________________############might break
   handleDateChange = () => {
     this.handleProgressMappingToHabits(this.$dailyProgressDate());
 
@@ -97,48 +63,9 @@ export class ProgressService {
 
   calculateDateWithTimestep = () => {
     const date = new Date();
-    date.setDate(date.getDate() + this.$currentTimeStep());
+    date.setDate(date.getDate() + this.$dailyProgressTimeStep());
     return date;
   };
-
-  // loadProgressStatsForTimeframe = effect(() => {
-  //     this.loadProgressStats(this.goalsService.$currentTimeStep());
-  // });
-
-  constructor() {
-    // Automatically fetch progress stats whenever habit IDs change ## need first comparison?
-    //# also gets fetched everytie we toggle, do different?#
-    effect(() => {
-      if (this.goalsService.$habitIds().length > 0 && this.$displayStats()) {
-        console.log('loading progress stats');
-        this.loadProgressStats(this.$currentTimeStep());
-      }
-    });
-  }
-
-  // ## change!!!
-  loadProgressStats(currentTimeStep: number) {
-    this.getProgressStats(
-      'week',
-      currentTimeStep,
-      this.goalsService.$habitIds()
-    ).subscribe((response) => {
-      if (response.success) {
-        const statsMap = new Map(
-          response.data.progressStats.map((progressStat) => [
-            progressStat._id,
-            { total: progressStat.total, completed: progressStat.completed },
-          ])
-        );
-        console.log('statsMap: ', statsMap, 'response.data: ', response.data);
-        this.$progressStatsMap.set(statsMap); // Update the signal
-        this.$progressDateRange.set({
-          startDate: response.data.startDate.split('T')[0],
-          endDate: response.data.endDate.split('T')[0],
-        });
-      }
-    });
-  }
 
   //#refactor
   handleProgressMappingToHabits(date: Date) {
@@ -224,22 +151,6 @@ export class ProgressService {
     return this.#http.put<StandardResponse<number>>(
       environment.SERVER_URL + '/progresses' + '/' + progress._id,
       progress
-    );
-  }
-
-  // ###################################################################second service
-  getProgressStats(period: 'week' | 'month', offset = 0, habitIds: string[]) {
-    const params = new HttpParams()
-      .set('period', period)
-      .set('offset', offset.toString())
-      .set('date', new Date().toLocaleDateString('en-CA')) // #have a method in utils
-      .set('habit_ids', habitIds.join(',')); // Converting array to CSV format
-
-    return this.#http.get<StandardResponse<ProgressStatsForDateRange>>(
-      environment.SERVER_URL + '/progresses/stats',
-      {
-        params,
-      }
     );
   }
 }

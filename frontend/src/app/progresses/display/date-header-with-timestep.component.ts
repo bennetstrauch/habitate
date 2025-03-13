@@ -16,7 +16,7 @@ import { ProgressService } from '../progresses.service';
       </button>
 
       <div class="card head-card">
-        <span [innerHTML]="this.progressService.$dateOrDateRangeToShow()">
+        <span [innerHTML]="$dateOrDateRangeToShow()">
         </span>
       </div>
 
@@ -72,9 +72,10 @@ export class DateHeaderWithTimestepComponent {
   progressService = inject(ProgressService);
 
   @Input({ required: true }) $currentTimeStep!: Signal<number> & { set: (value: number) => void };
+  $dateOrDateRangeToShow = input.required();
 
 
   // ##cange back to -2
-  readonly minStep = input<number>(-7);
+  readonly minStep = input<number>(-2);
   readonly maxStep = input<number>(0);
 }
