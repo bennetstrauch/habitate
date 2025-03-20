@@ -7,7 +7,8 @@ import {
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
-import { formatDateRangeToDisplay } from '../utils/utils';
+import { calculateStartAndEndDate, formatDateRangeToDisplay } from '../utils/utils';
+import { ReflectionsService } from '../reflections/reflections.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,12 +16,14 @@ import { formatDateRangeToDisplay } from '../utils/utils';
 export class StatsService {
   #http = inject(HttpClient);
   goalsService = inject(GoalsService);
+  // #load refl stats in this service?, many servicesmakes slower?
 
   constructor() {
     effect(() => {
    
           if (this.goalsService.$habitIds().length > 0 ) {
             console.log('loading progress stats');
+            // ## change to take in startdate and endate instead of offset...
             this.loadProgressStats(this.$statsTimeStep());
           }
         });
@@ -28,10 +31,13 @@ export class StatsService {
 
   $statsTimeStep = signal(0);
 
-  $progressDateRange = signal<{ startDate: string; endDate: string }>({
-    startDate: '',
-    endDate: '',
-  });
+  // $progressDateRange = signal<{ startDate: string; endDate: string }>({
+  //   startDate: '',
+  //   endDate: '',
+  // });
+
+  // ## startDate, endDate should be type Date
+  $progressDateRange = computed( () => calculateStartAndEndDate('week',this.$statsTimeStep()));
 
   $dateRangeToShow = computed(() => formatDateRangeToDisplay(
     this.$progressDateRange().startDate,
@@ -61,10 +67,10 @@ export class StatsService {
         );
         console.log('statsMap: ', statsMap, 'response.data: ', response.data);
         this.$progressStatsMap.set(statsMap); // Update the signal
-        this.$progressDateRange.set({
-          startDate: response.data.startDate.split('T')[0],
-          endDate: response.data.endDate.split('T')[0],
-        });
+        // this.$progressDateRange.set({
+        //   startDate: response.data.startDate.split('T')[0],
+        //   endDate: response.data.endDate.split('T')[0],
+        // });
       }
     });
   }

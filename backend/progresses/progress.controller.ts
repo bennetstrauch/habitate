@@ -185,7 +185,7 @@ const getProgressStatsForDateRange = async (
     {
       $group: {
         _id: "$habit_id",
-        total: { $sum: 1 }, // Count all progress records ## don't need any more I guess.
+        total: { $sum: 1 }, //  ## don't need total any more I guess.
         completed: { $sum: { $cond: ["$completed", 1, 0] } }, // Count only completed ones
       },
     },

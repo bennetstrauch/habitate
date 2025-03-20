@@ -74,7 +74,7 @@ export const login: LoginReqHandler = async (req, res, next) => {
       { _id: user._id, name: user.name, email: user.email },
       process.env.SECRET_KEY_FOR_SIGNING_TOKEN,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
 

@@ -8,6 +8,12 @@ import {
 import { ErrorWithStatus } from "../utils/error.class";
 import { ReflectionModel } from "../database/schemas";
 import { getReflectionFromDBOrCreate } from "./reflection.database";
+import { StatsBase } from "fs";
+import { StatBase } from "../progresses/progress.types";
+import { ObjectId } from "../types/ObjectId.type";
+import {
+  idToObjectId,
+} from "../utils/functionsAndVariables";
 
 
 type GetReflectionForDateReqHandler = RequestHandler<
@@ -126,3 +132,75 @@ export const putReflection: PutReflectionReqHandler = async (
     next(err);
   }
 };
+
+
+type getReflectionStatsReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<StatBase>,
+  unknown,
+  { startDate: Date; endDate: Date }
+>;
+
+
+export const getReflectionStats: getReflectionStatsReqHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const user_id = req.userId;
+    const { startDate, endDate } = req.query;
+
+    if (!user_id) {
+      throw new ErrorWithStatus("Invalid userId", 401);
+    }
+
+    console.log('Getting reflection stats for date range and userId', new Date(startDate), endDate, user_id);
+
+    const stats = await getReflectionStatsForDateRange(
+      user_id,
+      new Date(startDate),
+      new Date(endDate)
+    );
+
+    console.log('Requested ReflectionsStat:', stats);
+
+    res.json({ success: true, data: stats });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const getReflectionStatsForDateRange = async (
+  user_id: string,
+  startDate: Date,
+  endDate: Date
+) => {
+
+  const reflectionStats = await ReflectionModel.aggregate([
+    {
+      $match: {
+        user_id: idToObjectId(user_id),
+        date: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        completed: { $sum: { $cond: ["$completed", 1, 0] } },
+      },
+    },
+    {
+      $project: {
+        _id: 0, // Exclude `_id` field from the output
+        completed: 1,
+      },
+    },
+  ]);
+
+  console.log('ReflectionStats:', reflectionStats);
+
+  
+
+  return reflectionStats[0] as StatBase;
+}

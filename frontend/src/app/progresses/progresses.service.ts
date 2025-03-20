@@ -8,8 +8,6 @@ import {
 } from '@angular/core';
 import {
   HabitProgress,
-  StatBase,
-  ProgressStatsForDateRange,
 } from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
@@ -48,11 +46,6 @@ export class ProgressService {
     formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate())
   );
 
-  // ### own type!, move map to progressstats component maybe
-  $progressDateRange = signal<{ startDate: string; endDate: string }>({
-    startDate: '',
-    endDate: '',
-  });
 
   // ________________________############might break
   handleDateChange = () => {

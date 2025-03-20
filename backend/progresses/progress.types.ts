@@ -12,7 +12,8 @@ export interface HabitProgress extends HabitProgressBase {
 }
 
 export interface StatBase {
-  total: number;
+  // ## no longer needed
+  total?: number;
   completed: number;
 }
 export interface ProgressStat extends StatBase {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
 import { NgClass } from '@angular/common';
 import { GoalsService } from '../../goals/goals.service';
@@ -6,6 +6,7 @@ import { ProgressService } from '../progresses.service';
 import { MatButton } from '@angular/material/button';
 import { DateHeaderWithTimestepComponent } from './date-header-with-timestep.component';
 import { StatsService } from '../stats.service';
+import { ReflectionsService } from '../../reflections/reflections.service';
 
 @Component({
   selector: 'app-progress-stats',
@@ -52,7 +53,25 @@ import { StatsService } from '../stats.service';
         }
       </div>
       <br />
-      }
+      } @let reflectionStats = reflectionsService.$reflectionStats();
+      <div
+        class="habit-div"
+        [ngClass]="{
+          'completed-habit': reflectionsService.$reflection()?.completed
+        }"
+      >
+        <button mat-raised-button>
+          <button mat-button class="progress-display">
+            <strong>{{
+              reflectionStats?.completed ?? 'Could not load stats'
+            }}</strong>
+            <!-- move that in method # -->
+            / 7
+          </button>
+
+          <strong>Daily Reflection</strong>
+        </button>
+      </div>
     </div>
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
@@ -68,5 +87,8 @@ import { StatsService } from '../stats.service';
 export class ProgressStatsComponent {
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
+  reflectionsService = inject(ReflectionsService);
   statsService = inject(StatsService);
+
+  constructor() {}
 }
