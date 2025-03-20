@@ -41,8 +41,21 @@ import { Reflection } from '@backend/reflections/reflections.types';
         <button mat-button matStepperNext>Next</button>
       </mat-step>
 
-      @for(goal of this.goalsService.$goals(); track $index) {
+      <mat-step>
+        <p>What was <strong>something good</strong> today? <br /></p>
+      
+        <p>Just <strong>relax and see</strong> what bubbles up in your mind</p>
 
+        <!-- #let user enter -->
+
+        <button mat-button matStepperNext>Next</button>
+      </mat-step>
+
+      @for(goal of this.goalsService.$goals(); track $index) {
+        <!-- #doesnt gt triggered -->
+        @if ($index === 0) {
+          <p><strong>Let's flow</strong> through your precious goals :) </p>
+        }
       <mat-step>
         <p>Intention</p>
         <strong>" {{ goal.name }} "</strong>
@@ -55,20 +68,23 @@ import { Reflection } from '@backend/reflections/reflections.types';
       @for(habit of goal.habits; track $index) {
 
       <mat-step>
-        <strong>{{ habit.name }}</strong> <br />
-        <br />
+        <strong>{{ habit.name }}</strong> <br /> <br>
+       
         @if (habit.latestProgress.completed) { Congratulations! <br />
 
-        Did it feel good? <br />
-        } @else { No worries. <br />
+        Did it feel good?
+        } @else { 
+          ---------------- <br>
+          No worries. <br />
         Just tune in. <br />
         <br />
         What did hold you back from doing it? <br />
         & <br />
         <strong>What simple change</strong> to make it happen with ease
-        tomorrow? <br />
-        <br />
+        tomorrow?
         }
+        <br>
+        <br>
 
         <div>
           <button mat-button matStepperNext>Next</button>
@@ -84,8 +100,7 @@ import { Reflection } from '@backend/reflections/reflections.types';
         <div>
           <button mat-button matStepperPrevious>Back</button>
 
-          <button mat-button 
-          (click)="completeReflection()">
+          <button mat-button (click)="completeReflection()">
             Finish Reflection
           </button>
         </div>
@@ -108,7 +123,6 @@ export class ReflectionComponent {
   progressService = inject(ProgressService);
 
   $formattedDate = signal<string>('');
-
 
   constructor(private route: ActivatedRoute) {}
 
@@ -135,12 +149,14 @@ export class ReflectionComponent {
     if (this.reflectionsService.$reflection()) {
       this.reflectionsService.$reflection()!.completed = true;
 
-      this.reflectionsService.put_reflection(this.reflectionsService.$reflection()!).subscribe((response) => {
-        if (response.success) {
-        console.log('Reflection updated: ', response.data);
-        }
-      this.#router.navigate(['', 'goals', 'overview']);
-      });
+      this.reflectionsService
+        .put_reflection(this.reflectionsService.$reflection()!)
+        .subscribe((response) => {
+          if (response.success) {
+            console.log('Reflection updated: ', response.data);
+          }
+          this.#router.navigate(['', 'goals', 'overview']);
+        });
     }
   }
 }
