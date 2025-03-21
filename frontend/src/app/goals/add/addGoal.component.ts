@@ -165,7 +165,7 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
         <div>
           <button mat-button matStepperPrevious>Back</button>
           <button mat-button type="submit" matStepperNext (click)="addGoal()">
-            Add Goal
+            Add this Goal
           </button>
         </div>
       </mat-step>

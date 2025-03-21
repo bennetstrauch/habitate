@@ -83,9 +83,9 @@ import { MatSliderModule } from '@angular/material/slider';
           type="button"
           mat-raised-button
           aria-label="Delete"
-          (click)="deleteGoal()"
+          (click)="deleteHabit()"
         >
-          <mat-icon>delete</mat-icon> Delete Goal
+          <mat-icon>delete</mat-icon> Delete Habit
         </button>
       </form>
     </mat-card>
@@ -184,18 +184,13 @@ export class UpdateHabitComponent {
     });
   };
 
-  deleteGoal = () => {
-    this.#goalsService.delete_goal(this._id()).subscribe((response) => {
-      console.log(' delete response: ', response);
-      if (response.success) {
-        this.#goalsService.update_goals();
-      }
-    });
-  };
 
-  deleteHabit = (habit_id: string) => {
+  deleteHabit = () => {
+    const confirmDelete = window.confirm('Delete this Habit?');
+    if (!confirmDelete) return;
+
     this.#goalsService
-      .remove_habit(this._id(), habit_id)
+      .remove_habit(this._id(), this.habit_id())
       .subscribe((response) => {
         console.log(' delete response: ', response);
         if (response.success) {

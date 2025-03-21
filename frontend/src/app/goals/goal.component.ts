@@ -45,7 +45,7 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
         <mat-icon>edit</mat-icon> Edit
       </button>
 
-      <mat-card class="card">
+      <mat-card class="habit card">
         <u>Habits</u> <br />
 
         @for( habit of $goal()!.habits; track $index) {
@@ -69,6 +69,10 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
   styles: `
    .goal {
     background-color: #fff9c4; /* Light yellow */
+    }
+
+    .habit {
+      background-color:rgb(255, 255, 255); /* White */
     }
   `,
 })

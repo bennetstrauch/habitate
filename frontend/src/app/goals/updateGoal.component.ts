@@ -169,6 +169,9 @@ export class UpdateGoalComponent {
   };
 
   deleteGoal = () => {
+    const confirmDelete = window.confirm('Delete this Goal?');
+    if (!confirmDelete) return;
+
     this.#goalsService.delete_goal(this._id()).subscribe((response) => {
       console.log(' delete response: ', response);
       if (response.success) {
@@ -189,6 +192,9 @@ export class UpdateGoalComponent {
   };
 
   deleteHabit = (habit_id: string) => {
+    const confirmDelete = window.confirm('Delete this Habit?');
+    if (!confirmDelete) return;
+
     this.#goalsService
       .remove_habit(this._id(), habit_id)
       .subscribe((response) => {

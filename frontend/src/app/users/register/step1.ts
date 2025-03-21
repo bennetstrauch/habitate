@@ -74,6 +74,7 @@ import { validators } from './register.component';
           matInput
           placeholder="MaaamaMia123"
           formControlName="password"
+          type="password"
           required
         />
       </mat-form-field>

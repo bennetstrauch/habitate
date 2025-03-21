@@ -20,7 +20,7 @@ import { catchError, of } from 'rxjs';
      
       <input placeholder="email" [formControl]='form.controls.email'>
       <br>
-      <input placeholder="password" [formControl]='form.controls.password'>
+      <input type="password" placeholder="password" [formControl]='form.controls.password'>
       <br>
 
       <button mat-button [disabled]="form.invalid"> Login </button>
