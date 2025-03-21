@@ -26,7 +26,7 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
   ],
   template: `
     <div style="text-align: center;">
-      <mat-card class="card">
+      <mat-card class="goal card">
         <u>Goal</u> <br />
         <div>
           <strong>{{ $goal()!.name }}</strong>
@@ -66,7 +66,11 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
     </div>
   `,
   styleUrls: ['../habits/styles-for-display-habits.scss'],
-  styles: ``,
+  styles: `
+   .goal {
+    background-color: #fff9c4; /* Light yellow */
+    }
+  `,
 })
 export class GoalComponent {
   #router = inject(Router);
