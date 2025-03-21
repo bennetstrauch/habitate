@@ -43,9 +43,10 @@ import { StatsService } from '../stats.service';
         <div
           class="habit-div"
           [ngClass]="{ 'completed-habit': progress.completed }"
+          (click)="toggleCompleted(progress, habit._id)"
         >
           <!-- ## make like english -->
-          <mat-icon (click)="toggleCompleted(progress, habit._id)">
+          <mat-icon>
             {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
           </mat-icon>
 
