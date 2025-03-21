@@ -1,0 +1,18 @@
+.habit-card {
+  padding: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.habit-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.habit-name {
+  font-size: 16px;
+  font-weight: 500;
+}

@@ -1,5 +1,5 @@
 import { Component, inject, input, viewChild } from '@angular/core';
-import { GoalsService } from '../goals/goals.service';
+import { GoalsService } from '../../goals/goals.service';
 import { Router, RouterLink } from '@angular/router';
 import {
   FormBuilder,
@@ -23,7 +23,6 @@ import { AddHelpComponent } from './addHelp.component';
 @Component({
   selector: 'app-add-habit',
   imports: [
-    RouterLink,
     MatStepperModule,
     MatFormField,
     MatLabel,
@@ -32,7 +31,6 @@ import { AddHelpComponent } from './addHelp.component';
     MatInputModule,
     ReactiveFormsModule,
     MatButtonModule,
-    AddHelpComponent,
   ],
   template: `
     <mat-stepper class="card" linear #stepper>
@@ -104,28 +102,32 @@ import { AddHelpComponent } from './addHelp.component';
         </form>
       </mat-step>
 
-
       <mat-step [stepControl]="habitForm.step3">
         <form [formGroup]="habitForm.step3">
           <!-- <mat-form-field> -->
-            <mat-label>How often do you intend to to this habit?</mat-label>
-            <br> <br>
-           <!-- more distance to top than to bottom -->
-            <mat-slider
-              discrete showTickMarks
-              min="1"
-              max="7"
-              step="1"
-              thumbLabel
-            >
-               <input matSliderThumb formControlName="frequency" />
-            </mat-slider>
+          <mat-label>How often do you intend to to this habit?</mat-label>
+          <br />
+          <br />
+          <!-- more distance to top than to bottom -->
+          <mat-slider
+            discrete
+            showTickMarks
+            min="1"
+            max="7"
+            step="1"
+            thumbLabel
+          >
+            <input matSliderThumb formControlName="frequency" />
+          </mat-slider>
           <!-- </mat-form-field> -->
           <br />
-          <p> <strong>{{ habitForm.step3.value.frequency }}</strong>     times a week </p>
-          <br><br>
+          <p>
+            <strong>{{ habitForm.step3.value.frequency }}</strong> times a week
+          </p>
+          <br /><br />
           <!-- ## maybe in extra field or so, revise: -->
-          <p>Feels <strong>doable in an easy way</strong> without strain? <br>
+          <p>
+            Feels <strong>doable in an easy way</strong> without strain? <br />
             If not, better reduce the number :)
           </p>
           <div>
@@ -198,8 +200,6 @@ export class AddHabitComponent {
       frequency: this.habitForm.step3.value.frequency!,
     };
 
-       
-    
     this.#goalsService.add_habit(this._id(), newHabit).subscribe((response) => {
       console.log(response);
       this.#goalsService.update_goals();

@@ -3,8 +3,8 @@ import { OverviewComponent } from '../goals/overview.component';
 import { AddGoalComponent } from '../goals/add/addGoal.component';
 import { SetupFirstGoalComponent } from '../goals/setupFirstGoal/setupFirstGoal.component';
 import { HabitsComponent } from '../habits/habits.component';
-import { AddHabitComponent } from '../habits/addHabit.component';
-import { AddHelpComponent } from '../habits/addHelp.component';
+import { AddHabitComponent } from '../habits/addHabit/addHabit.component';
+import { AddHelpComponent } from '../habits/addHabit/addHelp.component';
 import { UpdateHabitComponent } from '../habits/updateHabit.component';
 
 export const habitsRoutes: Routes = [

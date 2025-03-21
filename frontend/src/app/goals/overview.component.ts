@@ -42,7 +42,16 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
     } @if (progressService.$displayStats()) {
 
     <app-progress-stats></app-progress-stats>
+
     }
+    
+    <div style="text-align: center;">
+    <p style="color: lightgray; font-size: 0.9em;">
+      <i>Author's note: </i> <br>
+      To edit Goal & Habits, <br> 
+      tap on grey goal name.
+    </p>
+    </div>
   `,
   styles: `
   .completed-habit {

@@ -8,6 +8,7 @@ import { Goal } from '@backend/goals/goals.types';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.component';
 
 @Component({
   selector: 'app-update',
@@ -19,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     RouterLink,
     MatIconModule,
+    AddHabitButtonComponent,
   ],
   template: `
     <mat-card>
@@ -77,15 +79,10 @@ import { MatIconModule } from '@angular/material/icon';
           }
 
           <!-- not hardcode number ## -->
-          @if($goal()!.habits.length! < 3){
-          <button
-            mat-button
-            type="button"
-            [routerLink]="['', 'goals', _id(), 'habits', 'add']"
-          >
-            Add Habit
-          </button>
-          }
+          <app-add-habit-button
+            [goal_id]="_id()"
+            [numberOfHabitsForGoal]="$goal()!.habits.length"
+          />
         </mat-card-content>
         <br />
 
@@ -108,7 +105,7 @@ import { MatIconModule } from '@angular/material/icon';
       </form>
     </mat-card>
   `,
-
+  styleUrls: ['../habits/styles-for-display-habits.scss'],
   styles: `
   .small-delete-btn {
   width: 30px;
@@ -122,24 +119,7 @@ import { MatIconModule } from '@angular/material/icon';
   font-size: 5px; 
   }
   
-  .habit-card {
-  padding: 8px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  }
-
-.habit-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  }
-
-.habit-name {
-  font-size: 16px;
-  font-weight: 500;
-  }
+  
   `,
 })
 export class UpdateGoalComponent {
