@@ -4,60 +4,108 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { GoalsService } from './goals.service';
 import { MatInputModule } from '@angular/material/input';
-import { Goal } from '@backend/goals/goals.model';
+import { Goal } from '@backend/goals/goals.types';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-update',
-  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, RouterLink, MatIconModule],
+  imports: [
+    MatCardModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatButtonModule,
+    RouterLink,
+    MatIconModule,
+  ],
   template: `
     <mat-card>
-      
       <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
-      <mat-form-field>
-        <mat-label>Goal</mat-label>
-          <input matInput [formControl]="goalForm.controls.name" placeholder="your heartfelt goal" />
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Goal</mat-label>
+          <input
+            matInput
+            [formControl]="goalForm.controls.name"
+            placeholder="your heartfelt goal"
+          />
+        </mat-form-field>
 
-      <br>
+        <br />
 
-      <mat-form-field>
-        <mat-label>Description</mat-label>
-          <input matInput [formControl]="goalForm.controls.description" placeholder="Enter description" />
-      </mat-form-field>
-        
-      <mat-card-content>
+        <mat-form-field>
+          <mat-label>Description</mat-label>
+          <input
+            matInput
+            [formControl]="goalForm.controls.description"
+            placeholder="Enter description"
+          />
+        </mat-form-field>
+
+        <mat-card-content>
           <strong>Habits :</strong>
 
-            @for( habit of $goal()!.habits; track $index) {
-              <mat-card class="habit-card"> 
-                <div class="habit-container">
+          @for( habit of $goal()!.habits; track $index) {
+          <mat-card class="habit-card">
+            <div class="habit-container">
+              <span class="habit-name">{{ habit.name }}</span>
 
-                  <span class="habit-name">{{ habit.name }}</span> 
-                    <button type="button" class="small-delete-btn" mat-mini-fab aria-label="Delete" (click)="deleteHabit(habit._id)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-              </mat-card>
-            }
-        
-            <!-- not hardcode number ## -->
+              <div>
+                <button
+                  type="button"
+                  class="small-delete-btn"
+                  mat-mini-fab
+                  aria-label="Edit"
+                  (click)="updateHabit(habit._id)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                &nbsp;
+                <button
+                  type="button"
+                  class="small-delete-btn"
+                  mat-mini-fab
+                  aria-label="Delete"
+                  (click)="deleteHabit(habit._id)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-card>
+          }
+
+          <!-- not hardcode number ## -->
           @if($goal()!.habits.length! < 3){
-          <button mat-button type="button" [routerLink]="['','goals', _id(), 'habits', 'add']">Add Habit</button>
-        } 
-      
+          <button
+            mat-button
+            type="button"
+            [routerLink]="['', 'goals', _id(), 'habits', 'add']"
+          >
+            Add Habit
+          </button>
+          }
         </mat-card-content>
-        <br>
+        <br />
 
-        <button mat-raised-button type="submit" [disabled]="(this.goalForm.invalid || this.goalForm.pristine)">Update</button>
+        <button
+          mat-raised-button
+          type="submit"
+          [disabled]="this.goalForm.invalid || this.goalForm.pristine"
+        >
+          Update
+        </button>
         &nbsp;
-        <button type="button" mat-raised-button aria-label="Delete" (click)="deleteGoal()">
-                      <mat-icon>delete</mat-icon> Delete Goal
-                    </button>
-
-        </form>
+        <button
+          type="button"
+          mat-raised-button
+          aria-label="Delete"
+          (click)="deleteGoal()"
+        >
+          <mat-icon>delete</mat-icon> Delete Goal
+        </button>
+      </form>
     </mat-card>
   `,
 
@@ -92,92 +140,83 @@ import { MatIconModule } from '@angular/material/icon';
   font-size: 16px;
   font-weight: 500;
   }
-  `
+  `,
 })
 export class UpdateGoalComponent {
   #router = inject(Router);
   #goalsService = inject(GoalsService);
-  readonly _id = input.required<string>()
-  $goal = computed(
-    () => this.#goalsService.find_goal(this._id())
-  )
-  
-
-
+  readonly _id = input.required<string>();
+  $goal = computed(() => this.#goalsService.find_goal(this._id()));
 
   updateHabits = () => {
-      this.#goalsService.get_habits(this._id()).subscribe(
-        response => {
-          if(response.success)
-          this.$goal()!.habits = response.data
-        }
-      );
-    }
-  
-
+    this.#goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
+      if (response.success) this.$goal()!.habits = response.data;
+    });
+  };
 
   formBuilder = inject(FormBuilder);
 
   goalForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      description: [''],
-    })
-   
+    name: ['', Validators.required],
+    description: [''],
+  });
 
-  
-    ngOnInit() {
-      const goal = this.$goal();
-     
-        this.goalForm.patchValue({
-          name: goal!.name || '',
-          description: goal!.description || ''
-        });
-        this.goalForm.markAsPristine();
-      
-    }
+  ngOnInit() {
+    const goal = this.$goal();
 
-    onSubmit = () => {
-      
-      const goal : Goal = {
-        ...this.$goal()!,
-        name: this.goalForm.controls.name.value!,   // ! because we check validity on button
-        description: this.goalForm.controls.description.value ?? '',
-      };
+    this.goalForm.patchValue({
+      name: goal!.name || '',
+      description: goal!.description || '',
+    });
+    this.goalForm.markAsPristine();
+  }
 
-      this.#goalsService.put_goal(goal).subscribe(
-        response => {
-          console.log(' update response: ', response)
-          if (response.success){
-            // this.updateHabits()
-            this.#goalsService.update_goals()
+  onSubmit = () => {
+    const goal: Goal = {
+      ...this.$goal()!,
+      name: this.goalForm.controls.name.value!, // ! because we check validity on button
+      description: this.goalForm.controls.description.value ?? '',
+    };
 
-          }
+    this.#goalsService.put_goal(goal).subscribe((response) => {
+      console.log(' update response: ', response);
+      if (response.success) {
+        // this.updateHabits() ##whatsthat used or not?
+        this.#goalsService.update_goals();
+        // ### update message somehow, also in habitUpdateModule
+      }
+    });
+  };
+
+  deleteGoal = () => {
+    this.#goalsService.delete_goal(this._id()).subscribe((response) => {
+      console.log(' delete response: ', response);
+      if (response.success) {
+        this.#goalsService.update_goals();
+      }
+    });
+  };
+
+  updateHabit = (habit_id: string) => {
+    this.#router.navigate([
+      '',
+      'goals',
+      this.$goal()!._id,
+      'habits',
+      habit_id,
+      'update',
+    ]);
+  };
+
+  deleteHabit = (habit_id: string) => {
+    this.#goalsService
+      .remove_habit(this._id(), habit_id)
+      .subscribe((response) => {
+        console.log(' delete response: ', response);
+        if (response.success) {
+          // this.updateHabits()
+          this.#goalsService.update_goals();
         }
-      );
-    }
-
-
-    deleteGoal = () => {
-      this.#goalsService.delete_goal(this._id()).subscribe(
-        response => {
-          console.log(' delete response: ', response)
-          if (response.success){
-            this.#goalsService.update_goals()
-          }
-        }
-      );
-    }
-
-    deleteHabit = (habit_id : string) => {
-      this.#goalsService.remove_habit(this._id(), habit_id).subscribe(
-        response => {
-          console.log(' delete response: ', response)
-          if (response.success){
-            // this.updateHabits()
-            this.#goalsService.update_goals()
-          }
-        }
-      );
-    }
-
+      });
+  };
 }

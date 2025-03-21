@@ -1,36 +1,73 @@
-import { Goal, GoalBase, GoalModel, Habit } from "./goals.model";
+import { Goal, GoalBase } from "./goals.types";
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../utils/classes";
+import { ErrorWithStatus } from "../utils/error.class";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { dateWithoutTime, getDateOnly } from "../utils/functionsAndVariables";
-import { createDailyHabitProgress } from "../progress/create.progress";
+import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
+import { createDailyHabitProgressForGoals } from "../progresses/create.progress.cron";
+import { GoalModel, UserModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
   { createNewProgressesForToday?: boolean },
   StandardResponse<Goal[]>
 >;
 
+// #refactor
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
+  const { timezone = "UTC" } = req.query as { timezone?: string };
+
   try {
-    let results: Goal[] = await getGoalsDB(req.userId);
+    let userGoals: Goal[] = await getGoalsDB(req.userId);
 
-    // #cleaner
-    for (const goal of results) {
-      if (goal.habits.length !== 0) {
-      
-        if (
-          dateWithoutTime(goal.habits[0].latestProgress.date) !== getDateOnly()
-        ) {
-          results = await createDailyHabitProgress(results);
-          break;
-        }
-      }
-    }
+    // #cleaner, needed if cron-job? not really??? ### cut out finally
+    // for (const goal of userGoals) {
+    //   if (goal.habits.length !== 0) {
 
-    res.json({ success: true, data: results });
-    
+    //     let latestProgressDate = '';
+
+    //     if (goal.habits[0].latestProgress) {
+    //     latestProgressDate = goal.habits[0].latestProgress.date
+    //       .toISOString()
+    //       .split("T")[0];
+    //   }
+
+    //   const localDate = getDateOnlyForTimeZone(timezone);
+
+    //     console.log(
+    //       "latestProgressDate",
+    //       latestProgressDate,
+    //       "localDate",
+    //       localDate
+    //     );
+    //     console.log(
+    //       "latestProgressDate < localDate",
+    //       latestProgressDate < localDate
+    //     );
+
+    //     if (latestProgressDate < localDate) {
+    //       userGoals = await createDailyHabitProgressForGoals(
+    //         userGoals,
+    //         new Date(localDate)
+    //       );
+    //     }
+    //     break;
+    //   }
+    // }
+
+    res.json({ success: true, data: userGoals });
+
+    const updateTimezoneResult = await UserModel.updateOne(
+      { _id: req.userId, timezone: { $ne: timezone } },
+      { $set: { timezone: timezone } }
+    );
+
+    console.log(
+      "usersNewTimezone",
+      timezone,
+      "updatedCount:",
+      updateTimezoneResult.modifiedCount
+    );
   } catch (err) {
     next(err);
   }

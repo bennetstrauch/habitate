@@ -1,7 +1,14 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { GoalsService } from './goals.service';
-import { Goal } from '@backend/goals/goals.model';
+import { Goal } from '@backend/goals/goals.types';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,36 +18,37 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [MatIconModule, MatCardModule, MatButtonModule],
   template: `
     <mat-card class="card">
-      <u>Goal</u> <br>
-      <div> <strong>{{$goal()!.name}}</strong> </div> <br>
-      <div> {{$goal()!.description}} </div> <br>
-      <button mat-raised-button aria-label="Update" (click)="onUpdate()">
-            <mat-icon>edit</mat-icon> Edit
-          </button>
+      <u>Goal</u> <br />
+      <div>
+        <strong>{{ $goal()!.name }}</strong>
+      </div>
+      <br />
+      <div>{{ $goal()!.description }}</div>
+      <br />
+      <button mat-raised-button aria-label="Edit" (click)="updateGoal()">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
     </mat-card>
   `,
-  styles: ``
+  styles: ``,
 })
 export class GoalComponent {
   #router = inject(Router);
-  #goalsService = inject(GoalsService)
-  
-  readonly _id = input.required<string>()
- 
+  #goalsService = inject(GoalsService);
+
+  readonly _id = input.required<string>();
+
   // ## unify, put getGoal method in goalsService
-  $goal = computed(
-    () => this.#goalsService.find_goal(this._id())
-  )
-  
-  constructor(){
-    effect(
-      () => {  console.log(this._id()) }
-    )
+  $goal = computed(() => this.#goalsService.find_goal(this._id()));
+
+  constructor() {
+    effect(() => {
+      console.log(this._id());
+    });
   }
 
-  onUpdate = () => {
+  updateGoal = () => {
+    // # should be edit
     this.#router.navigate(['', 'goals', this.$goal()!._id, 'update']);
-  }
-
-  
+  };
 }

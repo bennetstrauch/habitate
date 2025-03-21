@@ -1,12 +1,15 @@
 import { RequestHandler } from "express";
-import { ErrorWithStatus } from "../utils/classes";
-import { User, UserModel } from "./users.model";
+import { ErrorWithStatus } from "../utils/error.class";
+import { User } from "./users.types";
 import { StandardResponse } from "../types/standardResponse";
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { LoginResponse } from "../types/login/loginResponse";
 import { LoginRequest } from "../types/login/loginRequest";
+import { UserModel } from "../database/schemas";
+import { createDailyReflectionForUserIds } from "../progresses/create.progress.cron";
+import { getDateForTimezone } from "../utils/functionsAndVariables";
 
 type RegisterReqHandler = RequestHandler<
   unknown,
@@ -25,6 +28,12 @@ export const register: RegisterReqHandler = async (req, res, next) => {
     const savedUser = await UserModel.create(newUserHashed);
     const newUserId = savedUser._id.toString();
 
+    await createDailyReflectionForUserIds(
+      [newUserId],
+      getDateForTimezone(savedUser.timezone)
+    );
+
+    //
     res.status(201).json({ success: true, data: newUserId });
 
     console.log("User created successfully: ", savedUser);
@@ -45,7 +54,7 @@ export const login: LoginReqHandler = async (req, res, next) => {
 
   try {
     // Find user
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       throw new ErrorWithStatus("Invalid email", 401);
     }
@@ -65,7 +74,7 @@ export const login: LoginReqHandler = async (req, res, next) => {
       { _id: user._id, name: user.name, email: user.email },
       process.env.SECRET_KEY_FOR_SIGNING_TOKEN,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
 

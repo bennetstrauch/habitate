@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ErrorWithStatus } from '@backend/utils/classes';
+import { ErrorWithStatus } from '@backend/utils/error.class';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { validators } from './register/register.component';
 import { UsersService } from './users.service';

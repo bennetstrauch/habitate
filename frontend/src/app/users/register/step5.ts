@@ -26,9 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
             short but insightful reflection process. <br />
           </p>
           <br />
-          <p>
-            <strong> Welcome on board ! </strong>
-          </p>
+        
         </mat-card-content>
       </mat-card>
     </div>

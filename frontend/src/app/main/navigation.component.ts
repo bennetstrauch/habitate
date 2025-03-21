@@ -7,6 +7,7 @@ import { AuthenticationButtonComponent } from '../users/authentication.component
 import { GoalsService } from '../goals/goals.service';
 import { validationRulesGoals } from '@global/auth/validationRules';
 import { MatMenuModule } from '@angular/material/menu';
+import { ProgressService } from '../progresses/progresses.service';
 
 @Component({
   selector: 'app-navigation',
@@ -36,6 +37,18 @@ import { MatMenuModule } from '@angular/material/menu';
         [routerLink]="['', 'goals', 'overview']"
       >
         <mat-icon>home</mat-icon>
+      </button>
+
+      <button
+        mat-button
+        color="primary"
+        (click)="toggleStatsButton()"
+      >
+        @if (progressService.$displayDailyProgress()) {
+        <mat-icon>bar_chart</mat-icon>
+        } @else {
+          <mat-icon>task_alt</mat-icon>
+        }
       </button>
 
       <!-- Dropdown Menu -->
@@ -71,13 +84,19 @@ import { MatMenuModule } from '@angular/material/menu';
   `,
 })
 export class NavigationComponent {
-  stateService = inject(StateService);
+  readonly stateService = inject(StateService);
+  readonly progressService = inject(ProgressService);
+  readonly goalsService = inject(GoalsService);
+
   router = inject(Router);
-  goalsService = inject(GoalsService);
   validationRulesGoals = validationRulesGoals;
 
   logout() {
     this.stateService.$state.set(intitialState);
     this.router.navigate(['', 'login']);
+  }
+
+  toggleStatsButton() {
+    this.progressService.$displayStats.set(!this.progressService.$displayStats());
   }
 }

@@ -19,7 +19,12 @@ import { NavigationComponent } from './navigation.component';
         flex-direction: column;
         align-items: center;
         background-color: #f4f4f4;
+        // border: 10px solid rgb(78, 29, 29);
+
       }
+
+      
+
     `,
   ],
 })

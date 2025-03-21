@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { User } from '@backend/users/users.model'
+import { User } from '@backend/users/users.types'
 import { StandardResponse } from '@backend/types/standardResponse'
-import { Token } from '@backend/types/token'
-import { environment } from 'frontend/src/environments/environment.development';
+import { environment } from 'frontend/src/environments/environment';
 import { LoginRequest } from '@backend/types/login/loginRequest';
 import { LoginResponse } from '@backend/types/login/loginResponse';
 
