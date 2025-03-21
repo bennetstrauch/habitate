@@ -6,9 +6,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import {
-  HabitProgress,
-} from '@backend/progresses/progress.types';
+import { HabitProgress } from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
@@ -37,7 +35,9 @@ export class ProgressService {
   // ## reset timestep?
 
   handleTimeStepChange = effect(() => {
-    this.handleProgressMappingToHabits(this.$dailyProgressDate());
+    if (this.goalsService.$habitIds().length > 0) {
+      this.handleProgressMappingToHabits(this.$dailyProgressDate());
+    }
   });
 
   $dailyProgressDate = computed(() => this.calculateDateWithTimestep());
@@ -45,7 +45,6 @@ export class ProgressService {
   $dateToShow = computed(() =>
     formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate())
   );
-
 
   // ________________________############might break
   handleDateChange = () => {
@@ -123,9 +122,11 @@ export class ProgressService {
   }
 
   get_progresses_for_day(dateStringWithoutTime: string) {
+    const habit_ids = this.goalsService.$habitIds().join(',');
+
     const params = new HttpParams()
       .set('date', dateStringWithoutTime)
-      .set('habit_ids', this.goalsService.$habitIds().join(','));
+      .set('habit_ids', habit_ids);
 
     return this.#http.get<StandardResponse<HabitProgress[]>>(
       environment.SERVER_URL + '/progresses',
