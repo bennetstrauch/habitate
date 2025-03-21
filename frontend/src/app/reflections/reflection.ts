@@ -30,7 +30,7 @@ import { getRandomPhrase } from '../utils/utils';
           <br />
 
           Hello my friend. <br />
-          {{myAttitude}} reflect with you today. <br />
+          {{ myAttitude }} reflect with you today. <br />
         </p>
 
         <button mat-button matStepperNext>Next</button>
@@ -76,8 +76,9 @@ import { getRandomPhrase } from '../utils/utils';
 
         @if (habit.latestProgress.completed) { Congratulations! <br />
 
-        Did it feel good? } @else { ---------------- <br />
-          <!-- alternate -->
+        {{ howWasIt }}
+        } @else { ---------------- <br />
+        <!-- #alternate -->
         No worries. <br />
         Just tune in. <br />
         <br />
@@ -176,5 +177,14 @@ export class ReflectionComponent {
     'It is my joy to',
     "It's so cool I get to",
     'What a delight to',
+  ]);
+
+  howWasIt = getRandomPhrase([
+    'Did it feel good?',
+    'Did it lift you up?',
+    'Did you feel more balanced after?',
+    'Did it bring you joy?',
+    'Did you feel more centered after?',
+    'Did you feel energized after?',
   ]);
 }

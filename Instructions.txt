@@ -1,0 +1,4 @@
+Instructions:
+
+- To edit Goals, click on the Grey Goal Name
+- To see Weekly Stats, click on the Bar-Icon on the top Right.
