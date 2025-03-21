@@ -15,6 +15,7 @@ import { ProgressService } from '../progresses/progresses.service';
 import { ActivatedRoute } from '@angular/router';
 import { ReflectionsService } from './reflections.service';
 import { Reflection } from '@backend/reflections/reflections.types';
+import { getRandomPhrase } from '../utils/utils';
 
 @Component({
   selector: 'app-reflection',
@@ -29,21 +30,23 @@ import { Reflection } from '@backend/reflections/reflections.types';
           <br />
 
           Hello my friend. <br />
-          I am Happy to reflect with you today. <br />
+          {{myAttitude}} reflect with you today. <br />
         </p>
 
         <button mat-button matStepperNext>Next</button>
       </mat-step>
 
       <mat-step>
-        <p>Take a minute to settle down. <br /></p>
+        <p>Let's take a minute to settle down. <br /></p>
 
         <button mat-button matStepperNext>Next</button>
       </mat-step>
 
       <mat-step>
-        <p>What was <strong>something good</strong> today? <br /></p>
-      
+        <p>
+          What was <strong>something {{ reflectiveWord }}</strong> today? <br />
+        </p>
+
         <p>Just <strong>relax and see</strong> what bubbles up in your mind</p>
 
         <!-- #let user enter -->
@@ -52,10 +55,10 @@ import { Reflection } from '@backend/reflections/reflections.types';
       </mat-step>
 
       @for(goal of this.goalsService.$goals(); track $index) {
-        <!-- #doesnt gt triggered -->
-        @if ($index === 0) {
-          <p><strong>Let's flow</strong> through your precious goals :) </p>
-        }
+      <!-- #doesnt gt triggered -->
+      @if ($index === 0) {
+      <p><strong>Let's flow</strong> through your precious goals :)</p>
+      }
       <mat-step>
         <p>Intention</p>
         <strong>" {{ goal.name }} "</strong>
@@ -68,23 +71,22 @@ import { Reflection } from '@backend/reflections/reflections.types';
       @for(habit of goal.habits; track $index) {
 
       <mat-step>
-        <strong>{{ habit.name }}</strong> <br /> <br>
-       
+        <strong>{{ habit.name }}</strong> <br />
+        <br />
+
         @if (habit.latestProgress.completed) { Congratulations! <br />
 
-        Did it feel good?
-        } @else { 
-          ---------------- <br>
-          No worries. <br />
+        Did it feel good? } @else { ---------------- <br />
+          <!-- alternate -->
+        No worries. <br />
         Just tune in. <br />
         <br />
         What did hold you back from doing it? <br />
         & <br />
         <strong>What simple change</strong> to make it happen with ease
-        tomorrow?
-        }
-        <br>
-        <br>
+        tomorrow? }
+        <br />
+        <br />
 
         <div>
           <button mat-button matStepperNext>Next</button>
@@ -159,4 +161,20 @@ export class ReflectionComponent {
         });
     }
   }
+
+  reflectiveWord = getRandomPhrase([
+    'good',
+    'joyful',
+    'sweet',
+    'charming',
+    'beautiful',
+    'insightful',
+  ]);
+
+  myAttitude = getRandomPhrase([
+    'I am happy to',
+    'It is my joy to',
+    "It's so cool I get to",
+    'What a delight to',
+  ]);
 }
