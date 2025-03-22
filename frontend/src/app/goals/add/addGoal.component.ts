@@ -38,9 +38,13 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
   template: `
     <mat-stepper class="card" linear #stepper>
       <mat-step>
-      <ng-template matStepperIcon="number">
-      <!-- Empty template removes the number -->
-    </ng-template>
+        <ng-template matStepperIcon="number">
+          <!-- Empty template removes the number -->
+        </ng-template>
+        @if (goalsService.$goals().length==0){
+        <h4>Ready to add your first goal ?</h4>
+        }
+
         <p>
           Take your time for this.
           <br />
@@ -163,13 +167,19 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
           Fantatataaastic !
         </p>
         <div>
-          <button mat-raised-button type="submit" matStepperNext (click)="addGoal()">
+          <button
+            mat-raised-button
+            type="submit"
+            matStepperNext
+            (click)="addGoal()"
+          >
             Add this Goal
           </button>
 
-          <br>
-          <button mat-button matStepperPrevious class="small-button">Go Back</button>
-
+          <br />
+          <button mat-button matStepperPrevious class="small-button">
+            Go Back
+          </button>
         </div>
       </mat-step>
 
@@ -190,33 +200,32 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
     </mat-stepper>
   `,
   // ### remove all icons from stepper header
-  styles: [`
+  styles: [
+    `
+      .small-button {
+        font-size: 10px; /* Reduce font size */
+      }
 
-.small-button {
-  font-size: 10px; /* Reduce font size */
-  
-}
+      ::ng-deep .mat-horizontal-stepper-header-container {
+        display: none !important;
+      }
 
-::ng-deep .mat-horizontal-stepper-header-container {
-  display: none !important;
-}
+      @media screen and (max-width: 768px) {
+        ::ng-deep .mat-stepper {
+          max-width: 100vw important!; /* Ensure it does not exceed screen width */
+          width: 100%; /* Take full available width */
+          margin: auto;
+        }
 
-@media screen and (max-width: 768px) {
-  ::ng-deep .mat-stepper {
-    max-width: 100vw important!;  /* Ensure it does not exceed screen width */
-  width: 100%;        /* Take full available width */
-  margin: auto; 
-  }
-
-  ::ng-deep .mat-step {
-    padding: 8px;
-  }
-}
-
-    `],
+        ::ng-deep .mat-step {
+          padding: 8px;
+        }
+      }
+    `,
+  ],
 })
 export class AddGoalComponent {
-  #goalsService = inject(GoalsService);
+  readonly goalsService = inject(GoalsService);
   #router = inject(Router);
 
   $stepper = viewChild.required<MatStepper>('stepper');
@@ -241,11 +250,11 @@ export class AddGoalComponent {
       description: this.goalForm.step2.value.description ?? '',
     };
 
-    this.#goalsService.post_goal(newGoal).subscribe((response) => {
+    this.goalsService.post_goal(newGoal).subscribe((response) => {
       console.log(response);
 
       this.$newGoalId.set(response.data._id);
-      this.#goalsService.update_goals();
+      this.goalsService.update_goals();
 
       alert(
         `Goal added successfully. \n ${this.displayRanking(

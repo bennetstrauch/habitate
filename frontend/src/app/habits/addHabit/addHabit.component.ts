@@ -44,10 +44,11 @@ import { AddHelpComponent } from './addHelp.component';
       </mat-step>
 
       <mat-step>
-        <p>
-          A small step towards your goal. <br />
-          You feel you can do it without strain. <br />
-          Should require 1 - 30 minutes. <br />
+      <p>
+          Should be <strong>a small step toward your goal</strong>. <br />
+          -- You feel you can do it without strain. <br />
+          <br>
+          Ideally taking 1 - 30 minutes. <br />
         </p>
 
         <button mat-button matStepperNext>Next</button>
