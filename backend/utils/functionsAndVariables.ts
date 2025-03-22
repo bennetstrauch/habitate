@@ -4,6 +4,14 @@ import { DateTime } from "luxon";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
 
+
+
+export function capitalizeFirstLetter(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
 export const idsToArrayOfObjectIds = (ids: string): ObjectId[] => {
   return ids.split(",").map((id) => idToObjectId(id));
 };

@@ -16,6 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ReflectionsService } from './reflections.service';
 import { Reflection } from '@backend/reflections/reflections.types';
 import { getRandomPhrase } from '../utils/utils';
+import { StateService } from '../state.service';
 
 @Component({
   selector: 'app-reflection',
@@ -29,7 +30,8 @@ import { getRandomPhrase } from '../utils/utils';
           ___________________________<br />
           <br />
 
-          Hello my friend. <br />
+          {{ greeting }} <br />
+          
           {{ myAttitude }} reflect with you today. <br />
         </p>
 
@@ -119,11 +121,11 @@ import { getRandomPhrase } from '../utils/utils';
 `,
 })
 export class ReflectionComponent {
-  #router = inject(Router);
-  goalsService = inject(GoalsService);
-  reflectionsService = inject(ReflectionsService);
-
-  progressService = inject(ProgressService);
+  readonly #router = inject(Router);
+  readonly goalsService = inject(GoalsService);
+  readonly reflectionsService = inject(ReflectionsService);
+  readonly progressService = inject(ProgressService);
+  readonly stateService = inject(StateService);
 
   $formattedDate = signal<string>('');
 
@@ -162,6 +164,13 @@ export class ReflectionComponent {
         });
     }
   }
+
+
+  greeting = getRandomPhrase([
+    'Hello my friend.',
+    'Hello dear ' + this.stateService.$state().name + '.',
+    'Hello beautiful Soul.',
+  ]); 
 
   reflectiveWord = getRandomPhrase([
     'good',

@@ -9,7 +9,7 @@ import { LoginResponse } from "../types/login/loginResponse";
 import { LoginRequest } from "../types/login/loginRequest";
 import { UserModel } from "../database/schemas";
 import { createDailyReflectionForUserIds } from "../progresses/create.progress.cron";
-import { getDateForTimezone } from "../utils/functionsAndVariables";
+import { capitalizeFirstLetter, getDateForTimezone } from "../utils/functionsAndVariables";
 
 type RegisterReqHandler = RequestHandler<
   unknown,
@@ -21,6 +21,8 @@ type RegisterReqHandler = RequestHandler<
 export const register: RegisterReqHandler = async (req, res, next) => {
   try {
     const newUser = req.body;
+
+    newUser.name = capitalizeFirstLetter(newUser.name.trim());
 
     const hashedPassword = await bcrypt.hash(newUser.password, 10);
     const newUserHashed = { ...req.body, password: hashedPassword };
