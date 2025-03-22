@@ -18,15 +18,12 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
 @Component({
   selector: 'app-goals',
   imports: [
-    RouterLink,
     MatIconModule,
     MatButtonModule,
     MatIconModule,
-    NgClass,
     CommonModule,
     DailyProgressComponent,
     ProgressStatsComponent,
-    DateHeaderWithTimestepComponent,
   ],
   template: `
     <!-- <app-date-header-with-timestep
@@ -50,6 +47,8 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
       <i>Author's note: </i> <br>
       To edit Goal & Habits, <br> 
       tap on grey goal name.
+      <br> <br>
+      Click on habit to mark as done.
     </p>
     </div>
   `,

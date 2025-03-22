@@ -21,7 +21,6 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
     MatIconModule,
     MatCardModule,
     MatButtonModule,
-    AddHabitComponent,
     AddHabitButtonComponent,
   ],
   template: `

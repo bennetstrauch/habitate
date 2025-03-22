@@ -18,7 +18,6 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    RouterLink,
     MatIconModule,
     AddHabitButtonComponent,
   ],
