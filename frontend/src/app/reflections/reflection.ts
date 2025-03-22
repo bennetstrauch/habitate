@@ -31,7 +31,7 @@ import { StateService } from '../state.service';
           <br />
 
           {{ greeting }} <br />
-          
+
           {{ myAttitude }} reflect with you today. <br />
         </p>
 
@@ -71,15 +71,26 @@ import { StateService } from '../state.service';
       </mat-step>
 
       @for(habit of goal.habits; track $index) {
-
+      <!--  -->
+      @if (habit.latestProgress.completed) {
       <mat-step>
         <strong>{{ habit.name }}</strong> <br />
         <br />
 
-        @if (habit.latestProgress.completed) { Congratulations! <br />
+        Congratulations! <br />
 
-        {{ howWasIt }}
-        } @else { ---------------- <br />
+        {{ getHabitQuestion(habit._id) }}
+        <br />
+        <br />
+        <button mat-button matStepperNext>Next</button>
+      </mat-step>
+      } @else {
+      <!--  -->
+      @if (habit._id == randomIncompleteHabitId()){
+      <mat-step>
+        <strong>{{ habit.name }}</strong> <br />
+        ----------------
+        <br />
         <!-- #alternate -->
         No worries. <br />
         Just tune in. <br />
@@ -87,14 +98,19 @@ import { StateService } from '../state.service';
         What did hold you back from doing it? <br />
         & <br />
         <strong>What simple change</strong> to make it happen with ease
-        tomorrow? }
+        tomorrow?
         <br />
-        <br />
-
-        <div>
-          <button mat-button matStepperNext>Next</button>
-        </div>
+        <button mat-button matStepperNext>Next</button>
       </mat-step>
+
+      } }
+      <br />
+      <br />
+
+      <!-- <div>
+          <button mat-button matStepperNext>Next</button>
+        </div> -->
+
       } }
 
       <mat-step>
@@ -132,22 +148,24 @@ export class ReflectionComponent {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
+    this.setFormattedDateToDisplay();
+    this.assignRandomQuestionFormCompletedHabits();
     // triggers when route parameters changes
-    this.route.paramMap.subscribe((params) => {
-      const dateString = params.get('date'); // Get ':date' parameter
+    // this.route.paramMap.subscribe((params) => {
+    //   const dateString = params.get('date'); // Get ':date' parameter
 
-      if (dateString) {
-        const dateObj = new Date(dateString); // Convert string to Date object
-        this.$formattedDate.set(
-          dateObj.toLocaleDateString('en-CA', {
-            weekday: 'short', // e.g., "Mon"
-            month: 'short', // e.g., "Feb"
-            day: 'numeric', // e.g., "16"
-            timeZone: 'UTC', // Use UTC to avoid timezone conversion
-          })
-        );
-      }
-    });
+    //   if (dateString) {
+    //     const dateObj = new Date(dateString); // Convert string to Date object
+    //     this.$formattedDate.set(
+    //       dateObj.toLocaleDateString('en-CA', {
+    //         weekday: 'short', // e.g., "Mon"
+    //         month: 'short', // e.g., "Feb"
+    //         day: 'numeric', // e.g., "16"
+    //         timeZone: 'UTC', // Use UTC to avoid timezone conversion
+    //       })
+    //     );
+    //   }
+    // });
   }
 
   completeReflection() {
@@ -165,12 +183,72 @@ export class ReflectionComponent {
     }
   }
 
+  setFormattedDateToDisplay() {
+    this.route.paramMap.subscribe((params) => {
+      const dateString = params.get('date'); // Get ':date' parameter
+
+      if (dateString) {
+        const dateObj = new Date(dateString); // Convert string to Date object
+        this.$formattedDate.set(
+          dateObj.toLocaleDateString('en-CA', {
+            weekday: 'short', // e.g., "Mon"
+            month: 'short', // e.g., "Feb"
+            day: 'numeric', // e.g., "16"
+            timeZone: 'UTC', // Use UTC to avoid timezone conversion
+          })
+        );
+      }
+    });
+  }
+
+  habits = this.goalsService.$goals().flatMap((goal) => goal.habits);
+
+  habitsMappedToQuestions: Map<string, string> = new Map();
+
+  assignRandomQuestionFormCompletedHabits() {
+    const completedHabits = this.habits
+      .filter((habit) => habit.latestProgress.completed)
+      .flatMap((habit) => habit._id);
+
+    this.habitsMappedToQuestions.clear();
+    completedHabits.forEach((habitId) => {
+      const randomIndex = Math.floor(
+        Math.random() * this.completedQuestions.length
+      );
+      this.habitsMappedToQuestions.set(
+        habitId,
+        this.completedQuestions[randomIndex]
+      );
+    });
+  }
+
+  getHabitQuestion(habitId: string): string {
+    return this.habitsMappedToQuestions.get(habitId) || 'Did it uplift you?';
+  }
+
+  getRandomIncompleteHabit() {
+    const incompleteHabitIds = this.habits
+      .filter((habit) => !habit.latestProgress.completed)
+      .flatMap((habit) => habit._id);
+
+    if (incompleteHabitIds.length === 0) {
+      return '';
+    }
+
+    const randomHabitId =
+      incompleteHabitIds[Math.floor(Math.random() * incompleteHabitIds.length)];
+    return randomHabitId;
+  }
+
+  randomIncompleteHabitId = computed(() => this.getRandomIncompleteHabit());
+
+  displaySimpleChangeCard = false;
 
   greeting = getRandomPhrase([
     'Hello my friend.',
     'Hello dear ' + this.stateService.$state().name + '.',
     'Hello beautiful Soul.',
-  ]); 
+  ]);
 
   reflectiveWord = getRandomPhrase([
     'good',
@@ -188,12 +266,12 @@ export class ReflectionComponent {
     'What a delight to',
   ]);
 
-  howWasIt = getRandomPhrase([
+  completedQuestions = [
     'Did it feel good?',
     'Did it lift you up?',
     'Did you feel more balanced after?',
     'Did it bring you joy?',
     'Did you feel more centered after?',
     'Did you feel energized after?',
-  ]);
+  ];
 }
