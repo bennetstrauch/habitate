@@ -159,10 +159,16 @@ import { AddHelpComponent } from './addHelp.component';
           Is it easy to do and implement? <br />
         </p>
         <div>
-          <button mat-button (click)="goToStep(3)">Revise</button>
-          <button mat-button type="submit" color="primary" (click)="addHabit()">
+          <button
+            mat-raised-button
+            type="submit"
+            color="primary"
+            (click)="addHabit()"
+          >
             Yes, Submit
           </button>
+          <br />
+          <button mat-button (click)="goToStep(3)">Revise</button> <br />
         </div>
       </mat-step>
     </mat-stepper>
