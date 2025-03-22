@@ -130,13 +130,13 @@ import { MatSliderModule } from '@angular/material/slider';
 })
 export class UpdateHabitComponent {
   #router = inject(Router);
-  #goalsService = inject(GoalsService);
+  goalsService = inject(GoalsService);
 
   readonly _id = input.required<string>();
   readonly habit_id = input.required<string>();
 
   //# create a find_habit method in goals service similar to find_goal ?
-  $goal = computed(() => this.#goalsService.find_goal(this._id()));
+  $goal = computed(() => this.goalsService.find_goal(this._id()));
 
   $habit = computed(() =>
     this.$goal()?.habits.find((habit) => habit._id === this.habit_id())
@@ -144,7 +144,7 @@ export class UpdateHabitComponent {
 
   //
   updateHabits = () => {
-    this.#goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
+    this.goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
       if (response.success) this.$goal()!.habits = response.data;
     });
   };
@@ -175,29 +175,20 @@ export class UpdateHabitComponent {
     this.$habit()!.description = this.habitForm.controls.description.value!;
     this.$habit()!.frequency = this.habitForm.controls.frequency.value!;
 
-    this.#goalsService.put_goal(this.$goal()!).subscribe((response) => {
+    this.goalsService.put_goal(this.$goal()!).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
         // this.updateHabits()
-        this.#goalsService.update_goals();
+        this.goalsService.update_goals();
       }
     });
   };
 
 
   deleteHabit = () => {
-    const confirmDelete = window.confirm('Delete this Habit?');
-    if (!confirmDelete) return;
-
-    this.#goalsService
-      .remove_habit(this._id(), this.habit_id())
-      .subscribe((response) => {
-        console.log(' delete response: ', response);
-        if (response.success) {
-          // this.updateHabits()
-          this.#goalsService.update_goals();
-          this.#router.navigate(['', 'goals', this._id(), 'update']);
-        }
-      });
+    this.goalsService.deleteHabit(this._id(), this.habit_id())
+    this.#router.navigate(['', 'goals', this._id(), 'update']);
   };
+
+
 }

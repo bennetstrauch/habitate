@@ -50,6 +50,24 @@ export class GoalsService {
     return goal;
   }
 
+  deleteHabit = (goal_id: string, habit_id: string) => {
+    const confirmDelete = window.confirm('Delete this Habit?');
+    if (!confirmDelete) return;
+
+    this.remove_habit(goal_id, habit_id)
+      .subscribe((response) => {
+        console.log(' delete response: ', response);
+        if (response.success) {
+          // this.updateHabits()
+          this.update_goals();
+        }
+      });
+  };
+
+
+  // ____________ HTTP REQUESTS ____________
+
+
   get_goals(page: number = 1) {
     const userTimezone = this.getTimezone();
 

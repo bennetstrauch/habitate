@@ -69,7 +69,7 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
                   class="small-delete-btn"
                   mat-mini-fab
                   aria-label="Delete"
-                  (click)="deleteHabit(habit._id)"
+                  (click)="goalsService.deleteHabit(_id(), habit._id)"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -124,12 +124,12 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
 })
 export class UpdateGoalComponent {
   #router = inject(Router);
-  #goalsService = inject(GoalsService);
+  goalsService = inject(GoalsService);
   readonly _id = input.required<string>();
-  $goal = computed(() => this.#goalsService.find_goal(this._id()));
+  $goal = computed(() => this.goalsService.find_goal(this._id()));
 
   updateHabits = () => {
-    this.#goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
+    this.goalsService.get_habits_for_goal(this._id()).subscribe((response) => {
       if (response.success) this.$goal()!.habits = response.data;
     });
   };
@@ -158,11 +158,11 @@ export class UpdateGoalComponent {
       description: this.goalForm.controls.description.value ?? '',
     };
 
-    this.#goalsService.put_goal(goal).subscribe((response) => {
+    this.goalsService.put_goal(goal).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
         // this.updateHabits() ##whatsthat used or not?
-        this.#goalsService.update_goals();
+        this.goalsService.update_goals();
         // ### update message somehow, also in habitUpdateModule
       }
     });
@@ -172,10 +172,10 @@ export class UpdateGoalComponent {
     const confirmDelete = window.confirm('Delete this Goal?');
     if (!confirmDelete) return;
 
-    this.#goalsService.delete_goal(this._id()).subscribe((response) => {
+    this.goalsService.delete_goal(this._id()).subscribe((response) => {
       console.log(' delete response: ', response);
       if (response.success) {
-        this.#goalsService.update_goals();
+        this.goalsService.update_goals();
       }
     });
   };
@@ -191,18 +191,5 @@ export class UpdateGoalComponent {
     ]);
   };
 
-  deleteHabit = (habit_id: string) => {
-    const confirmDelete = window.confirm('Delete this Habit?');
-    if (!confirmDelete) return;
-
-    this.#goalsService
-      .remove_habit(this._id(), habit_id)
-      .subscribe((response) => {
-        console.log(' delete response: ', response);
-        if (response.success) {
-          // this.updateHabits()
-          this.#goalsService.update_goals();
-        }
-      });
-  };
+ 
 }
