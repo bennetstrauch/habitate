@@ -196,6 +196,7 @@ export class UpdateHabitComponent {
         if (response.success) {
           // this.updateHabits()
           this.#goalsService.update_goals();
+          this.#router.navigate(['', 'goals', this._id(), 'update']);
         }
       });
   };

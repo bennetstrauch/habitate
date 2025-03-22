@@ -163,10 +163,13 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
           Fantatataaastic !
         </p>
         <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button type="submit" matStepperNext (click)="addGoal()">
+          <button mat-raised-button type="submit" matStepperNext (click)="addGoal()">
             Add this Goal
           </button>
+
+          <br>
+          <button mat-button matStepperPrevious class="small-button">Go Back</button>
+
         </div>
       </mat-step>
 
@@ -188,6 +191,11 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
   `,
   // ### remove all icons from stepper header
   styles: [`
+
+.small-button {
+  font-size: 10px; /* Reduce font size */
+  
+}
 
 ::ng-deep .mat-horizontal-stepper-header-container {
   display: none !important;
