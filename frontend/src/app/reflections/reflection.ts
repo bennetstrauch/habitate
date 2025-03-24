@@ -72,7 +72,7 @@ import { StateService } from '../state.service';
 
       @for(habit of goal.habits; track $index) {
       <!--  -->
-      @if (habit.latestProgress.completed) {
+      @if (randomCompletedHabitIds().includes(habit._id)) {
       <mat-step>
         <strong>{{ habit.name }}</strong> <br />
         <br />
@@ -92,8 +92,8 @@ import { StateService } from '../state.service';
         ----------------
         <br />
         <!-- #alternate -->
-        No worries. <br /> 
-         <!--No judgement,   -->
+        No worries. <br />
+        <!--No judgement,   -->
         Just tune in. <br />
         <!-- Just feel in, Just relax and feel, Just settle in,  -->
         <br />
@@ -162,7 +162,8 @@ export class ReflectionComponent {
   habitsMappedToQuestions: Map<string, string> = new Map();
   habitsMappedToCongratulations: Map<string, string> = new Map();
 
-  randomIncompleteHabitId = computed(() => this.getRandomIncompleteHabit());
+  randomIncompleteHabitId = computed(() => this.getRandomIncompleteDailyHabit());
+  randomCompletedHabitIds = computed(() => this.getRandomCompletedHabitIds());
 
   constructor(private route: ActivatedRoute) {}
 
@@ -204,14 +205,32 @@ export class ReflectionComponent {
     });
   }
 
-  assignPhrasesToCompletedHabits() {
+  getRandomElements(arr: string[], numberToPick: number): string[] {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5);
+
+    return shuffled.slice(0, numberToPick); // Pick 1 or 2 elements based on the condition
+  }
+
+  getRandomCompletedHabitIds() {
     const completedHabits = this.habits
       .filter((habit) => habit.latestProgress.completed)
       .flatMap((habit) => habit._id);
 
+    const numberToPick = this.randomIncompleteHabitId() === null ? 2 : 1;
+
+    console.log('numberToPick of completed habits', numberToPick);
+    console.log('completedHabits', completedHabits);
+
+    console.log('randomCompletedHabitIds', this.getRandomElements(completedHabits, numberToPick));
+    return this.getRandomElements(completedHabits, numberToPick);
+  }
+
+  assignPhrasesToCompletedHabits() {
+    
+
     this.habitsMappedToQuestions.clear();
 
-    completedHabits.forEach((habitId) => {
+    this.randomCompletedHabitIds().forEach((habitId) => {
       const randomIndexQuestions = Math.floor(
         Math.random() * this.completedQuestions.length
       );
@@ -243,9 +262,9 @@ export class ReflectionComponent {
     );
   }
 
-  getRandomIncompleteHabit() {
+  getRandomIncompleteDailyHabit() {
     const incompleteHabitIds = this.habits
-      .filter((habit) => !habit.latestProgress.completed)
+      .filter((habit) => habit.frequency==7 && !habit.latestProgress.completed)
       .flatMap((habit) => habit._id);
 
     if (incompleteHabitIds.length === 0) {
@@ -254,37 +273,35 @@ export class ReflectionComponent {
 
     const randomHabitId =
       incompleteHabitIds[Math.floor(Math.random() * incompleteHabitIds.length)];
+
+      console.log('randomIncompletedHabitId', randomHabitId);
     return randomHabitId;
   }
 
-
   getTimeOfDayGreeting = () => {
-    const hour = new Date().getHours()
+    const hour = new Date().getHours();
 
-    if (hour < 12) return 'morning'
+    if (hour < 12) return 'morning';
 
-    if (hour < 18) return 'afternoon'
+    if (hour < 18) return 'afternoon';
 
-    return 'evening'
-    }
- 
+    return 'evening';
+  };
 
   greeting = getRandomPhrase([
     'Hello ',
     'Welcome ',
     'Good ' + this.getTimeOfDayGreeting() + ' ',
     'Good to see you ',
-
   ]);
-  
-  
-
 
   salutation = getRandomPhrase([
-    'my friend', 'dear ' + this.stateService.$state().name + '.', 'beautiful soul', 
-  ])
+    'my friend',
+    'dear ' + this.stateService.$state().name + '.',
+    'beautiful soul',
+  ]);
 
-  welcomePhrase = this.greeting + this.salutation
+  welcomePhrase = this.greeting + this.salutation;
 
   reflectiveWord = getRandomPhrase([
     'good',
@@ -317,6 +334,4 @@ export class ReflectionComponent {
     'Did you feel more centered after?',
     'Did you feel energized after?',
   ];
-
-
 }
