@@ -30,7 +30,7 @@ import { StateService } from '../state.service';
           ___________________________<br />
           <br />
 
-          {{ greeting }} <br />
+          {{ welcomePhrase }} <br />
 
           {{ myAttitude }} reflect with you today. <br />
         </p>
@@ -258,7 +258,7 @@ export class ReflectionComponent {
   }
 
 
-  getGreeting = () => {
+  getTimeOfDayGreeting = () => {
     const hour = new Date().getHours()
 
     if (hour < 12) return 'morning'
@@ -270,10 +270,10 @@ export class ReflectionComponent {
  
 
   greeting = getRandomPhrase([
-    'Hello',
+    'Hello ',
     'Welcome ',
-    'Good' + this.getGreeting(),
-    'Good to see you',
+    'Good ' + this.getTimeOfDayGreeting() + ' ',
+    'Good to see you ',
 
   ]);
   
@@ -281,7 +281,7 @@ export class ReflectionComponent {
 
 
   salutation = getRandomPhrase([
-    'my friend', 'dear' + this.stateService.$state().name + '.', 'beautiful soul', 
+    'my friend', 'dear ' + this.stateService.$state().name + '.', 'beautiful soul', 
   ])
 
   welcomePhrase = this.greeting + this.salutation
