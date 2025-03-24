@@ -128,9 +128,12 @@ export const postGoal: RequestHandler<
       embedded_name,
       createdByUserWithId: req.userId,
       ranking,
-    });
+    })
 
-    res.json({ success: true, data: result as Goal });
+    const goalObject = result.toObject();
+    delete goalObject.embedded_name;
+
+    res.json({ success: true, data: goalObject as Goal });
   } catch (err) {
     next(err);
   }

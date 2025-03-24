@@ -20,7 +20,7 @@ export interface GoalBase extends EntityBase {}
 export interface Goal extends EntityBase {
   _id: string;
   createdByUserWithId: string;
-  embedded_name: number[];
+  embedded_name?: number[];
 
   habits: Habit[];
 

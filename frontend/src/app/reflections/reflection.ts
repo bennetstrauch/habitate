@@ -20,7 +20,7 @@ import { StateService } from '../state.service';
 
 @Component({
   selector: 'app-reflection',
-  imports: [MatStepperModule, MatButtonModule, MatCheckboxModule, RouterLink],
+  imports: [MatStepperModule, MatButtonModule, MatCheckboxModule],
   template: `
     <mat-stepper class="card" linear #stepper>
       <mat-step>
@@ -77,8 +77,7 @@ import { StateService } from '../state.service';
         <strong>{{ habit.name }}</strong> <br />
         <br />
 
-        Congratulations! <br />
-
+        {{ getHabitCongratulation(habit._id) }}<br />
         {{ getHabitQuestion(habit._id) }}
         <br />
         <br />
@@ -86,19 +85,24 @@ import { StateService } from '../state.service';
       </mat-step>
       } @else {
       <!--  -->
+      <!-- If Incompleted Habit is the Selected on to reflect on: -->
       @if (habit._id == randomIncompleteHabitId()){
       <mat-step>
         <strong>{{ habit.name }}</strong> <br />
         ----------------
         <br />
         <!-- #alternate -->
-        No worries. <br />
+        No worries. <br /> 
+         <!--No judgement,   -->
         Just tune in. <br />
+        <!-- Just feel in, Just relax and feel, Just settle in,  -->
         <br />
-        What did hold you back from doing it? <br />
-        & <br />
         <strong>What simple change</strong> to make it happen with ease
         tomorrow?
+        <!-- What did hold you back from doing it?, 
+         Is there a soft adjustment you could make to allow this habit to be integrated tomorrow?,
+
+ -->
         <br />
         <button mat-button matStepperNext>Next</button>
       </mat-step>
@@ -106,17 +110,26 @@ import { StateService } from '../state.service';
       } }
       <br />
       <br />
-
-      <!-- <div>
-          <button mat-button matStepperNext>Next</button>
-        </div> -->
-
       } }
+
+      <!-- @if(randomIncompleteHabitId()===null){
+      <mat-step>
+        There is so much love inside to be revealed.
+
+        ##individualize 
+              
+        When you close your eyes innocently,
+        non-required-to-do-anything,
+        is there an intention that comes up for tomorrow?
+        <button mat-button matStepperNext>Next</button>
+      </mat-step>
+
+    } -->
 
       <mat-step>
         <p>
           <strong>Thank you</strong> <br />
-          for taking the time to take care of yourself. <br />
+          for taking the time to take care of yourSelf. <br />
         </p>
         <div>
           <button mat-button matStepperPrevious>Back</button>
@@ -145,27 +158,17 @@ export class ReflectionComponent {
 
   $formattedDate = signal<string>('');
 
+  habits = this.goalsService.$goals().flatMap((goal) => goal.habits);
+  habitsMappedToQuestions: Map<string, string> = new Map();
+  habitsMappedToCongratulations: Map<string, string> = new Map();
+
+  randomIncompleteHabitId = computed(() => this.getRandomIncompleteHabit());
+
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.setFormattedDateToDisplay();
-    this.assignRandomQuestionFormCompletedHabits();
-    // triggers when route parameters changes
-    // this.route.paramMap.subscribe((params) => {
-    //   const dateString = params.get('date'); // Get ':date' parameter
-
-    //   if (dateString) {
-    //     const dateObj = new Date(dateString); // Convert string to Date object
-    //     this.$formattedDate.set(
-    //       dateObj.toLocaleDateString('en-CA', {
-    //         weekday: 'short', // e.g., "Mon"
-    //         month: 'short', // e.g., "Feb"
-    //         day: 'numeric', // e.g., "16"
-    //         timeZone: 'UTC', // Use UTC to avoid timezone conversion
-    //       })
-    //     );
-    //   }
-    // });
+    this.assignPhrasesToCompletedHabits();
   }
 
   completeReflection() {
@@ -201,23 +204,31 @@ export class ReflectionComponent {
     });
   }
 
-  habits = this.goalsService.$goals().flatMap((goal) => goal.habits);
-
-  habitsMappedToQuestions: Map<string, string> = new Map();
-
-  assignRandomQuestionFormCompletedHabits() {
+  assignPhrasesToCompletedHabits() {
     const completedHabits = this.habits
       .filter((habit) => habit.latestProgress.completed)
       .flatMap((habit) => habit._id);
 
     this.habitsMappedToQuestions.clear();
+
     completedHabits.forEach((habitId) => {
-      const randomIndex = Math.floor(
+      const randomIndexQuestions = Math.floor(
         Math.random() * this.completedQuestions.length
       );
+
+      // #getrandomindexinutils
+
+      const randomIndexCongratulations = Math.floor(
+        Math.random() * this.congratulations.length
+      );
+
       this.habitsMappedToQuestions.set(
         habitId,
-        this.completedQuestions[randomIndex]
+        this.completedQuestions[randomIndexQuestions]
+      );
+      this.habitsMappedToCongratulations.set(
+        habitId,
+        this.congratulations[randomIndexCongratulations]
       );
     });
   }
@@ -226,13 +237,19 @@ export class ReflectionComponent {
     return this.habitsMappedToQuestions.get(habitId) || 'Did it uplift you?';
   }
 
+  getHabitCongratulation(habitId: string): string {
+    return (
+      this.habitsMappedToCongratulations.get(habitId) || 'Fulfilled prophecy ;)'
+    );
+  }
+
   getRandomIncompleteHabit() {
     const incompleteHabitIds = this.habits
       .filter((habit) => !habit.latestProgress.completed)
       .flatMap((habit) => habit._id);
 
     if (incompleteHabitIds.length === 0) {
-      return '';
+      return null;
     }
 
     const randomHabitId =
@@ -240,15 +257,34 @@ export class ReflectionComponent {
     return randomHabitId;
   }
 
-  randomIncompleteHabitId = computed(() => this.getRandomIncompleteHabit());
 
-  displaySimpleChangeCard = false;
+  getGreeting = () => {
+    const hour = new Date().getHours()
+
+    if (hour < 12) return 'morning'
+
+    if (hour < 18) return 'afternoon'
+
+    return 'evening'
+    }
+ 
 
   greeting = getRandomPhrase([
-    'Hello my friend.',
-    'Hello dear ' + this.stateService.$state().name + '.',
-    'Hello beautiful Soul.',
+    'Hello',
+    'Welcome ',
+    'Good' + this.getGreeting(),
+    'Good to see you',
+
   ]);
+  
+  
+
+
+  salutation = getRandomPhrase([
+    'my friend', 'dear' + this.stateService.$state().name + '.', 'beautiful soul', 
+  ])
+
+  welcomePhrase = this.greeting + this.salutation
 
   reflectiveWord = getRandomPhrase([
     'good',
@@ -266,6 +302,13 @@ export class ReflectionComponent {
     'What a delight to',
   ]);
 
+  congratulations = [
+    'Congratulations!',
+    'You did it!',
+    'Status: Completed!',
+    'Da daa da done!',
+  ];
+
   completedQuestions = [
     'Did it feel good?',
     'Did it lift you up?',
@@ -274,4 +317,6 @@ export class ReflectionComponent {
     'Did you feel more centered after?',
     'Did you feel energized after?',
   ];
+
+
 }

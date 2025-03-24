@@ -50,7 +50,10 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
         @for( habit of $goal()!.habits; track $index) {
         <mat-card class="habit-card">
           <div class="habit-container">
-            <span class="habit-name">{{ habit.name }}</span>
+            <span class="habit-name">{{ habit.name }}</span> <br>
+            <!-- ##checkout -->
+            <span>{{habit.description}}</span>
+
           </div>
         </mat-card>
         }
