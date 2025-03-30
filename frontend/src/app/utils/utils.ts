@@ -46,9 +46,11 @@ export const calculateStartAndEndDate = (
 };
 
 
-
+export function getRandomElement<T>(options: T[]): T {
+  return options[Math.floor(Math.random() * options.length)];
+}
 
 
 export function getRandomPhrase(options: string[]): string {
-  return options[Math.floor(Math.random() * options.length)];
+  return getRandomElement<string>(options);
 }

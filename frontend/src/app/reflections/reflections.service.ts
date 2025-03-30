@@ -15,7 +15,7 @@ export class ReflectionsService {
   #http = inject(HttpClient);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
-
+  
   $reflection = signal<Reflection | null>(null);
 
   $reflectionStats = signal<StatBase | null>(null);

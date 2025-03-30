@@ -11,6 +11,7 @@ import { ReflectionsService } from '../../reflections/reflections.service';
 import { MatButton } from '@angular/material/button';
 import { WeeklyReflectionComponent } from '../../reflections/display/weekly-reflection.component';
 import { StatsService } from '../stats.service';
+import { DailyReflectionService } from '../../reflections/daily-reflection.service';
 
 @Component({
   selector: 'app-daily-progress',
@@ -70,6 +71,7 @@ import { StatsService } from '../stats.service';
 
       <button
         mat-raised-button
+        (click)="startDailyReflection()"
         [routerLink]="[
           '',
           'goals',
@@ -95,6 +97,7 @@ export class DailyProgressComponent {
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
   reflectionsService = inject(ReflectionsService);
+  dailyReflectionsService = inject(DailyReflectionService)
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;
@@ -113,5 +116,12 @@ export class DailyProgressComponent {
 
   dailyProgressDateIsSunday() {
     return this.progressService.$dailyProgressDate().getDay() === 0;
+  }
+
+  startDailyReflection(){
+    // ## start vs continue? 
+    //  only init if not already started
+    this.dailyReflectionsService.$currentStep.set('start')
+    this.dailyReflectionsService.initDailyReflection()
   }
 }

@@ -1,0 +1,132 @@
+<mat-stepper class="card" linear #stepper>
+  <mat-step>
+    <!-- implement as head component. -->
+    <p>
+      <strong>{{ $formattedDate() }} - Reflection </strong><br />
+      ___________________________<br />
+      <br />
+
+      {{ welcomePhrase }} <br />
+
+      {{ myAttitude }} reflect with you today. <br />
+    </p>
+
+    <button mat-button matStepperNext>Next</button>
+  </mat-step>
+
+  <mat-step>
+    <p>Let's take a minute to settle down. <br /></p>
+
+    <button mat-button matStepperNext>Next</button>
+  </mat-step>
+
+  <mat-step>
+    <p>
+      What was <strong>something {{ reflectiveWord }}</strong> today? <br />
+    </p>
+
+    <p>Just <strong>relax and see</strong> what bubbles up in your mind</p>
+
+    <!-- #let user enter -->
+
+    <button mat-button matStepperNext>Next</button>
+  </mat-step>
+
+  @for(goal of this.goalsService.$goals(); track $index; ) {
+  <!-- #doesnt gt triggered -->
+
+  @for(habit of goal.habits; track $index;) {
+  <!--  -->
+
+  @if (randomCompletedHabitIds().includes(habit._id)) {
+  @if(isFirstHabitToDisplay(goal._id)){
+
+  <mat-step>
+    @if ($currentGoalIdToReflect()=='') {
+    <p>
+      <strong>Let's flow</strong> through your precious goals :) <br />
+      ---------------------------
+    </p>
+
+    }
+
+    <p>Intention</p>
+    <strong>" {{ goal.name }} "</strong>
+    <br />
+    <br />
+
+    <!-- nod need for MatStepperNext in Button, will automatically do du to signal change -->
+    <button mat-button (click)="$currentGoalIdToReflect.set(goal._id)">
+      Check Habit
+    </button>
+  </mat-step>
+  }
+
+  <mat-step>
+    <strong>{{ habit.name }}</strong> <br />
+    <br />
+
+    {{ getHabitCongratulation(habit._id) }}<br />
+    {{ getHabitQuestion(habit._id) }}
+    <br />
+    <br />
+    <!-- changing the click changes the next step. -->
+    <button mat-button matStepperNext>Next</button>
+  </mat-step>
+  } @else {
+  <!--  -->
+  <!-- If Incompleted Habit is the Selected on to reflect on: -->
+  @if (habit._id == randomIncompleteHabitId()){
+
+  <mat-step>
+    <strong>{{ habit.name }}</strong> <br />
+    ----------------
+    <br />
+    <!-- #alternate -->
+    No worries. <br />
+    <!--No judgement,   -->
+    Just tune in. <br />
+    <!-- Just feel in, Just relax and feel, Just settle in,  -->
+    <br />
+    <strong>What simple change</strong> to make it happen with ease tomorrow?
+    <!-- What did hold you back from doing it?, 
+       Is there a soft adjustment you could make to allow this habit to be integrated tomorrow?,
+
+-->
+    <br />
+    <button mat-button matStepperNext>Next</button>
+  </mat-step>
+
+  } }
+  <br />
+  <br />
+  } }
+
+  <!-- @if(randomIncompleteHabitId()===null){
+    <mat-step>
+      There is so much love inside to be revealed.
+
+      ##individualize 
+            
+      When you close your eyes innocently,
+      non-required-to-do-anything,
+      is there an intention that comes up for tomorrow?
+      <button mat-button matStepperNext>Next</button>
+    </mat-step>
+
+  } -->
+
+  <mat-step>
+    <p>
+      <strong>Thank you</strong> <br />
+      for taking the time to take care of yourSelf. <br />
+    </p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+
+      <button mat-button (click)="completeReflection()">
+        Finish Reflection
+      </button>
+    </div>
+  </mat-step>
+</mat-stepper>
