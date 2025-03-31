@@ -23,7 +23,7 @@ export class DailyReflectionService {
 
   selectedHabitsWithGoal: { goalId: Goal; habits: Habit[] }[] = [];
   // selectedHabitsWithGoal: HabitWithGoal[] = [];
-  selectedHabitsForGoal: Map<Goal, Habit[]> = new Map();
+  selectedHabitsForGoal: Map<string, Habit[]> = new Map();
 
   stepsMappedToHabitOrGoal = new Map<string, any>();
 
@@ -41,11 +41,19 @@ export class DailyReflectionService {
     this.selectedHabitsForGoal.clear();
 
     this.incompleteHabit = this.getRandomIncompleteDailyHabit();
+    console.log(
+      'incompleteHabit',
+      this.incompleteHabit
+    );
 
     let goalIndex = 0;
     let habitIndex = 0;
 
     const completedHabits = this.getRandomCompletedHabitsWithGoal();
+    console.log(
+      'completedHabits',
+      completedHabits
+    );
 
     let habits = [...completedHabits];
 
@@ -55,19 +63,22 @@ export class DailyReflectionService {
       habits.sort(() => Math.random() - 0.5);
     }
 
+    console.log('habits to reflect on', habits);
+
     habits.forEach((habitWithGoal) => {
       const goal = habitWithGoal.goal;
+      const goalId = goal._id;
       const habit = habitWithGoal.habit;
 
-      if (!this.selectedHabitsForGoal.has(goal)) {
+      if (!this.selectedHabitsForGoal.has(goalId)) {
         goalIndex++;
         habitIndex = 0;
         this.stepsMappedToHabitOrGoal.set('goal-' + goalIndex, goal);
         this.stepComponentMap.set('goal-' + goalIndex, RGoalComponent);
-        this.selectedHabitsForGoal.set(goal, []);
+        this.selectedHabitsForGoal.set(goalId, []);
       }
 
-      this.selectedHabitsForGoal.get(goal)?.push(habit);
+      this.selectedHabitsForGoal.get(goalId)?.push(habit);
       habitIndex++;
       this.stepsMappedToHabitOrGoal.set(
         'goal-' + goalIndex + '-habit-' + habitIndex,
@@ -88,6 +99,10 @@ export class DailyReflectionService {
 
     console.log('stepMap', this.stepComponentMap);
     console.log('steps', this.stepsMappedToHabitOrGoal);
+    console.log(
+      'selectedHabitsForGoal',
+      this.selectedHabitsForGoal
+    );
   }
 
   handleNextHabitOrGoal() {
@@ -144,7 +159,9 @@ export class DailyReflectionService {
     );
 
 
-    const numberToPick = this.incompleteHabit ? 2 : 1;
+    console.log('incompleteHabit', this.incompleteHabit);
+
+    const numberToPick = this.incompleteHabit ? 1 : 2;
     return getNumberOfRandomElements(completedHabits, numberToPick);
   }
 }

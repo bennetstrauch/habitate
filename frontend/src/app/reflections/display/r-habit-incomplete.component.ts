@@ -9,7 +9,7 @@ import { DailyReflectionService } from '../daily-reflection.service';
   template: `
     <div class="card">
       <strong>{{ $habit().name }}</strong> <br />
-      ----------------
+      ----------------------------------
       <br />
       <!-- #alternate -->
       No worries. <br />
