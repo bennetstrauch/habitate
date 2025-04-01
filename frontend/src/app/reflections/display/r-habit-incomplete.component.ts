@@ -15,12 +15,8 @@ import { getRandomPhrase } from '../../utils/utils';
       {{ noShamePhrase }} <br />
       {{ tuneInPhrase }} <br />
       <br />
-      <strong>What simple change</strong> to make it happen with ease tomorrow?
-      <!-- ## adjust, but with bold as well, ask gtp:
-       What did hold you back from doing it?, 
-       Is there a soft adjustment you could make to allow this habit to be integrated tomorrow?,
+      <div [innerHTML]="changePhrase"></div>
 
--->
       <br />
       <button
         mat-button
@@ -53,6 +49,13 @@ export class RHabitIncompleteComponent {
     'Simply relax',
   ];
 
+  changePhrases = [
+    '<strong>What simple change</strong> to make it happen with ease tomorrow?',
+    'Was there any obstacle holding you back that you could easily overcome tomorrow?',
+    'Is there a <strong>soft adjustment</strong> you could make to allow this habit to be integrated tomorrow?'
+  ];
+
   noShamePhrase = getRandomPhrase(this.noShamePhrases);
   tuneInPhrase = getRandomPhrase(this.tuneInPhrases);
+  changePhrase = getRandomPhrase(this.changePhrases);
 }
