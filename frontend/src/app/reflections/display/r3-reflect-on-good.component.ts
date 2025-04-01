@@ -32,4 +32,12 @@ export class R3ReflectOnGoodComponent {
     'beautiful',
     'insightful',
   ]);
+
+  handleNextStep(){
+    if (this.dailyReflectionService.stepComponentMap.has('goal-1')) {
+    this.dailyReflectionService.$currentStep.set('goal-1');
+    } else {
+      this.dailyReflectionService.$currentStep.set('finalize');
+    }
+  }
 }

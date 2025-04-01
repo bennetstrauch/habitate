@@ -27,6 +27,8 @@ export class DailyReflectionService {
 
   stepsMappedToHabitOrGoal = new Map<string, any>();
 
+
+  // ## make exported variables for strings
   stepComponentMap = new Map<string, any>([
     ['start', R1WelcomeComponent],
     ['settle-down', R2SettleDownComponent],

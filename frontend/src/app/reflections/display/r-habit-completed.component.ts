@@ -17,6 +17,15 @@ import { DailyReflectionService } from '../daily-reflection.service';
       <br />
       <br />
       <!-- changing the click changes the next step. -->
+
+      <!-- <button
+        mat-button
+        
+      >
+        No
+      </button> -->
+
+
       <button
         mat-button
         (click)="dailyReflectionService.handleNextHabitOrGoal()"
