@@ -20,7 +20,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
           <p>
             Think about something you already do every day <br> 
             ( preferrably at night ) <br>
-            and just shedule our <strong> ' Habit-Reflection ' </strong> right after. <br>
+            and just schedule our <strong> ' Habit-Reflection ' </strong> right after. <br>
             <br>
             Enter this ' Reflection-Trigger ' here: 
           </p>
