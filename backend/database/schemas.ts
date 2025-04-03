@@ -16,8 +16,8 @@ const userSchema = new Schema<User>({
   password: { type: String, required: true, minlength: 6 },
   timezone: { type: String, required: true },
 
-  // # type: { name: string, completedYesterday: boolean }
   reflectionTrigger: { type: String, required: true },
+  reflectionReminderTime: { type: String, required: false }
 });
 
 export const UserModel = model<User>("user", userSchema);

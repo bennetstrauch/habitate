@@ -5,4 +5,5 @@ export interface User {
     password: string;
     timezone: string;
     reflectionTrigger: string;
+    reflectionReminderTime?: string;
 }

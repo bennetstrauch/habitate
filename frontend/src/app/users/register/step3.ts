@@ -19,7 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
         <mat-card-content>
           <p>
             To take out the strain <br />
-            of sheduling something every time, <br />
+            of scheduling something every time, <br />
             <br />
             our daily meeting should be like tooth-brushing. <br />
             - Nothing to think about.
