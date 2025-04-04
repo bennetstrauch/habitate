@@ -21,4 +21,8 @@ export class UsersService {
     return this.#http.post<LoginResponse>(environment.SERVER_URL + '/users/login', user)
 
   }
+
+  checkEmail(email: string) {
+    return this.#http.get<StandardResponse<boolean>>(environment.SERVER_URL + '/users/check-email' + `?email=${email}`)
+  }
 }

@@ -86,3 +86,25 @@ export const login: LoginReqHandler = async (req, res, next) => {
     next(err);
   }
 };
+
+
+type CheckEmailReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<boolean>,
+  unknown,
+  { email: string }
+> 
+
+export const checkEmail : CheckEmailReqHandler = async (req, res, next) => {
+  const { email } = req.query;
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    if (user) {
+      res.status(200).json({ success: true, data: true });
+    } else {
+      res.status(200).json({ success: true, data: false });
+    }
+  } catch (err) {
+    next(err);
+  }
+}

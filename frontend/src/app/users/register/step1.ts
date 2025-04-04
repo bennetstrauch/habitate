@@ -1,4 +1,4 @@
-import { Component, inject, input, Input, output } from '@angular/core';
+import { Component, inject, input, Input, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -80,7 +80,12 @@ import { validators } from './register.component';
       </mat-form-field>
       <br />
 
-      <button mat-button matStepperNext type="button" (click)="continue()">
+      <button
+        mat-button
+        type="button"
+        [disabled]="!userDetailsForm.valid"
+        (click)="checkEmailAndContinue()"
+      >
         Continue
       </button>
 
@@ -105,17 +110,44 @@ import { validators } from './register.component';
         {{ validatorEntry['key'] }} has to be in email format:
         max...n&#64;example.com
       </mat-error>
-      }
-
+      } } } @if($emailExistsError()){
+      <mat-error> This email is already in use. </mat-error>
       <!-- {{userDetailsForm.get(validatorEntry['key'])?.errors! | json}} -->
-      } }
+      }
     </form>
   `,
 })
 export class RegisterStepOneComponent {
   @Input() userDetailsForm!: FormGroup;
+  @Input() stepper!: MatStepper;
 
-  continue = () => console.log('formvalid: ', this.userDetailsForm.valid);
+  $emailExistsError = signal(false);
+  usersService = inject(UsersService);
+
+  ngOnInit() {
+    // Reset emailAlreadyExistsError when user types in email field
+    this.userDetailsForm.get('email')?.valueChanges.subscribe(() => {
+      this.$emailExistsError.set(false);
+    });
+  }
+
+  checkEmailAndContinue = () => {
+    console.log('formvalid: ', this.userDetailsForm.valid);
+
+    const email = this.userDetailsForm.get('email')?.value;
+
+    this.usersService.checkEmail(email).subscribe((response) => {
+      if (response.data) {
+        this.$emailExistsError.set(true); // Show error message
+        console.log('Email already exists. Please choose another one.');
+      } else {
+        this.$emailExistsError.set(false);
+        console.log('Proceeding to next step...');
+        this.stepper.next();
+        // Here, you can trigger navigation to the next step
+      }
+    });
+  };
 
   validators = validators;
 }

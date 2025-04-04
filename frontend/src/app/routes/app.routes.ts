@@ -5,6 +5,7 @@ import { StateService } from '../state.service';
 import { WelcomeComponent } from '../goals/getStarted/welcome.component';
 import { GoalsResolver } from './resolver and guards/goals.resolver';
 import { stateGuard } from './resolver and guards/state.guard';
+import { Step4_2Reminder } from '../users/register/step4-2-reminder';
 
 // # global variables for routes
 
@@ -25,5 +26,7 @@ export const routes: Routes = [
             goals: GoalsResolver
           }
     },
+//   { path: 'test-reg', component: Step4_2Reminder }, 
+
 
 ];

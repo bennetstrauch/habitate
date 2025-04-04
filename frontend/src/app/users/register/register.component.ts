@@ -5,6 +5,7 @@ import {
   Input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -56,7 +57,7 @@ import { Step6 } from "./step6";
       #stepper
     >
       <mat-step [stepControl]="userDetailsForm">
-        <app-register-step-one [userDetailsForm]="userDetailsForm" />
+        <app-register-step-one [userDetailsForm]="userDetailsForm" [stepper]='stepper' />
       </mat-step>
 
       <mat-step>
@@ -111,6 +112,7 @@ export class RegisterComponent {
   #stateService = inject(StateService);
   #usersService = inject(UsersService);
   #router = inject(Router);
+  
 
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     name: ['', validators.name],
