@@ -3,83 +3,112 @@ import { ErrorWithStatus } from '@backend/utils/error.class';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { validators } from './register/register.component';
 import { UsersService } from './users.service';
-import { LoginRequest } from '@backend/types/login/loginRequest'
+import { LoginRequest } from '@backend/types/login/loginRequest';
 import { StateService } from '../state.service';
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode';
 import { Token } from '@backend/types/token';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, MatButton],
-  template: ` Login: 
+  imports: [ReactiveFormsModule, MatButton, RouterLink],
+  template: `
+  <div class="login-div">
+    Login
 
-    <form [formGroup]='form' (ngSubmit)='login()'>
-     
-      <input placeholder="email" [formControl]='form.controls.email'>
-      <br>
-      <input type="password" placeholder="password" [formControl]='form.controls.password'>
-      <br>
+    <form [formGroup]="form" (ngSubmit)="login()">
+      <input placeholder="email" [formControl]="form.controls.email" />
+      <br />
+      <input
+        type="password"
+        placeholder="password"
+        [formControl]="form.controls.password"
+      />
+      <br />
 
-      <button mat-button [disabled]="form.invalid"> Login </button>
+      <button mat-button [disabled]="form.invalid">Login</button>
     </form>
+
+    <br />
+    <!-- ###Reset Password Link -->
+    <!-- <a
+      (click)="handlePasswordReset()"
+      style="cursor:pointer; text-decoration: underline;"
+    >
+      Forgot Password ?
+    </a>
+    <br /><br /> -->
+    </div>
   `,
-  styles: ``
+  styles: `
+  a {
+    font-size: 12px;
+    color:rgb(1, 40, 82);
+    text-decoration: none
+  },
+  .login-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 5px solid black;
+  }
+  `,
 })
 export class LoginComponent {
 
-  #usersService = inject(UsersService)
-  #stateService = inject(StateService)
-  #router = inject(Router)
-
+  #usersService = inject(UsersService);
+  #stateService = inject(StateService);
+  #router = inject(Router);
 
   form = inject(FormBuilder).nonNullable.group({
-    'email': ['', validators.email],
-    'password': ['', validators.password]
-  })
-
+    email: ['', validators.email],
+    password: ['', validators.password],
+  });
 
   login() {
-
     /// h## handle error correctly
-  
-    this.#usersService.login(this.form.value as LoginRequest)
-    .pipe(
-      catchError((err: ErrorWithStatus) => {
 
-        if (err.status == 401) {
-          alert(err?.error);
-          console.log('catched error: ', err)
-        } else {
-          alert('An unknown error occurred');
-        }
+    this.#usersService
+      .login(this.form.value as LoginRequest)
+      .pipe(
+        catchError((err: ErrorWithStatus) => {
+          if (err.status == 401) {
+            alert(err?.error);
+            console.log('catched error: ', err);
+          } else {
+            alert('An unknown error occurred');
+          }
 
-        return of(null); 
-      })
-    )
-    .subscribe(response => {
+          return of(null);
+        })
+      )
+      .subscribe((response) => {
+        if (!response) return;
+        console.log('login user:', response);
 
-      if (!response) return;
-      console.log('login user:', response)
+        const token = response.data.token;
+        const payloadDecoded = jwtDecode(token) as Token;
+        console.log(payloadDecoded);
 
-      const token = response.data.token
-      const payloadDecoded = jwtDecode(token) as Token
-      console.log(payloadDecoded)
+        this.#stateService.$state.set({
+          _id: payloadDecoded._id,
+          name: payloadDecoded.name,
+          email: payloadDecoded.email,
+          jwtToken: token,
+        });
 
+        this.#router.navigate(['', 'goals', 'overview']);
+      });
+  }
 
-      this.#stateService.$state.set({
-        _id: payloadDecoded._id,
-        name: payloadDecoded.name,
-        email: payloadDecoded.email,
-        jwtToken: token
-      })
-
-      this.#router.navigate(['', 'goals', 'overview'])
-    })
-
-
-
+  handlePasswordReset() {
+    sessionStorage.setItem(
+      'resetEmail',
+      this.form.value.email || 'youremail.com'
+    );
+    this.#router.navigate(['', 'reset-password']);
   }
 }

@@ -3,8 +3,13 @@ import { ErrorWithStatus } from "../utils/error.class";
 import { UserModel } from "../database/schemas";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import { StandardResponse } from "../types/standardResponse";
 
-export const forgotPassword: RequestHandler = async (req, res, next) => {
+export const sendPasswordResetLink: RequestHandler<
+  unknown,
+  StandardResponse<string>,
+  { email: string }
+> = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -37,14 +42,15 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
     const resetLink = `http://localhost:4200/reset-password?token=${resetToken}`;
 
     await transporter.sendMail({
-      from: `"Your App" <${process.env.EMAIL_USER}>`,
+      from: `"Habitate" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Password Reset Request",
-      text: `Click the link to reset your password: ${resetLink}`,
+      text: `Helloooooo ${user.name}. Please click the link to reset your password: ${resetLink}`,
     });
 
-    res.json({ success: true, message: "Password reset email sent" });
+    const message = `We sent a Link to ${user.email}. Please check your inbox.`;
 
+    res.json({ success: true, data: message });
   } catch (err) {
     next(err);
   }

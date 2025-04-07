@@ -10,23 +10,34 @@ import { Step4_2Reminder } from '../users/register/step4-2-reminder';
 // # global variables for routes
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'welcome', pathMatch: 'full' },
-    // ##loadComponent
-    { path: 'welcome', component: WelcomeComponent, canActivate: [stateGuard]},
-    { path: 'login', component: LoginComponent, canActivate:[stateGuard]},
-    { path: 'register', 
-        loadComponent: () => import('../users/register/register.component').then(c => c.RegisterComponent),
-        canActivate:[stateGuard]
+  { path: '', redirectTo: 'welcome', pathMatch: 'full' },
+  // ##loadComponent
+  { path: 'welcome', component: WelcomeComponent, canActivate: [stateGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [stateGuard] },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('../users/register/register.component').then(
+        (c) => c.RegisterComponent
+      ),
+    canActivate: [stateGuard],
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('../users/reset-password.component').then(
+        (c) => c.ResetPasswordComponent
+      ),
+    canActivate: [stateGuard],
+  },
+
+  {
+    path: 'goals',
+    loadChildren: () => import('./goals.routes').then((r) => r.goalsRoutes),
+    canActivate: [() => inject(StateService).isLoggedIn()],
+    resolve: {
+      goals: GoalsResolver,
     },
-
-    { path: 'goals', 
-        loadChildren: () => import('./goals.routes').then(r => r.goalsRoutes),
-        canActivate: [ () => inject(StateService).isLoggedIn() ],
-        resolve: {
-            goals: GoalsResolver
-          }
-    },
-//   { path: 'test-reg', component: Step4_2Reminder }, 
-
-
+  },
+  //   { path: 'test-reg', component: Step4_2Reminder },
 ];
