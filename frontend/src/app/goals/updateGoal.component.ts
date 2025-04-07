@@ -150,7 +150,7 @@ export class UpdateGoalComponent {
     this.goalForm.markAsPristine();
   }
 
-  onSubmit = () => {
+  updateGoal = () => {
     const goal: Goal = {
       ...this.$goal()!,
       name: this.goalForm.controls.name.value!, // ! because we check validity on button
@@ -162,7 +162,7 @@ export class UpdateGoalComponent {
       if (response.success) {
         // this.updateHabits() ##whatsthat used or not?
         this.goalsService.update_goals();
-        // ### update message somehow, also in habitUpdateModule
+        alert('Habit updated successfully!');
       }
     });
   };

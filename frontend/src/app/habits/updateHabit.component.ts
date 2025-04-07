@@ -169,7 +169,7 @@ export class UpdateHabitComponent {
     this.habitForm.markAsPristine();
   }
 
-  onSubmit = () => {
+  updateHabit = () => {
 
     this.$habit()!.name = this.habitForm.controls.name.value!;
     this.$habit()!.description = this.habitForm.controls.description.value!;
@@ -180,6 +180,7 @@ export class UpdateHabitComponent {
       if (response.success) {
         // this.updateHabits()
         this.goalsService.update_goals();
+        alert('Habit updated successfully!');
       }
     });
   };
