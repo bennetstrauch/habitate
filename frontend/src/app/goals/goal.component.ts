@@ -50,10 +50,10 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
         @for( habit of $goal()!.habits; track $index) {
         <mat-card class="habit-card">
           <div class="habit-container">
-            <span class="habit-name">{{ habit.name }}</span> <br>
+            <div class="habit-name">{{ habit.name }}</div> 
+          
             <!-- ##checkout -->
-            <span>{{habit.description}}</span>
-
+            <div class="habit-description">{{ habit.description }}</div>
           </div>
         </mat-card>
         }
@@ -75,6 +75,20 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
 
     .habit {
       background-color:rgb(255, 255, 255); /* White */
+    }
+
+.habit-description {
+  color: lightgray;
+}
+
+
+    .habit-container {
+      display: flex;
+  flex-direction: column;
+  justify-content: center; /* center vertically */
+  align-items: flex-start; /* <<< important! not stretch or baseline */
+  height: 100%;
+      
     }
   `,
 })

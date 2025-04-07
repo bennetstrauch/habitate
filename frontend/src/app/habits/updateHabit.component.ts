@@ -88,13 +88,15 @@ import { MatSliderModule } from '@angular/material/slider';
           <mat-icon>delete</mat-icon> Delete Habit
         </button>
       </form>
-    </mat-card>
-    <br>
-  
-    @if($showUpdateMessage()){
+      <br>
+      @if($showUpdateMessage()){
       <!-- ##design -->
     Habit updated :)
   }
+    </mat-card>
+    <br>
+  
+   
   `,
 
   styles: `
