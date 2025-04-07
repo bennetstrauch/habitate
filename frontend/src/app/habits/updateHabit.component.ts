@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +24,7 @@ import { MatSliderModule } from '@angular/material/slider';
   template: `
   <!-- #make it all centered, look nicer -->
     <mat-card class="card">
-      <form [formGroup]="habitForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="habitForm" (ngSubmit)="updateHabit()">
 
         <mat-form-field>
           <mat-label>Habit</mat-label>
@@ -89,6 +89,12 @@ import { MatSliderModule } from '@angular/material/slider';
         </button>
       </form>
     </mat-card>
+    <br>
+  
+    @if($showUpdateMessage()){
+      <!-- ##design -->
+    Habit updated :)
+  }
   `,
 
   styles: `
@@ -167,7 +173,14 @@ export class UpdateHabitComponent {
       frequency: habit!.frequency,
     });
     this.habitForm.markAsPristine();
+
+    // remove updateMessage when user starts typing
+    this.habitForm.valueChanges.subscribe((value) => {
+      this.$showUpdateMessage.set(false);
+    })
   }
+
+  $showUpdateMessage = signal(false);
 
   updateHabit = () => {
 
@@ -180,8 +193,8 @@ export class UpdateHabitComponent {
       if (response.success) {
         // this.updateHabits()
         this.goalsService.update_goals();
-        alert('Habit updated successfully!');
         this.habitForm.markAsPristine(); // reset form to pristine state
+        this.$showUpdateMessage.set(true);
       }
     });
   };
@@ -193,4 +206,6 @@ export class UpdateHabitComponent {
   };
 
 
+  
+   
 }

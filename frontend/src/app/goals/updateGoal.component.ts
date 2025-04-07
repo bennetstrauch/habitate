@@ -23,7 +23,7 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
   ],
   template: `
     <mat-card>
-      <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="goalForm" (ngSubmit)="updateGoal()">
         <mat-form-field>
           <mat-label>Goal</mat-label>
           <input
