@@ -162,7 +162,9 @@ export class UpdateGoalComponent {
       if (response.success) {
         // this.updateHabits() ##whatsthat used or not?
         this.goalsService.update_goals();
-        alert('Habit updated successfully!');
+        // ## could also do like in register with email: shows goal updated message on bottom and disappears once edited
+        alert('Goal updated successfully!');
+        this.goalForm.markAsPristine(); // reset form to pristine state
       }
     });
   };

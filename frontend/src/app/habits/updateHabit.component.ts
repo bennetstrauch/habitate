@@ -181,6 +181,7 @@ export class UpdateHabitComponent {
         // this.updateHabits()
         this.goalsService.update_goals();
         alert('Habit updated successfully!');
+        this.habitForm.markAsPristine(); // reset form to pristine state
       }
     });
   };
