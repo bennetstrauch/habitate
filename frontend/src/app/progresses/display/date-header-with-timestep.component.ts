@@ -52,6 +52,7 @@ import { ProgressService } from '../progresses.service';
     margin-top: 1px;
     margin-bottom: 1px;
     padding: 0px;
+    justify-content: center;
   }
 
   .head-card {
