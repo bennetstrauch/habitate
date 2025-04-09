@@ -6,13 +6,18 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   template: `
     <div
+    class="goal-name"
       [routerLink]="['', 'goals', goalId()]"
-      style="color: grey; display: inline"
     >
       {{ goalName() }}
     </div>
   `,
-  styles: ``,
+  styles: `
+    .goal-name {
+      color: rgb(221, 133, 0); /* Goldish */
+      // color: rgb(0, 95, 155); /* DarkBlue, also nice */
+      display: inline;
+  `,
 })
 export class DisplayGoalWithLinkComponent {
   readonly goalId = input.required<string>();

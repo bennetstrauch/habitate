@@ -32,29 +32,31 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
 
     <div class="card">
       @for (goal of goalsService.$goals(); track $index) {
-      <div class="hover-div">
+      <div class="goal-div">
         <app-display-goal-with-link
           [goalId]="goal._id"
           [goalName]="goal.name"
         />
 
-        @for (habit of goal.habits; track $index){ @let progress =
-        habit.latestProgress;
+        <div class="container">
+          @for (habit of goal.habits; track $index){ @let progress =
+          habit.latestProgress;
 
-        <div
-          class="habit-div"
-          [ngClass]="{ 'completed-habit': progress.completed }"
-          (click)="toggleCompleted(progress, habit._id)"
-        >
-          <!-- ## make like english -->
-          <mat-icon>
-            {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
-          </mat-icon>
+          <div
+            class="habit-div"
+            [ngClass]="{ 'completed-habit': progress.completed }"
+            (click)="toggleCompleted(progress, habit._id)"
+          >
+            <!-- ## make like english -->
+            <mat-icon>
+              {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
+            </mat-icon>
 
-          {{ habit.name }}
+            {{ habit.name }}
+          </div>
+
+          }
         </div>
-
-        }
       </div>
       <br />
       } @if(reflectionsService.$reflection()?.completed){
@@ -83,21 +85,22 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
       </button>
       <br />
 
-        <!-- @if (dailyProgressDateIsSunday()){
+      <!-- @if (dailyProgressDateIsSunday()){
         <app-weekly-reflection/>
         } -->
       }
     </div>
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
-  styles: ``,
+  styles: `
+  `,
 })
 export class DailyProgressComponent {
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
   reflectionsService = inject(ReflectionsService);
-  dailyReflectionsService = inject(DailyReflectionService)
+  dailyReflectionsService = inject(DailyReflectionService);
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;
@@ -118,10 +121,10 @@ export class DailyProgressComponent {
     return this.progressService.$dailyProgressDate().getDay() === 0;
   }
 
-  startDailyReflection(){
-    // ## start vs continue? 
+  startDailyReflection() {
+    // ## start vs continue?
     //  only init if not already started
-    this.dailyReflectionsService.$currentStep.set('start')
-    this.dailyReflectionsService.initDailyReflection()
+    this.dailyReflectionsService.$currentStep.set('start');
+    this.dailyReflectionsService.initDailyReflection();
   }
 }

@@ -9,10 +9,13 @@
     gap: 7px;
   }
 
-  .hover-div {
+  .goal-div {
     padding: 10 px;
       font-size: 18px;
       cursor: pointer; /* Changes mouse icon to hand */
+      display: flex;
+      align-items: center;
+      flex-direction: column;
   }
 
 //   # find a way that when you change cssname you either only need to change it once gloablly or it changes everywhere automatically

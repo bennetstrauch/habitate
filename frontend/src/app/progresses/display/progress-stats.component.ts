@@ -26,31 +26,33 @@ import { ReflectionsService } from '../../reflections/reflections.service';
 
     <div class="card">
       @for (goal of goalsService.$goals(); track $index) {
-      <div class="hover-div">
+      <div class="goal-div">
         <app-display-goal-with-link
           [goalId]="goal._id"
           [goalName]="goal.name"
         />
 
-        @for (habit of goal.habits; track $index){ @let progress =
-        habit.latestProgress;
+        <div class="container">
+          @for (habit of goal.habits; track $index){ @let progress =
+          habit.latestProgress;
 
-        <div
-          class="habit-div"
-          [ngClass]="{ 'completed-habit': progress.completed }"
-        >
-          <button mat-button class="progress-display">
-            <strong>{{
-              statsService.$progressStatsMap().get(habit._id)?.completed ?? 0
-            }}</strong>
-            <!-- move that in method # -->
-            /{{ habit.frequency }}
-          </button>
+          <div
+            class="habit-div"
+            [ngClass]="{ 'completed-habit': progress.completed }"
+          >
+            <button mat-button class="progress-display">
+              <strong>{{
+                statsService.$progressStatsMap().get(habit._id)?.completed ?? 0
+              }}</strong>
+              <!-- move that in method # -->
+              /{{ habit.frequency }}
+            </button>
 
-          {{ habit.name }}
+            {{ habit.name }}
+          </div>
+
+          }
         </div>
-
-        }
       </div>
       <br />
       } @let reflectionStats = reflectionsService.$reflectionStats();

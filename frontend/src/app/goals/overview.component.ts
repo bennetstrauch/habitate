@@ -46,7 +46,7 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
     <p style="color: lightgray; font-size: 0.9em;">
       <i>Author's note: </i> <br>
       To edit Goal & Habits, <br> 
-      tap on grey goal name.
+      tap on golden goal name.
       <br> <br>
       Click on habit to mark as done.
     </p>

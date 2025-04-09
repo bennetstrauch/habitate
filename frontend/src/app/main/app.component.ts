@@ -18,7 +18,7 @@ import { NavigationComponent } from './navigation.component';
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color:rgb(250, 229, 197);
+        background-color:rgb(250, 229, 197);  /* Goldish */
         // background-color: #fff9c4; /* Light yellow */
         // background-color: #f4f4f4;
         // background-color:rgb(233, 255, 253); /* Turquoise */
