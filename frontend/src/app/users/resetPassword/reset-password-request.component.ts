@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { validators } from './register/register.component';
+import { validators } from '../register/register.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
-import { UsersService } from './users.service';
+import { UsersService } from '../users.service';
 
 @Component({
-  selector: 'app-reset-password',
+  selector: 'app-reset-password-request',
   imports: [MatFormFieldModule, ReactiveFormsModule, MatInput, MatButton],
   template: `
     <div class="card header">
@@ -34,9 +34,11 @@ import { UsersService } from './users.service';
         </mat-form-field>
         <br />
 
-        <button 
-        [disabled]="resetPasswordForm.invalid"
-        (click)="requestResetLink()" mat-raised-button>
+        <button
+          [disabled]="resetPasswordForm.invalid"
+          (click)="requestResetLink()"
+          mat-raised-button
+        >
           Send Reset-Link
         </button>
       </form>
@@ -54,7 +56,7 @@ import { UsersService } from './users.service';
   }
   `,
 })
-export class ResetPasswordComponent {
+export class ResetPasswordRequestComponent {
   usersService = inject(UsersService);
   email = sessionStorage.getItem('resetEmail');
   $message = signal('');
@@ -87,6 +89,6 @@ export class ResetPasswordComponent {
           );
         },
       });
-    } 
+    }
   }
 }

@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { ReflectionsService } from '../reflections.service';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
+import confetti from 'canvas-confetti';
+
 
 @Component({
   selector: 'app-r-final-thankyou',
@@ -25,6 +27,10 @@ export class RFinalThankyouComponent {
   #router = inject(Router);
   reflectionsService = inject(ReflectionsService);
 
+  ngOnInit() {
+    confetti()
+  }
+
   completeReflection() {
     if (this.reflectionsService.$reflection()) {
       this.reflectionsService.$reflection()!.completed = true;
@@ -35,6 +41,8 @@ export class RFinalThankyouComponent {
           if (response.success) {
             console.log('Reflection updated: ', response.data);
           }
+       
+
           this.#router.navigate(['', 'goals', 'overview']);
         });
     }

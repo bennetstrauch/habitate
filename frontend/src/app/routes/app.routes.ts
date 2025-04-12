@@ -25,9 +25,18 @@ export const routes: Routes = [
   {
     path: 'reset-password',
     loadComponent: () =>
-      import('../users/reset-password.component').then(
-        (c) => c.ResetPasswordComponent
+      import('../users/resetPassword/reset-password-request.component').then(
+        (c) => c.ResetPasswordRequestComponent
       ),
+    canActivate: [stateGuard],
+  },
+  {
+    path: 'set-new-password',
+    loadComponent: () =>
+      import('../users/resetPassword/set-new-password.component').then(
+        (c) => c.SetNewPasswordComponent
+      ),
+    // # needed? also in other pw route
     canActivate: [stateGuard],
   },
 
