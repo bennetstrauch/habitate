@@ -16,7 +16,7 @@ import { DailyReflectionService } from '../daily-reflection.service';
 
       <!-- #let user enter -->
       <!-- #change button wording -->
-      <button mat-button (click)="dailyReflectionService.$currentStep.set('goal-1')">Next</button>
+      <button mat-button (click)="handleNextStep()">Next</button>
     </div>
   `,
   styles: ``,
@@ -37,7 +37,7 @@ export class R3ReflectOnGoodComponent {
     if (this.dailyReflectionService.stepComponentMap.has('goal-1')) {
     this.dailyReflectionService.$currentStep.set('goal-1');
     } else {
-      this.dailyReflectionService.$currentStep.set('finalize');
+      this.dailyReflectionService.$currentStep.set('intention-no-goals');
     }
   }
 }

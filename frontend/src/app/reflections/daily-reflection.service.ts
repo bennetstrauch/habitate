@@ -9,6 +9,8 @@ import { RGoalComponent } from './display/r-goal.component';
 import { RHabitCompletedComponent } from './display/r-habit-completed.component';
 import { RHabitIncompleteComponent } from './display/r-habit-incomplete.component';
 import { RFinalThankyouComponent } from './display/r-final-thankyou.component';
+import { RIntentionGeneralComponent } from './display/r-intention-general.component';
+import { RIntentionGeneral2Component } from './display/r-intention-general-2.component';
 
 @Injectable({
   providedIn: 'root',
@@ -27,13 +29,14 @@ export class DailyReflectionService {
 
   stepsMappedToHabitOrGoal = new Map<string, any>();
 
-
   // ## make exported variables for strings
   stepComponentMap = new Map<string, any>([
     ['start', R1WelcomeComponent],
     ['settle-down', R2SettleDownComponent],
     ['reflect-on-good', R3ReflectOnGoodComponent],
     ['finalize', RFinalThankyouComponent],
+    ['intention-no-goals', RIntentionGeneralComponent],
+    ['intention-no-goals-2', RIntentionGeneral2Component],
   ]);
 
   constructor() {}
@@ -43,21 +46,15 @@ export class DailyReflectionService {
     this.selectedHabitsForGoal.clear();
 
     this.incompleteHabit = this.getRandomIncompleteDailyHabit();
-    console.log(
-      'incompleteHabit',
-      this.incompleteHabit
-    );
+    console.log('incompleteHabit', this.incompleteHabit);
 
     let goalIndex = 0;
     let habitIndex = 0;
 
     const completedHabits = this.getRandomCompletedHabitsWithGoal();
-    console.log(
-      'completedHabits',
-      completedHabits
-    );
 
     let habits = [...completedHabits];
+    console.log('habits to reflect on: ', habits);
 
     if (this.incompleteHabit) {
       habits.push(this.incompleteHabit!);
@@ -101,10 +98,7 @@ export class DailyReflectionService {
 
     console.log('stepMap', this.stepComponentMap);
     console.log('steps', this.stepsMappedToHabitOrGoal);
-    console.log(
-      'selectedHabitsForGoal',
-      this.selectedHabitsForGoal
-    );
+    console.log('selectedHabitsForGoal', this.selectedHabitsForGoal);
   }
 
   handleNextHabitOrGoal() {
@@ -159,7 +153,6 @@ export class DailyReflectionService {
     const completedHabits = this.$habitsWithGoal().filter(
       (habitGoalPair) => habitGoalPair.habit.latestProgress.completed
     );
-
 
     console.log('incompleteHabit', this.incompleteHabit);
 

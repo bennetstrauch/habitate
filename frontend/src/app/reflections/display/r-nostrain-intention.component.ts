@@ -7,8 +7,6 @@ import { DailyReflectionService } from '../daily-reflection.service';
   template: `
     <div class="card">
 
-      {{ congratulation }}<br />
-      {{ question }}<br />
       <br />
       <br />
       <!-- changing the click changes the next step. -->
