@@ -39,13 +39,13 @@ export const sendPasswordResetLink: RequestHandler<
       },
     });
 
-    const resetLink = `http://localhost:4200/reset-password?token=${resetToken}`;
+    const resetLink = `http://localhost:4200/set-new-password?token=${resetToken}`;
 
     await transporter.sendMail({
       from: `"Habitate" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Password Reset Request",
-      text: `Helloooooo ${user.name}. Please click the link to reset your password: ${resetLink}`,
+      text: `Hello ${user.name}. Please click the link to reset your password: ${resetLink}`,
     });
 
     const message = `We sent a Link to ${user.email}. Please check your inbox.`;

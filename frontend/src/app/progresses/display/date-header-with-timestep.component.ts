@@ -77,6 +77,6 @@ export class DateHeaderWithTimestepComponent {
 
 
   // ##cange back to -2
-  readonly minStep = input<number>(-2);
+  readonly minStep = input<number>(-7);
   readonly maxStep = input<number>(0);
 }
