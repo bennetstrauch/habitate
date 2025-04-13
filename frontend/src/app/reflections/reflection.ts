@@ -35,7 +35,6 @@ import { RGoalComponent } from './display/r-goal.component';
     NgIf,
   ],
   template: `
-
     <ng-container *ngIf="$currentComponent() as component">
       <ng-container *ngComponentOutlet="component"></ng-container>
     </ng-container>
@@ -46,6 +45,8 @@ import { RGoalComponent } from './display/r-goal.component';
         display: none !important;
         // removes icons from stepper
     }
+
+
 `,
 })
 export class ReflectionComponent {
@@ -56,16 +57,12 @@ export class ReflectionComponent {
   readonly progressService = inject(ProgressService);
   readonly stateService = inject(StateService);
 
-  $currentComponent = computed(() => { 
-
-    console.log("currentStep: ", this.dailyReflectionService.$currentStep())
-    return this.dailyReflectionService .stepComponentMap.get(this.dailyReflectionService.$currentStep())
-  }
-  );
+  $currentComponent = computed(() => {
+    console.log('currentStep: ', this.dailyReflectionService.$currentStep());
+    return this.dailyReflectionService.stepComponentMap.get(
+      this.dailyReflectionService.$currentStep()
+    );
+  });
 
   constructor(private route: ActivatedRoute) {}
-
- 
-
-  
 }
