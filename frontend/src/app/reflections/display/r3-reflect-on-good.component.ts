@@ -37,7 +37,7 @@ export class R3ReflectOnGoodComponent {
     if (this.dailyReflectionService.stepComponentMap.has('goal-1')) {
     this.dailyReflectionService.$currentStep.set('goal-1');
     } else {
-      this.dailyReflectionService.$currentStep.set('intention-no-goals');
+      this.dailyReflectionService.$currentStep.set('no-resistance');
     }
   }
 }

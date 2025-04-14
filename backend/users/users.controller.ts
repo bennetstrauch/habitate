@@ -24,7 +24,7 @@ export const register: RegisterReqHandler = async (req, res, next) => {
 
     newUser.name = capitalizeFirstLetter(newUser.name.trim());
 
-    const hashedPassword = await bcrypt.hash(newUser.password, 10);
+    const hashedPassword = await hashPassword(newUser.password);
     const newUserHashed = { ...req.body, password: hashedPassword };
 
     const savedUser = await UserModel.create(newUserHashed);
@@ -108,3 +108,10 @@ export const checkEmail : CheckEmailReqHandler = async (req, res, next) => {
     next(err);
   }
 }
+
+
+export const hashPassword = async (password: string) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return hashedPassword;
+}
+

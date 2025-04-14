@@ -4,6 +4,36 @@ import { UserModel } from "../database/schemas";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { StandardResponse } from "../types/standardResponse";
+import { hashPassword } from "./users.controller";
+
+
+
+export const setNewPassword: RequestHandler<unknown, StandardResponse<string>, {token: string, newPassword: string}> = async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!process.env.SECRET_KEY_FOR_SIGNING_TOKEN) {
+      throw new Error("Secret key not found");
+    }
+
+    const payload = jwt.verify(token, process.env.SECRET_KEY_FOR_SIGNING_TOKEN) as { _id: string };
+
+    const user = await UserModel.findById(payload._id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, data: "User not found" });
+    }
+
+    user.password = await hashPassword(newPassword);
+    await user.save();
+
+    const message = `Password updated successfully`;
+
+    res.json({ success: true, data: message });
+  } catch (err) {
+    return res.status(400).json({ success: false, data: "Invalid or expired token" });
+  }
+}
 
 export const sendPasswordResetLink: RequestHandler<
   unknown,

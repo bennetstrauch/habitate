@@ -124,7 +124,7 @@ export class DailyProgressComponent {
   startDailyReflection() {
     // ## start vs continue?
     //  only init if not already started
-    this.dailyReflectionsService.$currentStep.set('start');
     this.dailyReflectionsService.initDailyReflection();
+    this.dailyReflectionsService.$currentStep.set('start');
   }
 }

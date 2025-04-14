@@ -35,6 +35,7 @@ export class StateService {
   // ##refactor
   logout() {
     this.$state.set(intitialState);
+    localStorage.removeItem('HABITATE_APP_STATE');
     this.#router.navigate(['', 'login']);
   }
 }

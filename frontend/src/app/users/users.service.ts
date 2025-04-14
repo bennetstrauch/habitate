@@ -43,4 +43,9 @@ export class UsersService {
       { email }
     );
   }
+
+  setNewPassword(data: { token: string; newPassword: string }) {
+    return this.#http.post(environment.SERVER_URL + '/users/set-new-password', data);
+  }
+  
 }

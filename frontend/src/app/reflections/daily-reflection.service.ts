@@ -9,7 +9,7 @@ import { RGoalComponent } from './display/r-goal.component';
 import { RHabitCompletedComponent } from './display/r-habit-completed.component';
 import { RHabitIncompleteComponent } from './display/r-habit-incomplete.component';
 import { RFinalThankyouComponent } from './display/r-final-thankyou.component';
-import { RIntentionGeneralComponent } from './display/r-intention-general.component';
+import { RNoResistance } from './display/r-intention-general.component';
 import { RIntentionGeneral2Component } from './display/r-intention-general-2.component';
 
 @Injectable({
@@ -30,20 +30,27 @@ export class DailyReflectionService {
   stepsMappedToHabitOrGoal = new Map<string, any>();
 
   // ## make exported variables for strings
-  stepComponentMap = new Map<string, any>([
-    ['start', R1WelcomeComponent],
-    ['settle-down', R2SettleDownComponent],
-    ['reflect-on-good', R3ReflectOnGoodComponent],
-    ['finalize', RFinalThankyouComponent],
-    ['intention-no-goals', RIntentionGeneralComponent],
-    ['intention-no-goals-2', RIntentionGeneral2Component],
-  ]);
+  stepComponentMap = new Map<string, any>([]);
+
+  intitStepComponentMap() {
+    this.stepComponentMap = new Map<string, any>([
+      ['start', R1WelcomeComponent],
+      ['settle-down', R2SettleDownComponent],
+      ['reflect-on-good', R3ReflectOnGoodComponent],
+      ['finalize', RFinalThankyouComponent],
+      ['no-resistance', RNoResistance],
+      ['intention-general', RIntentionGeneral2Component],
+    ]);
+  }
 
   constructor() {}
 
   initDailyReflection() {
+    this.intitStepComponentMap();
+
     this.selectedHabitsWithGoal = [];
     this.selectedHabitsForGoal.clear();
+    this.stepsMappedToHabitOrGoal.clear();
 
     this.incompleteHabit = this.getRandomIncompleteDailyHabit();
     console.log('incompleteHabit', this.incompleteHabit);
