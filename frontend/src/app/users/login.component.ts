@@ -33,13 +33,13 @@ import { catchError, of } from 'rxjs';
 
     <br />
     <!-- ###Reset Password Link -->
-    <!-- <a
+    <a
       (click)="handlePasswordReset()"
       style="cursor:pointer; text-decoration: underline;"
     >
       Forgot Password ?
     </a>
-    <br /><br /> -->
+    <br /><br />
     </div>
   `,
   styles: `
