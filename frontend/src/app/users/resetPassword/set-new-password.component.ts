@@ -1,19 +1,20 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { validators } from '../register/register.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatInput } from '@angular/material/input';
 import { validationRulesRegister } from '@global/auth/validationRules';
 import { MatButton } from '@angular/material/button';
+import { UsersService } from '../users.service';
 
 @Component({
   selector: 'app-set-new-password',
   imports: [MatFormFieldModule, ReactiveFormsModule, MatInput, MatButton],
   template: `
     <div class="card">
-
-      <h4>Set new password</h4> <br>
+      <h4>Set new password</h4>
+      <br />
 
       <form [formGroup]="userDetailsForm">
         <mat-form-field>
@@ -39,7 +40,7 @@ import { MatButton } from '@angular/material/button';
             required
           />
         </mat-form-field>
-        <br>
+        <br />
         <button mat-raised-button (click)="onSubmit()">Save</button>
       </form>
     </div>
@@ -53,16 +54,21 @@ import { MatButton } from '@angular/material/button';
     <mat-error> Minimum {{ minLengthPassword }} characters. </mat-error>
     } @else if(password!.hasError('maxlength')){
     <mat-error> Maximum {{ minLengthPassword }} characters. </mat-error>
-    }
+    } 
   `,
   styles: ``,
 })
 export class SetNewPasswordComponent {
   private route = inject(ActivatedRoute);
+  readonly router = inject(Router);
   private token = '';
+  readonly usersService = inject(UsersService);
 
   minLengthPassword = validationRulesRegister.password.minLength;
   maxLengthPassword = validationRulesRegister.password.maxLength;
+  error = signal('');
+
+  // #remove error message when user starts typing
 
   constructor() {
     this.route.queryParams.subscribe((params) => {
@@ -76,8 +82,26 @@ export class SetNewPasswordComponent {
   });
 
   onSubmit() {
-    
+    const newPassword = this.userDetailsForm.value.password;
 
+    if (newPassword !== this.userDetailsForm.value.confirmPassword) {
+      this.error.set('Passwords do not match');
+      return;
+    }
 
-
+    this.usersService
+      .setNewPassword({
+        token: this.token,
+        newPassword: this.userDetailsForm.value.password!,
+      })
+      .subscribe({
+        next: () => {
+          alert('Password changed successfully!');
+          this.router.navigate(['', 'login']);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Something went wrong');
+        },
+      });
+  }
 }
