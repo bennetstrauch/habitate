@@ -11,6 +11,7 @@ import { RHabitIncompleteComponent } from './display/r-habit-incomplete.componen
 import { RFinalThankyouComponent } from './display/r-final-thankyou.component';
 import { RNoResistance } from './display/r-intention-general.component';
 import { RIntentionGeneral2Component } from './display/r-intention-general-2.component';
+import { RNostrainIntentionComponent } from './display/r-nostrain-intention.component';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,7 @@ export class DailyReflectionService {
       ['finalize', RFinalThankyouComponent],
       ['no-resistance', RNoResistance],
       ['intention-general', RIntentionGeneral2Component],
+      ['intention-nostrain', RNostrainIntentionComponent]
     ]);
   }
 

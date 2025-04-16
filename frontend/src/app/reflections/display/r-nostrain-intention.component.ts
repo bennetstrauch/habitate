@@ -1,25 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { DailyReflectionService } from '../daily-reflection.service';
 import { getRandomPhrase } from '../../utils/utils';
-import { get } from 'http';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-r-nostrain-intention',
-  imports: [],
+  imports: [MatButton],
   template: `
     <div class="card">
       <br />
       {{ backToEasePhrase }}
-      <br />
-      <!-- changing the click changes the next step. -->
-
-      <button mat-button>No</button>
-
+      <br /> <br>
+      <div [innerHTML]="simpleChangePhrase"></div>
+      <br>
       <button
         mat-button
         (click)="dailyReflectionService.$currentStep.set('finalize')"
       >
-        Yes
+        I've a brilliant idea !
       </button>
     </div>
   `,
@@ -132,8 +130,21 @@ export class RNostrainIntentionComponent {
   goodNounsForTomorrow = this.goodNouns.filter( noun => noun !== this.goodNoun);
   goodNounForTomorrow = getRandomPhrase(this.goodNounsForTomorrow);
 
+
+  smallAdjectives = [
+    'small',
+    'little',
+    'gentle',
+    'soft',
+    'easy',
+    'sublte'
+  ];
+
+  changeWords = [
+    'change', 'adjustment', 'switch', 'fine-tunement', 'shift', 'modification'
+  ]
   // ### edit more options and add same to incompleted-habit-intention later on
-  simpleChange = [
-    `What simple change to make it happen with ${this.goodNounForTomorrow} tomorrow?`,
+  simpleChangePhrase = [
+    `What <strong>${getRandomPhrase(this.smallAdjectives)} ${getRandomPhrase(this.changeWords)}</strong> to make it happen with ${this.goodNounForTomorrow} tomorrow?`,
   ];
 }

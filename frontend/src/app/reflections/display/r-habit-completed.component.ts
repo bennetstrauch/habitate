@@ -16,25 +16,33 @@ import { DailyReflectionService } from '../daily-reflection.service';
       {{ question }}<br />
       <br />
       <br />
-      <!-- changing the click changes the next step. -->
 
-      <!-- <button
-        mat-button
-        
-      >
-        No
-      </button> -->
-
-
+      <!-- different button texts at random for yes and no-->
       <button
         mat-button
         (click)="dailyReflectionService.handleNextHabitOrGoal()"
       >
-        Next
+        Yes
       </button>
+
+      <button
+      class="no-button"
+        mat-button
+        (click)="dailyReflectionService.$currentStep.set('intention-nostrain')"
+      >
+        Could be better
+      </button>
+
+
+      
     </div>
   `,
-  styles: ``,
+  styles: `
+    .no-button {
+      // smaller
+      
+    }
+  `,
 })
 export class RHabitCompletedComponent {
   dailyReflectionService = inject(DailyReflectionService);
