@@ -34,7 +34,7 @@ export class DisplayGoalWithLinkComponent {
     2: 'rgb(179, 78, 1)', // Tuesday - Light Red
     3: 'rgb(123, 157, 0)', // Wednesday - Light Green
     // 4: '#FFE0B2', // Thursday - Light Orange
-    // 5: 'rgb(208, 245, 247)', // Friday - Light Cyan
+    5: 'rgb(5, 165, 173)', // Friday - Light Cyan
     // 6: '#BBDEFB', // Saturday - Light Blue
   };
   todayColor = this.dayColorMap[new Date().getDay()];

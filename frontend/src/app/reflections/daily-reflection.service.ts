@@ -108,6 +108,8 @@ export class DailyReflectionService {
     console.log('selectedHabitsForGoal', this.selectedHabitsForGoal);
   }
 
+  
+
   handleNextHabitOrGoal() {
     let currentStep = this.$currentStep();
 
