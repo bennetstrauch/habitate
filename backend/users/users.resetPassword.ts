@@ -21,7 +21,7 @@ export const setNewPassword: RequestHandler<unknown, StandardResponse<string>, {
     const user = await UserModel.findById(payload._id);
 
     if (!user) {
-      return res.status(404).json({ success: false, data: "User not found" });
+      throw new ErrorWithStatus("User not found", 404);
     }
 
     user.password = await hashPassword(newPassword);
@@ -31,7 +31,7 @@ export const setNewPassword: RequestHandler<unknown, StandardResponse<string>, {
 
     res.json({ success: true, data: message });
   } catch (err) {
-    return res.status(400).json({ success: false, data: "Invalid or expired token" });
+    next(err);
   }
 }
 
