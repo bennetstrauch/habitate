@@ -12,6 +12,8 @@ import { MatButton } from '@angular/material/button';
 import { WeeklyReflectionComponent } from '../../reflections/display/weekly-reflection.component';
 import { StatsService } from '../stats.service';
 import { DailyReflectionService } from '../../reflections/daily-reflection.service';
+import { JoyrideModule, JoyrideService } from 'ngx-joyride';
+import { TourService } from '../../users/tour.service';
 
 @Component({
   selector: 'app-daily-progress',
@@ -23,6 +25,7 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
     MatButton,
     WeeklyReflectionComponent,
     DateHeaderWithTimestepComponent,
+    JoyrideModule
   ],
   template: `
     <app-date-header-with-timestep
@@ -34,6 +37,8 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
       @for (goal of goalsService.$goals(); track $index) {
       <div class="goal-div">
         <app-display-goal-with-link
+          joyrideStep="editGoal"
+          title="Tap on goal name to edit goal and its habits"
           [goalId]="goal._id"
           [goalName]="goal.name"
         />
@@ -46,6 +51,9 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
             class="habit-div"
             [ngClass]="{ 'completed-habit': progress.completed }"
             (click)="toggleCompleted(progress, habit._id)"
+            joyrideStep="markHabit"
+            title="Mark as Done"
+            text="Click on habit to change completed status"
           >
             <!-- ## make like english -->
             <mat-icon>
@@ -96,6 +104,8 @@ import { DailyReflectionService } from '../../reflections/daily-reflection.servi
   `,
 })
 export class DailyProgressComponent {
+  tourService = inject(TourService);
+
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
@@ -126,5 +136,23 @@ export class DailyProgressComponent {
     //  only init if not already started
     this.dailyReflectionsService.initDailyReflection();
     this.dailyReflectionsService.$currentStep.set('start');
+  }
+
+
+  ngOnInit() {
+    // Check tour status on component initialization
+    this.tourService.checkTourStatus().subscribe({
+      next: (response) => {
+        console.log('Tour status:', response.data);
+        if (!response.data) {
+          // Start tour if not completed
+          this.tourService.startTour();
+        }
+      },
+      error: (err) => {
+        console.error('Failed to check tour status:', err);
+        // Optionally start tour on error to avoid blocking user
+      },
+    });
   }
 }

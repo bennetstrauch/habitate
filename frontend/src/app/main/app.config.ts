@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from '../routes/app.routes';
@@ -7,6 +7,7 @@ import { addTokenInterceptor } from '../interceptors/add-token.interceptor';
 import { StateService } from '../state.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { checkTokenResponseInterceptor } from '../interceptors/check-token-response.interceptor';
+import { JoyrideModule } from 'ngx-joyride';
 
 
 export const appConfig: ApplicationConfig = {
@@ -16,7 +17,9 @@ export const appConfig: ApplicationConfig = {
 
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), provideAnimationsAsync()
+    provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), 
+    provideAnimationsAsync(),
+    importProvidersFrom(JoyrideModule.forRoot()),
   ]
 };
 

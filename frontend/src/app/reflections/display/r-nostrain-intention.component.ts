@@ -17,6 +17,7 @@ import { MatButton } from '@angular/material/button';
         mat-button
         (click)="dailyReflectionService.$currentStep.set('finalize')"
       >
+      <!-- ## multiple options -->
         I've a brilliant idea !
       </button>
     </div>

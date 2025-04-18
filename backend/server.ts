@@ -11,6 +11,7 @@ import { healthCheck } from "./utils/healthcheck";
 
 import "./progresses/create.progress.cron";
 import { reflectionsRouter } from "./reflections/reflections.router";
+import { UserModel } from "./database/schemas";
 
 const app = express();
 
@@ -34,3 +35,4 @@ app.use(errorHandler);
 app.listen(3000, () => console.log("Server listening on Port 3000"));
 
 // test()
+

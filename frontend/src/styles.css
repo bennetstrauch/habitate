@@ -31,6 +31,52 @@ body {
   align-items: center;
   flex-direction: column;
 }
+/* 
+.joyride-step__content {
+  display: block !important; 
+  color: #ffffff; 
+  padding: 8px; 
+  font-size: 14px; 
+} */
+
+.joyride-step__container {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2) !important;
+  padding: 20px !important;
+  padding-top: 30px !important;
+  color: #333 !important;
+  font-family: 'Segoe UI', sans-serif;
+  height: fit-content !important;
+}
+
+.joyride-backdrop {
+  background-color: rgba(34, 148, 194, 0.6) !important; /* dark semi-transparent */
+}
+
+/* Title */
+.joyride-step__title {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: #067bad !important;
+}
+
+.joyride-step__body {
+  padding-bottom: 25px !important;
+}
+
+/* Buttons */
+.joyride-button {
+  background-color: #067bad !important;
+  /* color: white !important; */
+  
+}
+.joyride-button:hover {
+  background-color: #ffffff !important;
+  color:#067bad !important;
+  border-color: #067bad !important;
+}
+
 
 .mat-stepper-horizontal {
   width: fit;

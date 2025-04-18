@@ -42,7 +42,7 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
 
     }
     
-    <div style="text-align: center;">
+    <!-- <div style="text-align: center;">
     <p style="color: lightgray; font-size: 0.9em;">
       <i>Author's note: </i> <br>
       To edit Goal & Habits, <br> 
@@ -50,7 +50,7 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
       <br> <br>
       Click on habit to mark as done.
     </p>
-    </div>
+    </div> -->
   `,
   styles: `
   .completed-habit {

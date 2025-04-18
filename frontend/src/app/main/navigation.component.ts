@@ -8,6 +8,7 @@ import { GoalsService } from '../goals/goals.service';
 import { validationRulesGoals } from '@global/auth/validationRules';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProgressService } from '../progresses/progresses.service';
+import { JoyrideModule } from 'ngx-joyride';
 
 @Component({
   selector: 'app-navigation',
@@ -17,6 +18,7 @@ import { ProgressService } from '../progresses/progresses.service';
     MatIcon,
     AuthenticationButtonComponent,
     MatMenuModule,
+    JoyrideModule
   ],
   template: `
     <div class="nav-div">
@@ -24,11 +26,10 @@ import { ProgressService } from '../progresses/progresses.service';
       <app-authentication-button />
       } @if (stateService.isLoggedIn()) {
 
-        <!-- less padding for this one, so lines are bigger -->
+      <!-- less padding for this one, so lines are bigger -->
       <button mat-button [matMenuTriggerFor]="menu">
         <mat-icon>menu</mat-icon>
       </button>
-
 
       <!-- ## home should be in middle of button -->
       <button
@@ -39,15 +40,16 @@ import { ProgressService } from '../progresses/progresses.service';
         <mat-icon>home</mat-icon>
       </button>
 
-      <button
-        mat-button
-        color="primary"
-        (click)="toggleStatsButton()"
-      >
+      <button mat-button color="primary" (click)="toggleStatsButton()">
         @if (progressService.$displayDailyProgress()) {
-        <mat-icon>bar_chart</mat-icon>
+        <mat-icon
+          joyrideStep="toggleView"
+          title="Change View"
+          text="Click here to switch between Daily Progress and Weekly Overview."
+          >bar_chart</mat-icon
+        >
         } @else {
-          <mat-icon>task_alt</mat-icon>
+        <mat-icon>task_alt</mat-icon>
         }
       </button>
 
@@ -55,10 +57,13 @@ import { ProgressService } from '../progresses/progresses.service';
       <mat-menu #menu="matMenu">
         <button
           mat-menu-item
-          [disabled]="goalsService.$goals().length >= validationRulesGoals.maxLength"
-          [routerLink]="['', 'goals', 'add']">
-          Add Goal </button>
-    
+          [disabled]="
+            goalsService.$goals().length >= validationRulesGoals.maxLength
+          "
+          [routerLink]="['', 'goals', 'add']"
+        >
+          Add Goal
+        </button>
 
         <button mat-menu-item color="warn" (click)="stateService.logout()">
           Logout
@@ -97,6 +102,8 @@ export class NavigationComponent {
   }
 
   toggleStatsButton() {
-    this.progressService.$displayStats.set(!this.progressService.$displayStats());
+    this.progressService.$displayStats.set(
+      !this.progressService.$displayStats()
+    );
   }
 }

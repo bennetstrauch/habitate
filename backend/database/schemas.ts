@@ -17,7 +17,9 @@ const userSchema = new Schema<User>({
   timezone: { type: String, required: true },
 
   reflectionTrigger: { type: String, required: true },
-  reflectionReminderTime: { type: String, required: false }
+  reflectionReminderTime: { type: String, required: false },
+
+  tourCompleted: { type: Boolean, default: false },
 });
 
 export const UserModel = model<User>("user", userSchema);
