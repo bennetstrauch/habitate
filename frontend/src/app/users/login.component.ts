@@ -15,31 +15,31 @@ import { catchError, of } from 'rxjs';
   selector: 'app-login',
   imports: [ReactiveFormsModule, MatButton, RouterLink],
   template: `
-  <div class="login-div">
-    Login
+    <div class="login-div">
+      Login
 
-    <form [formGroup]="form" (ngSubmit)="login()">
-      <input placeholder="email" [formControl]="form.controls.email" />
+      <form [formGroup]="form" (ngSubmit)="login()">
+        <input placeholder="email" [formControl]="form.controls.email" />
+        <br />
+        <input
+          type="password"
+          placeholder="password"
+          [formControl]="form.controls.password"
+        />
+        <br />
+
+        <button mat-button [disabled]="form.invalid">Login</button>
+      </form>
+
       <br />
-      <input
-        type="password"
-        placeholder="password"
-        [formControl]="form.controls.password"
-      />
-      <br />
-
-      <button mat-button [disabled]="form.invalid">Login</button>
-    </form>
-
-    <br />
-    <!-- ###Reset Password Link -->
-    <a
-      (click)="handlePasswordReset()"
-      style="cursor:pointer; text-decoration: underline;"
-    >
-      Forgot Password ?
-    </a>
-    <br /><br />
+      <!-- ###Reset Password Link -->
+      <a
+        (click)="handlePasswordReset()"
+        style="cursor:pointer; text-decoration: underline;"
+      >
+        Forgot Password ?
+      </a>
+      <br /><br />
     </div>
   `,
   styles: `
@@ -58,7 +58,6 @@ import { catchError, of } from 'rxjs';
   `,
 })
 export class LoginComponent {
-
   #usersService = inject(UsersService);
   #stateService = inject(StateService);
   #router = inject(Router);
@@ -100,7 +99,15 @@ export class LoginComponent {
           jwtToken: token,
         });
 
-        this.#router.navigate(['', 'goals', 'overview']);
+        const pathSegments = ['', 'goals', 'overview'];
+        const fullPath = this.#router.serializeUrl(
+          this.#router.createUrlTree(pathSegments)
+        );
+        window.location.href = fullPath;
+
+        // this.#router.navigate(['', 'goals', 'overview']).then(() => {
+        //   window.location.reload();
+        // });
       });
   }
 

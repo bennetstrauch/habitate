@@ -269,10 +269,10 @@ export class AddGoalComponent {
   }
 
   displayRanking = (ranking: number) => {
-    if (ranking === 0) {
+    if (ranking === 1) {
       return 'You are a trendsetter. \n No one else has a similar goal yet.';
     }
 
-    return `You are not alone. \n ${ranking} other(s) have similar goals.`;
+    return `You are not alone. \n ${ranking-1} other(s) have similar goals.`;
   };
 }

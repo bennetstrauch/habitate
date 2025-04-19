@@ -120,7 +120,7 @@ export const postGoal: RequestHandler<
     const goalBase = req.body;
     const embedded_name = await generateEmbedding(goalBase.name);
 
-    const ranking = await findSimilarGoals(embedded_name);
+    const ranking = await findSimilarGoals(embedded_name) + 1;
     console.log("ranking", ranking);
 
     const result = await GoalModel.create({
