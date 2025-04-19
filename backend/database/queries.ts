@@ -54,11 +54,10 @@ export async function findSimilarGoals(queryVector: number[]) {
 //     },
 //   ])) as { similarGoalsCount: number }[];
 
-  if (results.length === 0) {
-    console.log("No similar goals found.");
-    return 1; // Default response
-  }
+//   if (results.length === 0) {
+//     console.log("No similar goals found.");
+//     return 0; // Default response
+//   }
 
-  console.log("Similar goals count:", results[0].similarGoalsCount);
-  return results[0].similarGoalsCount;
+//   return results[0].similarGoalsCount;
 }
