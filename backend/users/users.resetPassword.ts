@@ -44,7 +44,7 @@ export const sendPasswordResetLink: RequestHandler<
     const { email } = req.body;
 
     // Find user by email
-    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       throw new ErrorWithStatus("User not found", 404);
     }

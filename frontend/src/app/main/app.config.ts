@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from '../routes/app.routes';
@@ -8,6 +8,7 @@ import { StateService } from '../state.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { checkTokenResponseInterceptor } from '../interceptors/check-token-response.interceptor';
 import { JoyrideModule } from 'ngx-joyride';
+import { provideServiceWorker } from '@angular/service-worker';
 
 
 export const appConfig: ApplicationConfig = {
@@ -19,7 +20,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), 
     provideAnimationsAsync(),
-    importProvidersFrom(JoyrideModule.forRoot()),
+    importProvidersFrom(JoyrideModule.forRoot()), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }),
   ]
 };
 
