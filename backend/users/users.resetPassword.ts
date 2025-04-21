@@ -64,7 +64,7 @@ export const sendPasswordResetLink: RequestHandler<
     );
 
 
-    const resetLink = `http://localhost:4200/set-new-password?token=${resetToken}`;
+    const resetLink = `http://myhabitate.com/set-new-password?token=${resetToken}`;
 
     await transporter.sendMail({
       from: appNameForSendingEmails,
