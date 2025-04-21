@@ -4,13 +4,12 @@ import { DateTime } from "luxon";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
 
-
+export const appNameForSendingEmails = `"Habitate" <${process.env.EMAIL_USER}>`;
 
 export function capitalizeFirstLetter(str: string): string {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 
 export const idsToArrayOfObjectIds = (ids: string): ObjectId[] => {
   return ids.split(",").map((id) => idToObjectId(id));
@@ -26,13 +25,13 @@ export const getDateOnlyForTimeZone = (timezone: string) => {
 
 //## rmv this and luxon dependency, and we could unify those two.
 export const getDateForTimezone = (timezone: string): Date => {
-  return moment.tz(timezone).startOf('day').toDate();
+  return moment.tz(timezone).startOf("day").toDate();
 };
 
 // type DateString = `${number}-${number}-${number}`;
 // ##could be used
 
-//# take out period in type
+//## move to date.utils take out period in type
 export const calculateStartAndEndDate = (
   period: "week" | "month",
   offset: string,
@@ -53,3 +52,12 @@ export const calculateStartAndEndDate = (
 
   return { startDate, endDate };
 };
+
+export function getRandomElement<T>(options: T[]): T {
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+
+export function getRandomPhrase(options: string[]): string {
+  return getRandomElement<string>(options);
+}

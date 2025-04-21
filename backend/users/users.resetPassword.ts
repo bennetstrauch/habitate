@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { StandardResponse } from "../types/standardResponse";
 import { hashPassword } from "./users.controller";
+import { transporter } from "../utils/emailTransporter";
+import { appNameForSendingEmails } from "../utils/functionsAndVariables";
 
 
 
@@ -60,19 +62,11 @@ export const sendPasswordResetLink: RequestHandler<
       { expiresIn: "1h" }
     );
 
-    // Send reset email (configure nodemailer)
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
 
     const resetLink = `http://localhost:4200/set-new-password?token=${resetToken}`;
 
     await transporter.sendMail({
-      from: `"Habitate" <${process.env.EMAIL_USER}>`,
+      from: appNameForSendingEmails,
       to: user.email,
       subject: "Password Reset Request",
       text: `Hello ${user.name}. Please click the link to reset your password: ${resetLink}`,

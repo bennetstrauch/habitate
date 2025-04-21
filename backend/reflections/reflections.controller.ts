@@ -6,15 +6,12 @@ import {
   getNewReflectionForDate,
 } from "./newReflection";
 import { ErrorWithStatus } from "../utils/error.class";
-import { ReflectionModel } from "../database/schemas";
+import { ReflectionModel, UserModel } from "../database/schemas";
 import { getReflectionFromDBOrCreate } from "./reflection.database";
 import { StatsBase } from "fs";
 import { StatBase } from "../progresses/progress.types";
 import { ObjectId } from "../types/ObjectId.type";
-import {
-  idToObjectId,
-} from "../utils/functionsAndVariables";
-
+import { idToObjectId } from "../utils/functionsAndVariables";
 
 type GetReflectionForDateReqHandler = RequestHandler<
   unknown,
@@ -36,11 +33,11 @@ export const getReflectionForDate: GetReflectionForDateReqHandler = async (
       throw new ErrorWithStatus("Invalid userId", 401);
     }
 
-    console.log('Getting reflection for date and userId', date, user_id);
+    console.log("Getting reflection for date and userId", date, user_id);
 
     const reflection = await getReflectionFromDBOrCreate(
       user_id,
-      new Date(date),
+      new Date(date)
     );
 
     res.json({ success: true, data: reflection });
@@ -122,17 +119,74 @@ export const putReflection: PutReflectionReqHandler = async (
   try {
     const { reflection_id } = req.params;
 
-    const result = await ReflectionModel.updateOne(
-      { _id: reflection_id },
-      { $set: req.body }
-    );
+    // const result = await ReflectionModel.updateOne(
+    //   { _id: reflection_id },
+    //   { $set: req.body }
+    // );
+    const updatedReflection = req.body;
 
-    res.status(200).json({ success: true, data: result.modifiedCount });
+    // update Reflection
+    const oldReflection = (await ReflectionModel.findOneAndUpdate(
+      { _id: reflection_id },
+      { $set: updatedReflection },
+      { returnDocument: "before" } // or returnOriginal: true for older versions
+    )) as Reflection;
+
+    // no await to save time
+    updateReflectionDateIfNeeded(oldReflection, updatedReflection);
+
+    // # change data to true or so
+    res.status(200).json({ success: true, data: 1 });
   } catch (err) {
     next(err);
   }
 };
 
+async function updateReflectionDateIfNeeded(
+  oldReflection: Reflection,
+  updatedReflection: Reflection
+) {
+  // check if completed status changed
+  if (oldReflection.completed !== updatedReflection.completed) {
+    const updateHappened = await updateReflectionDateIfGreater(
+      updatedReflection.date,
+      idToObjectId(updatedReflection.user_id)
+    );
+
+    if (updateHappened) {
+      console.log("User's latestReflectionDate updated successfully.");
+    } else {
+      console.log("No update needed for user's latestReflectionDate.");
+    }
+  }
+}
+
+async function updateReflectionDateIfGreater(
+  updatedReflectionDate: Date,
+  userId: ObjectId
+) {
+  const result = await UserModel.updateOne({ _id: userId }, [
+    {
+      $set: {
+        "reflectionDetails.latestReflectionDate": {
+          $cond: {
+            // check if update is needed:
+            if: {
+              $gt: [
+                updatedReflectionDate,
+                "$reflectionDetails.latestReflectionDate",
+              ],
+            },
+            then: updatedReflectionDate,
+            else: "$reflectionDetails.latestReflectionDate",
+          },
+        },
+      },
+    },
+  ]);
+
+  return result.modifiedCount > 0;
+}
 
 type getReflectionStatsReqHandler = RequestHandler<
   unknown,
@@ -140,7 +194,6 @@ type getReflectionStatsReqHandler = RequestHandler<
   unknown,
   { startDate: Date; endDate: Date }
 >;
-
 
 export const getReflectionStats: getReflectionStatsReqHandler = async (
   req,
@@ -155,7 +208,12 @@ export const getReflectionStats: getReflectionStatsReqHandler = async (
       throw new ErrorWithStatus("Invalid userId", 401);
     }
 
-    console.log('Getting reflection stats for date range and userId', new Date(startDate), endDate, user_id);
+    console.log(
+      "Getting reflection stats for date range and userId",
+      new Date(startDate),
+      endDate,
+      user_id
+    );
 
     const stats = await getReflectionStatsForDateRange(
       user_id,
@@ -163,20 +221,19 @@ export const getReflectionStats: getReflectionStatsReqHandler = async (
       new Date(endDate)
     );
 
-    console.log('Requested ReflectionsStat:', stats);
+    console.log("Requested ReflectionsStat:", stats);
 
     res.json({ success: true, data: stats });
   } catch (err) {
     next(err);
   }
-}
+};
 
 const getReflectionStatsForDateRange = async (
   user_id: string,
   startDate: Date,
   endDate: Date
 ) => {
-
   const reflectionStats = await ReflectionModel.aggregate([
     {
       $match: {
@@ -198,9 +255,7 @@ const getReflectionStatsForDateRange = async (
     },
   ]);
 
-  console.log('ReflectionStats:', reflectionStats);
-
-  
+  console.log("ReflectionStats:", reflectionStats);
 
   return reflectionStats[0] as StatBase;
-}
+};

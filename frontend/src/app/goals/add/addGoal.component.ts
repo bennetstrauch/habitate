@@ -10,7 +10,7 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  ReactiveFormsModule,
+  ReactiveFormsModule, // Ensure this is imported from '@angular/forms'
 } from '@angular/forms';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { GoalsService } from '../goals.service';
 import { Router, RouterLink } from '@angular/router';
 import { Goal, GoalBase } from '@backend/goals/goals.types';
-import { MatCardContent, MatCardModule } from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 
 // #### make clear that a goal is not a concrete behavior, thats a habit
 @Component({
@@ -31,7 +31,6 @@ import { MatCardContent, MatCardModule } from '@angular/material/card';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatCardContent,
     MatCardModule,
     RouterLink,
   ],

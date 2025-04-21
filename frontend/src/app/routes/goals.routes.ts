@@ -12,6 +12,8 @@ export const goalsRoutes: Routes = [
     // canActivate: [noGoalGuard]
   },
   { path: 'reflection/:date', component: ReflectionComponent },
+  { path: 'reflection', redirectTo: 'reflection/' + new Date().toISOString().split('T')[0] },
+
 
   {
     path: 'add',

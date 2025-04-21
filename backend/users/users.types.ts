@@ -1,3 +1,14 @@
+import { PushSubscription } from "web-push";
+
+export interface ReflectionDetails {
+  reflectionReminderTime?: string;
+  latestReflectionDate?: Date;
+
+  enablePush: boolean;
+  enableEmail: boolean;
+  pushSubscription: PushSubscription;
+}
+
 export interface User {
   name: string;
   email: string;
@@ -5,7 +16,10 @@ export interface User {
   timezone: string;
 
   reflectionTrigger: string;
+  reflectionDetails: ReflectionDetails;
   reflectionReminderTime?: string;
-
+  enablePush: boolean;
+  enableEmail: boolean; 
+  pushSubscription?: PushSubscription;
   tourCompleted: boolean;
 }

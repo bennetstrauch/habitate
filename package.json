@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "@types/web-push": "^3.6.4"
   },
   "dependencies": {
     "dotenv": "^16.4.7"

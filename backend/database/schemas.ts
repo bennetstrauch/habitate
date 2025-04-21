@@ -1,8 +1,32 @@
 import { Schema, model, InferSchemaType } from "mongoose";
 import { Goal, Habit } from "../goals/goals.types";
 import { HabitProgress } from "../progresses/progress.types";
-import { User } from "../users/users.types";
+import { ReflectionDetails, User } from "../users/users.types";
 import { Reflection } from "../reflections/reflections.types";
+import { PushSubscription } from "web-push";
+
+const PushSubscriptionSchema = new Schema<PushSubscription>(
+  {
+    endpoint: { type: String, required: false },
+    expirationTime: { type: Number, required: false },
+    keys: {
+      p256dh: { type: String, required: false },
+      auth: { type: String, required: false },
+    },
+  },
+  { _id: false }
+);
+
+const ReflectionDetailsSchema = new Schema<ReflectionDetails>(
+  {
+    reflectionReminderTime: { type: String, required: false },
+    enableEmail: { type: Boolean, required: true, default: false },
+    enablePush: { type: Boolean, required: true, default: false },
+    pushSubscription: { type: PushSubscriptionSchema, required: false },
+    latestReflectionDate: { type: Date, required: false },
+  },
+  { _id: false }
+);
 
 const userSchema = new Schema<User>({
   name: { type: String, required: true, minlength: 3 },
@@ -18,6 +42,10 @@ const userSchema = new Schema<User>({
 
   reflectionTrigger: { type: String, required: true },
   reflectionReminderTime: { type: String, required: false },
+  enablePush: { type: Boolean, default: false },
+  enableEmail: { type: Boolean, default: false },
+  pushSubscription: { type: Object, required: false }, // #check if this is correct
+  reflectionDetails: { type: ReflectionDetailsSchema, required: false },
 
   tourCompleted: { type: Boolean, default: false },
 });
@@ -76,13 +104,11 @@ export const HabitProgressModel = model<HabitProgress>(
   habitProgressSchema
 );
 
-
-
 const reflectionSchema = new Schema({
   _id: { type: Schema.Types.ObjectId, required: true },
   user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
-  type: { type: String, enum: ["daily", "weekly"], required: true }, 
+  type: { type: String, enum: ["daily", "weekly"], required: true },
   date: { type: Date, required: true },
   completed: { type: Boolean, required: true },
 
@@ -92,4 +118,7 @@ const reflectionSchema = new Schema({
   dailyReflectionsCompleted: { type: Number, required: false },
 });
 
-export const ReflectionModel = model<Reflection>("Reflection", reflectionSchema);
+export const ReflectionModel = model<Reflection>(
+  "Reflection",
+  reflectionSchema
+);
