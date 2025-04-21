@@ -45,6 +45,7 @@ export const sendPasswordResetLink: RequestHandler<
   try {
     const { email } = req.body;
 
+    console.log("Sending password reset link to", email);
     // Find user by email
     const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
