@@ -70,6 +70,7 @@ export const sendPasswordResetLink: RequestHandler<
       from: appNameForSendingEmails,
       to: user.email,
       subject: "Password Reset Request",
+      // ## make look nicer
       text: `Hello ${user.name}. Please click the link to reset your password: ${resetLink}`,
     });
 

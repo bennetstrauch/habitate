@@ -48,4 +48,12 @@ export class UsersService {
     return this.#http.post(environment.SERVER_URL + '/users/set-new-password', data);
   }
   
+
+  getUserDetails() {
+    return this.#http.get<StandardResponse<User>>(environment.SERVER_URL + '/users/me');
+  }
+
+  updateUser(user: Partial<User>) {
+    return this.#http.patch<StandardResponse<string>>(environment.SERVER_URL + '/users/me/update', user);
+  }
 }

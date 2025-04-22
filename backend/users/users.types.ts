@@ -6,7 +6,7 @@ export interface ReflectionDetails {
 
   enablePush: boolean;
   enableEmail: boolean;
-  pushSubscription: PushSubscription;
+  pushSubscription?: PushSubscription;
 }
 
 export interface User {
@@ -17,9 +17,6 @@ export interface User {
 
   reflectionTrigger: string;
   reflectionDetails: ReflectionDetails;
-  reflectionReminderTime?: string;
-  enablePush: boolean;
-  enableEmail: boolean; 
-  pushSubscription?: PushSubscription;
+ 
   tourCompleted: boolean;
 }

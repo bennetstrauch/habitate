@@ -48,5 +48,12 @@ export const routes: Routes = [
       goals: GoalsResolver,
     },
   },
-  //   { path: 'test-reg', component: Step4_2Reminder },
+  {
+    path: 'user-details',
+    loadComponent: () =>
+      import('../users/edit-user-details.component').then(
+        (c) => c.EditUserDetailsComponent
+      ),
+    canActivate: [() => inject(StateService).isLoggedIn()],
+  }
 ];

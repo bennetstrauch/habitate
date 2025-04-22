@@ -5,15 +5,16 @@ import {
   getRandomPhrase,
 } from "../../utils/functionsAndVariables";
 import { User } from "../../users/users.types";
+import { ReminderDetails } from "./sheduler.reminder.cron";
 
-export async function sendEmailReminder(user: User) {
+export async function sendEmailReminder(reminderDetails: ReminderDetails) {
   const text = `${constructWelcomePhrase(
-    user.name
+    reminderDetails.username
   )} Would you like to take a moment for yourSelf?`;
 
   await transporter.sendMail({
     from: appNameForSendingEmails,
-    to: user.email,
+    to: reminderDetails.email,
     subject: "Would you like to reflect with us today?",
     text: "Hey! You haven’t done your daily reflection today. Take a moment for yourself 💭",
   });
