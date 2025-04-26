@@ -20,13 +20,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), 
     provideAnimationsAsync(),
-    importProvidersFrom(JoyrideModule.forRoot()), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
+    importProvidersFrom(JoyrideModule.forRoot()), 
+    provideServiceWorker('sw.js', {
+            enabled: true,
             registrationStrategy: 'registerWhenStable:30000'
-          }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
+          })
   ]
 };
 

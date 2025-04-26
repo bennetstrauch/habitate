@@ -8,10 +8,11 @@ import { goalsRouter } from "./goals/goals.router";
 import { checkToken } from "./users/users.middleware";
 import { progressRouter } from "./progresses/progresses.router";
 import { healthCheck } from "./utils/healthcheck";
-
-import "./progresses/create.progress.cron";
 import { reflectionsRouter } from "./reflections/reflections.router";
-import { UserModel } from "./database/schemas";
+
+// to run the cron jobs need to import them here:
+import "./progresses/create.progress.cron";
+import "./reflections/reflectionReminder/sheduler.reminder.cron";
 
 const app = express();
 
@@ -35,4 +36,3 @@ app.use(errorHandler);
 app.listen(3000, () => console.log("Server listening on Port 3000"));
 
 // test()
-

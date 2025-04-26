@@ -9,6 +9,7 @@ webpush.setVapidDetails(
 );
 
 export async function sendPushReminder(reminderDetails: ReminderDetails) {
+  console.log("Sending push reminder to Subscription: ", reminderDetails.pushSubscription);
   if (!reminderDetails.pushSubscription) return;
 
   await webpush.sendNotification(

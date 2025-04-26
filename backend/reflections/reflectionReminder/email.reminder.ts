@@ -8,6 +8,7 @@ import { User } from "../../users/users.types";
 import { ReminderDetails } from "./sheduler.reminder.cron";
 
 export async function sendEmailReminder(reminderDetails: ReminderDetails) {
+  console.log("Sending email reminder to: ", reminderDetails.email);
   const text = `${constructWelcomePhrase(
     reminderDetails.username
   )} Would you like to take a moment for yourSelf?`;
@@ -16,7 +17,8 @@ export async function sendEmailReminder(reminderDetails: ReminderDetails) {
     from: appNameForSendingEmails,
     to: reminderDetails.email,
     subject: "Would you like to reflect with us today?",
-    text: "Hey! You haven’t done your daily reflection today. Take a moment for yourself 💭",
+    text: `${constructWelcomePhrase(reminderDetails.username)} Would you like to take a moment for yourSelf?`,
+    html: `<p>${text}<br><a>myhabitate.com</a></p>`,
   });
 }
 
@@ -43,6 +45,6 @@ const constructWelcomePhrase = (userName: string) => {
     "beautiful soul.",
   ]);
 
-  const welcomePhrase = greeting + salutation;
+  const welcomePhrase = greeting() + salutation;
   return welcomePhrase;
 };

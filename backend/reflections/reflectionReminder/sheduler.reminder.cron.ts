@@ -10,7 +10,6 @@ export interface ReminderDetails {
   user_id: ObjectId;
   username: string;
   email: string;
-
   timezone: string;
   reflectionReminderTime: string;
   latestReflectionDate: Date | null;
@@ -19,8 +18,8 @@ export interface ReminderDetails {
   pushSubscription: PushSubscription;
 }
 
-cron.schedule("*/5 * * * *", async () => {
-console.log("Running reflection reminder job at: ", new Date());
+cron.schedule("00,07,15,30,45 * * * *", async () => {
+  console.log("Running reflection reminder job at: ", new Date());
   const nowUTC = DateTime.utc();
   const reminderDetailsForMatchingUsers =
     await UserModel.aggregate<ReminderDetails>([
@@ -38,7 +37,7 @@ console.log("Running reflection reminder job at: ", new Date());
         $match: {
           $expr: {
             $and: [
-              // Condition 1: reflectionReminderTime within 5 minutes before to equal current time
+              // Condition 1: reflectionReminderTime within 15 minutes before to equal current time
               {
                 $and: [
                   {
@@ -46,7 +45,7 @@ console.log("Running reflection reminder job at: ", new Date());
                       "$reflectionDetails.reflectionReminderTime",
                       {
                         $dateToString: {
-                          date: { $subtract: [new Date(), 5 * 60 * 1000] }, // 5 minutes ago
+                          date: { $subtract: [new Date(), 15 * 60 * 1000] }, // 15 minutes ago
                           timezone: "$timezone",
                           format: "%H:%M",
                         },
@@ -70,7 +69,7 @@ console.log("Running reflection reminder job at: ", new Date());
               // Condition 2: latestReflectionDate < today's date in user's timezone
               {
                 $and: [
-                  { $ne: ["$reflectionDetails.latestReflectionDate", null] }, // Keep null check for latestReflectionDate
+                  { $ne: ["$reflectionDetails.latestReflectionDate", null] },
                   {
                     $lt: [
                       "$reflectionDetails.latestReflectionDate",
@@ -92,29 +91,29 @@ console.log("Running reflection reminder job at: ", new Date());
             ],
           },
         },
+      },
+      {
         $project: {
-          user_id: "$_id", // Rename _id to user_id
+          user_id: "$_id",
           _id: 0,
           username: "$name",
           email: 1,
           timezone: 1,
           reflectionReminderTime: "$reflectionDetails.reflectionReminderTime",
-          allowEmail: "$reflectionDetails.enableEmail",
-          allowPush: "$reflectionDetails.enablePush",
+          enableEmail: "$reflectionDetails.enableEmail",
+          enablePush: "$reflectionDetails.enablePush",
           pushSubscription: "$reflectionDetails.pushSubscription",
         },
       },
     ]);
 
-    console.log(
-      "Reminder details for matching users:",
-        reminderDetailsForMatchingUsers
-    );
+  console.log(
+    "Reminder details for matching users:",
+    reminderDetailsForMatchingUsers
+  );
 
   for (const reminderDetails of reminderDetailsForMatchingUsers) {
     if (reminderDetails.enableEmail) await sendEmailReminder(reminderDetails);
     if (reminderDetails.enablePush) await sendPushReminder(reminderDetails);
-
-    //   await markReminderSent(reminderDetails._id); // Avoid duplicate sends?? necessary?#
   }
 });
