@@ -41,10 +41,6 @@ const userSchema = new Schema<User>({
   timezone: { type: String, required: true },
 
   reflectionTrigger: { type: String, required: true },
-  reflectionReminderTime: { type: String, required: false },
-  enablePush: { type: Boolean, default: false },
-  enableEmail: { type: Boolean, default: false },
-  pushSubscription: { type: Object, required: false }, // #check if this is correct
   reflectionDetails: { type: ReflectionDetailsSchema, required: false },
 
   tourCompleted: { type: Boolean, default: false },
