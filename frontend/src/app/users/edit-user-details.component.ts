@@ -4,7 +4,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatError } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from './users.service';
 import { User } from '@backend/users/users.types';
@@ -14,7 +13,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../environments/environment';
-import { PushSubscription as WebPushSubscription } from 'web-push'; // Import for backend format
+import { PushSubscription as WebPushSubscription } from 'web-push';
 
 @Component({
   selector: 'app-edit-user-details',
@@ -27,10 +26,9 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
     MatButtonModule,
     MatCheckboxModule,
     MatSelectModule,
-    MatError,
   ],
   template: `
-    <form [formGroup]="editUserForm" (ngSubmit)="saveChanges()" class="form">
+    <form [formGroup]="editUserForm" class="form">
       <h2>Edit Your Details</h2>
 
       <mat-form-field class="form-field">
@@ -56,8 +54,8 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
       </mat-form-field>
 
       <mat-form-field class="form-field">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" />
+        <mat-label>Modified Password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
         @if (editUserForm.get('password')?.hasError('minlength')) {
           <mat-error>Minimum {{ validationRules.password.minLength }} characters</mat-error>
         }
@@ -71,14 +69,14 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
       <div class="card">
         <h3>Reflection Reminders</h3>
         <div class="checkbox-group">
-          <mat-checkbox formControlName="enablePush" (change)="onPushChange($event.checked)">Push Notifications</mat-checkbox>
+          <mat-checkbox formControlName="enablePush">Push Notifications</mat-checkbox>
           <mat-checkbox formControlName="enableEmail">Email Notifications</mat-checkbox>
         </div>
 
-        <div [ngClass]="{ disabled: !isReminderEnabled() }" class="time-selector">
+        <div class="time-selector">
           <mat-form-field class="time-field">
             <mat-label>Hour</mat-label>
-            <mat-select formControlName="hour" [disabled]="!isReminderEnabled()">
+            <mat-select formControlName="hour">
               @for (hour of hours; track hour) {
                 <mat-option [value]="hour">{{ hour }}</mat-option>
               }
@@ -87,7 +85,7 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
 
           <mat-form-field class="time-field">
             <mat-label>Minute</mat-label>
-            <mat-select formControlName="minute" [disabled]="!isReminderEnabled()">
+            <mat-select formControlName="minute">
               @for (minute of minutes; track minute) {
                 <mat-option [value]="minute">{{ minute }}</mat-option>
               }
@@ -96,9 +94,7 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
 
           <mat-form-field class="time-field">
             <mat-label>Period</mat-label>
-            <mat-select formControlName="period" 
-            [disabled]="!isReminderEnabled()"
-            >
+            <mat-select formControlName="period">
               @for (period of periods; track period) {
                 <mat-option [value]="period">{{ period }}</mat-option>
               }
@@ -106,85 +102,127 @@ import { PushSubscription as WebPushSubscription } from 'web-push'; // Import fo
           </mat-form-field>
         </div>
       </div>
-
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="!editUserForm.valid || !editUserForm.dirty"
-      >
-        Save Changes
-      </button>
     </form>
   `,
   styles: [`
-    .form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
 
-    .form-field {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 8px;
-    }
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    .card {
-      padding: 16px;
-      margin: 16px 0;
-      width: 100%;
-      max-width: 400px;
-    }
+.form-field {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 8px;
+}
 
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 12px;
-    }
+.card {
+  padding: 16px;
+  margin: 16px 0;
+  width: 100%;
+  max-width: 400px;
+}
 
-    .time-selector {
-      display: flex;
-      gap: 10px;
-    }
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
 
-    .time-field {
-      width: 80px;
-    }
+.time-selector {
+  display: flex;
+  gap: 10px;
+}
 
-    .disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
+.time-field {
+  width: 80px;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+:host ::ng-deep .mat-mdc-snack-bar-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: unset !important;
+  width: auto !important;
+}
+
+:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__surface {
+  padding: 4px !important;
+  min-width: unset !important;
+  width: auto !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #323232 !important;
+  border-radius: 4px !important;
+  flex-wrap: nowrap !important;
+}
+
+:host ::ng-deep .mat-mdc-snack-bar-container .mat-mdc-snack-bar-label {
+  padding: 0 !important;
+  margin: 0 4px 0 0 !important;
+  text-align: center;
+  flex-grow: 0;
+  color: #fff !important;
+  line-height: normal !important;
+  min-width: unset !important;
+}
+
+:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__actions {
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-grow: 0;
+}
+
+:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__action {
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #bb86fc !important;
+  line-height: normal !important;
+  min-width: unset !important;
+}
+
   `]
 })
 export class EditUserDetailsComponent implements OnInit {
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
 
-  editUserForm: FormGroup;
+  editUserForm = this.formBuilder.group({
+    name: ['', [Validators.required, Validators.minLength(validationRulesRegister.name.minLength), Validators.maxLength(validationRulesRegister.name.maxLength)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.minLength(validationRulesRegister.password.minLength)]],
+    reflectionTrigger: [''],
+    enablePush: [false],
+    enableEmail: [false],
+    hour: ['08'],
+    minute: ['15'],
+    period: ['PM']
+  });
+
   validationRules = validationRulesRegister;
   hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')); // 01 to 12
   minutes = ['00', '15', '30', '45'];
   periods = ['AM', 'PM'];
-  private pushSubscription: PushSubscription | null = null; // Use native PushSubscription
+  private pushSubscription: PushSubscription | null = null;
+  private initialFormValue: any = null;
 
-  constructor() {
-    this.editUserForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(validationRulesRegister.name.minLength), Validators.maxLength(validationRulesRegister.name.maxLength)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.minLength(validationRulesRegister.password.minLength)]],
-      reflectionTrigger: [''],
-      enablePush: [false],
-      enableEmail: [false],
-      hour: ['08'],
-      minute: ['15'],
-      period: ['PM']
-    });
-  }
+  hasChanges = false;
 
-  async ngOnInit() {
+  ngOnInit() {
+    // Dynamically enable/disable time fields based on reminders
+    this.editUserForm.get('enablePush')?.valueChanges.subscribe(() => this.updateTimeFieldsState());
+    this.editUserForm.get('enableEmail')?.valueChanges.subscribe(() => this.updateTimeFieldsState());
+    this.updateTimeFieldsState(); // Initial state
+
+    // Load user details
     this.usersService.getUserDetails().subscribe({
       next: (response) => {
         const user = response.data;
@@ -202,10 +240,10 @@ export class EditUserDetailsComponent implements OnInit {
             period = 'AM';
           }
         }
-        console.log('User details:', user);
         this.editUserForm.patchValue({
           name: user.name,
           email: user.email,
+          password: '', // Do not prefill password
           reflectionTrigger: user.reflectionTrigger,
           enablePush: user.reflectionDetails.enablePush,
           enableEmail: user.reflectionDetails.enableEmail,
@@ -213,121 +251,165 @@ export class EditUserDetailsComponent implements OnInit {
           minute,
           period
         });
+        // Store initial form value after patching
+        this.initialFormValue = this.editUserForm.getRawValue();
       },
       error: () => {
         this.snackBar.open('Failed to load user details', 'Close', { duration: 3000 });
       }
     });
+
+    // Watch for form value changes
+    this.editUserForm.valueChanges.subscribe(() => {
+      if (this.editUserForm.valid && this.hasFormChanged()) {
+        if (!this.hasChanges) {
+          this.showSavePrompt();
+          this.hasChanges = true;
+        }
+      } else if (this.hasChanges && !this.hasFormChanged()) {
+        this.snackBar.dismiss();
+        this.hasChanges = false;
+      }
+    });
   }
 
-  async onPushChange(checked: boolean): Promise<void> {
-    console.log('Push notifications enabled:', checked);
-    if (checked) {
-      try {
-        console.log('Inside try');
-        // Check notification permission
-        console.log('Checking notification permission...');
-        if (Notification.permission !== 'granted') {
-          console.log('Requesting notification permission...');
-          const permission = await Notification.requestPermission();
-          console.log('Permission result:', permission);
-          if (permission !== 'granted') {
-            throw new Error('Notification permission denied');
-          }
-        }
-        // Verify service worker
-        console.log('Waiting for service worker to be ready...');
-        const registration: ServiceWorkerRegistration = await navigator.serviceWorker.ready;
-        console.log('Service worker registration:', registration);
-        if (!registration) {
-          throw new Error('Service worker not registered');
-        }
-        // Check for existing subscription
-        console.log('Checking for existing subscription...');
-        const existingSubscription: PushSubscription | null = await registration.pushManager.getSubscription();
-        if (existingSubscription) {
-          console.log('Unsubscribing existing subscription:', existingSubscription);
-          await existingSubscription.unsubscribe();
-        }
-        // Log VAPID key
-        console.log('VAPID Public Key:', environment.vapidPublicKey);
-        const applicationServerKey: Uint8Array = this.urlBase64ToUint8Array(environment.vapidPublicKey);
-        console.log('Application Server Key:', applicationServerKey);
-        // Subscribe to push notifications
-        console.log('Subscribing to push notifications...');
-        const subscription: PushSubscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey
-        });
-        console.log('Push subscription:', subscription);
-        if (!subscription) {
-          throw new Error('Push subscription is null');
-        }
-        this.pushSubscription = subscription;
-        console.log('Push subscription JSON:', this.pushSubscription.toJSON());
-        this.snackBar.open('Push notifications enabled', 'Close', { duration: 3000 });
-      } catch (error: unknown) {
-        console.error('Failed to subscribe to push notifications:', error);
-        this.editUserForm.patchValue({ enablePush: false });
-        this.pushSubscription = null;
-        this.snackBar.open('Failed to enable push notifications', 'Close', { duration: 3000 });
+  private updateTimeFieldsState() {
+    const isEnabled = this.isReminderEnabled();
+    ['hour', 'minute', 'period'].forEach(field => {
+      const control = this.editUserForm.get(field);
+      if (isEnabled) {
+        control?.enable({ emitEvent: false });
+      } else {
+        control?.disable({ emitEvent: false });
       }
-    } else {
-      console.log('Disabling push notifications...');
-      this.pushSubscription = null;
+    });
+  }
+
+  private showSavePrompt() {
+    // ## want to remove the entire left side of the snackbar
+
+    this.snackBar.open('Unsaved changes', 'Save', {
+      duration: 0,
+      verticalPosition: 'bottom',
+      horizontalPosition: 'center',
+      panelClass: ['custom-snackbar']
+    }).onAction().subscribe(() => {
+      this.saveChanges();
+    });
+  }
+
+  private hasFormChanged(): boolean {
+    if (!this.initialFormValue) {
+      return false;
+    }
+
+    const currentValue = this.editUserForm.getRawValue();
+    const initialFormKeys = Object.keys(this.initialFormValue);
+
+    for (const key of initialFormKeys) {
+      const typedKey = key as keyof typeof currentValue;
+      const initialVal = this.initialFormValue[typedKey];
+      const currentVal = currentValue[typedKey];
+
+      // Handle null/undefined and string comparison
+      if (initialVal != currentVal) {
+        if (typedKey === 'password' && !this.editUserForm.get('password')?.touched) {
+          continue; // Ignore untouched password changes
+        }
+        console.log(`Field changed: ${key} from ${initialVal} to ${currentVal}`);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async handlePushSubscription(enablePush: boolean): Promise<PushSubscription | null> {
+    if (!enablePush) {
       try {
-        const registration: ServiceWorkerRegistration = await navigator.serviceWorker.ready;
-        const subscription: PushSubscription | null = await registration.pushManager.getSubscription();
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
-          console.log('Unsubscribing from push notifications:', subscription);
           await subscription.unsubscribe();
         }
-      } catch (error: unknown) {
+        return null;
+      } catch (error) {
         console.error('Failed to unsubscribe:', error);
+        return null;
       }
+    }
+
+    try {
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error('Notification permission denied');
+        }
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+      const existingSubscription = await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        await existingSubscription.unsubscribe();
+      }
+
+      const applicationServerKey = this.urlBase64ToUint8Array(environment.vapidPublicKey);
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
+      });
+
+      return subscription;
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error);
+      this.snackBar.open('Failed to enable push notifications', 'Close', { duration: 3000 });
+      return null;
     }
   }
 
-  isReminderEnabled(): boolean {
-    return this.editUserForm.get('enablePush')?.value || this.editUserForm.get('enableEmail')?.value;
-  }
-
-  saveChanges() {
+  async saveChanges() {
     if (this.editUserForm.valid) {
+      const enablePush = this.editUserForm.get('enablePush')?.value || false;
+      this.pushSubscription = await this.handlePushSubscription(enablePush);
+
       let reflectionReminderTime: string | undefined;
       if (this.isReminderEnabled()) {
-        const hour = parseInt(this.editUserForm.get('hour')?.value);
+        const hour = parseInt(this.editUserForm.get('hour')?.value || '08');
         const minute = this.editUserForm.get('minute')?.value;
         const period = this.editUserForm.get('period')?.value;
         const adjustedHour = period === 'PM' && hour < 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
         reflectionReminderTime = `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
       }
+
       const updatedUser: Partial<User> = {
-        name: this.editUserForm.get('name')?.value,
-        email: this.editUserForm.get('email')?.value,
-        password: this.editUserForm.get('password')?.value || undefined,
-        reflectionTrigger: this.editUserForm.get('reflectionTrigger')?.value,
+        name: this.editUserForm.get('name')?.value || undefined,
+        email: this.editUserForm.get('email')?.value || undefined,
+        password: this.editUserForm.get('password')?.touched ? this.editUserForm.get('password')?.value || undefined : undefined,
+        reflectionTrigger: this.editUserForm.get('reflectionTrigger')?.value ?? undefined,
         reflectionDetails: {
-          enablePush: this.editUserForm.get('enablePush')?.value,
-          enableEmail: this.editUserForm.get('enableEmail')?.value,
+          enablePush,
+          enableEmail: this.editUserForm.get('enableEmail')?.value || false,
           reflectionReminderTime,
-          pushSubscription: this.pushSubscription ? this.pushSubscription.toJSON() as WebPushSubscription : undefined // Convert to web-push format
+          pushSubscription: this.pushSubscription ? this.pushSubscription.toJSON() as WebPushSubscription : undefined
         }
       };
-      console.log('Sending updated user data:', updatedUser);
+
       this.usersService.updateUser(updatedUser).pipe(
-        tap((response) => {
-          console.log('Update user response:', response);
+        tap(() => {
           this.snackBar.open('User details updated successfully', 'Close', { duration: 3000 });
+          this.hasChanges = false;
           this.editUserForm.markAsPristine();
+          this.initialFormValue = this.editUserForm.getRawValue();
         }),
-        catchError((error: unknown) => {
-          console.error('Failed to update user:', error);
+        catchError((error) => {
           this.snackBar.open('Failed to update user details', 'Close', { duration: 3000 });
           return of(null);
         })
       ).subscribe();
     }
+  }
+
+  isReminderEnabled(): boolean {
+    return (this.editUserForm.get('enablePush')?.value || this.editUserForm.get('enableEmail')?.value) ?? false;
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {

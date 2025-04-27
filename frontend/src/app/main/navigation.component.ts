@@ -65,6 +65,11 @@ import { JoyrideModule } from 'ngx-joyride';
           Add Goal
         </button>
 
+        <button mat-menu-item [routerLink]="['', 'user-details']">
+          My Profile
+        </button>
+    
+
         <button mat-menu-item color="warn" (click)="stateService.logout()">
           Logout
         </button>

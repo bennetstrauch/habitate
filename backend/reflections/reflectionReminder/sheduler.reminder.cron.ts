@@ -18,7 +18,7 @@ export interface ReminderDetails {
   pushSubscription: PushSubscription;
 }
 
-cron.schedule("00,07,15,30,45 * * * *", async () => {
+cron.schedule("00,15,30,45 * * * *", async () => {
   console.log("Running reflection reminder job at: ", new Date());
   const nowUTC = DateTime.utc();
   const reminderDetailsForMatchingUsers =
@@ -45,7 +45,7 @@ cron.schedule("00,07,15,30,45 * * * *", async () => {
                       "$reflectionDetails.reflectionReminderTime",
                       {
                         $dateToString: {
-                          date: { $subtract: [new Date(), 15 * 60 * 1000] }, // 15 minutes ago
+                          date: { $subtract: [new Date(), 14 * 60 * 1000] }, // 14 minutes ago
                           timezone: "$timezone",
                           format: "%H:%M",
                         },

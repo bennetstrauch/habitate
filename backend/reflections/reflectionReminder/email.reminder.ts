@@ -17,7 +17,7 @@ export async function sendEmailReminder(reminderDetails: ReminderDetails) {
     from: appNameForSendingEmails,
     to: reminderDetails.email,
     subject: "Would you like to reflect with us today?",
-    text: `${constructWelcomePhrase(reminderDetails.username)} Would you like to take a moment for yourSelf?`,
+    // text: `${constructWelcomePhrase(reminderDetails.username)} Would you like to take a moment for yourSelf?`,
     html: `<p>${text}<br><a>myhabitate.com</a></p>`,
   });
 }
