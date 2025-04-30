@@ -75,7 +75,7 @@ import { catchError, of } from 'rxjs';
         font-size: 24px;
         font-weight: 500;
         color: #333;
-        margin-bottom: 20px;
+        margin-bottom: 35px;
         text-align: center;
       }
 
