@@ -8,54 +8,117 @@ import { StateService } from '../state.service';
 import { jwtDecode } from 'jwt-decode';
 import { Token } from '@backend/types/token';
 import { Router, RouterLink } from '@angular/router';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, MatButton, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   template: `
-    <div class="login-div">
-      Login
+    <div class="login-container">
+      <h2 class="login-title">Welcome Back</h2>
+      <form [formGroup]="form" (ngSubmit)="login()" class="login-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="Enter your email" formControlName="email" />
+        </mat-form-field>
 
-      <form [formGroup]="form" (ngSubmit)="login()">
-        <input placeholder="email" [formControl]="form.controls.email" />
-        <br />
-        <input
-          type="password"
-          placeholder="password"
-          [formControl]="form.controls.password"
-        />
-        <br />
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            placeholder="Enter your password"
+            formControlName="password"
+          />
+        </mat-form-field>
 
-        <button mat-button [disabled]="form.invalid">Login</button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid"
+          class="login-button"
+        >
+          Login
+        </button>
       </form>
 
-      <br />
-      <!-- ###Reset Password Link -->
       <a
         (click)="handlePasswordReset()"
-        style="cursor:pointer; text-decoration: underline;"
+        class="forgot-password"
       >
-        Forgot Password ?
+        Forgot Password?
       </a>
-      <br /><br />
     </div>
   `,
-  styles: `
-  a {
-    font-size: 12px;
-    color:rgb(1, 40, 82);
-    text-decoration: none
-  },
-  .login-div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 5px solid black;
-  }
-  `,
+  styles: [
+    `
+      .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        // min-height: 100vh;
+        background-color: #f5f5f5;
+        padding: 20px;
+      }
+
+      .login-title {
+        font-size: 24px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 400px;
+        gap: 15px;
+      }
+
+      mat-form-field {
+        width: 100%;
+      }
+
+      .login-button {
+        padding: 10px;
+        font-size: 16px;
+        text-transform: uppercase;
+        margin-top: 10px;
+      }
+
+      .forgot-password {
+        font-size: 14px;
+        color: #1976d2;
+        text-decoration: none;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password:hover {
+        color: #0d47a1;
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        .login-form {
+          max-width: 100%;
+        }
+      }
+    `,
+  ],
 })
 export class LoginComponent {
   #usersService = inject(UsersService);
@@ -68,8 +131,6 @@ export class LoginComponent {
   });
 
   login() {
-    /// h## handle error correctly
-
     this.#usersService
       .login(this.form.value as LoginRequest)
       .pipe(
@@ -80,7 +141,6 @@ export class LoginComponent {
           } else {
             alert('An unknown error occurred');
           }
-
           return of(null);
         })
       )
@@ -104,10 +164,6 @@ export class LoginComponent {
           this.#router.createUrlTree(pathSegments)
         );
         window.location.href = fullPath;
-
-        // this.#router.navigate(['', 'goals', 'overview']).then(() => {
-        //   window.location.reload();
-        // });
       });
   }
 
