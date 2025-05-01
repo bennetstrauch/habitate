@@ -23,7 +23,7 @@ import { NgStyle } from '@angular/common';
         min-height: 100vh; /* Ensure it takes full viewport height */
         width: 100vw; /* Ensure it takes full viewport width */
         margin: 0; /* Remove any default margins */
-        padding: 0; /* Remove any default padding */
+        padding: 0;
         box-sizing: border-box; /* Ensure padding/borders don't add to size */
       }
     `,
