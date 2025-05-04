@@ -19,6 +19,7 @@ import { RouterLink } from '@angular/router';
         flex-direction: column;
         justify-content: center; /* center vertically */
         align-items: flex-start;
+        
         height: 100%;
       }
 
