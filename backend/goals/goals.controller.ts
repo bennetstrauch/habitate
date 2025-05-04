@@ -20,41 +20,6 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   try {
     let userGoals: Goal[] = await getGoalsDB(req.userId);
 
-    // #cleaner, needed if cron-job? not really??? ### cut out finally
-    // for (const goal of userGoals) {
-    //   if (goal.habits.length !== 0) {
-
-    //     let latestProgressDate = '';
-
-    //     if (goal.habits[0].latestProgress) {
-    //     latestProgressDate = goal.habits[0].latestProgress.date
-    //       .toISOString()
-    //       .split("T")[0];
-    //   }
-
-    //   const localDate = getDateOnlyForTimeZone(timezone);
-
-    //     console.log(
-    //       "latestProgressDate",
-    //       latestProgressDate,
-    //       "localDate",
-    //       localDate
-    //     );
-    //     console.log(
-    //       "latestProgressDate < localDate",
-    //       latestProgressDate < localDate
-    //     );
-
-    //     if (latestProgressDate < localDate) {
-    //       userGoals = await createDailyHabitProgressForGoals(
-    //         userGoals,
-    //         new Date(localDate)
-    //       );
-    //     }
-    //     break;
-    //   }
-    // }
-
     res.json({ success: true, data: userGoals });
 
     const updateTimezoneResult = await UserModel.updateOne(
@@ -118,10 +83,25 @@ export const postGoal: RequestHandler<
 > = async (req, res, next) => {
   try {
     const goalBase = req.body;
-    const embedded_name = await generateEmbedding(goalBase.name);
+  
+      if (!goalBase.name) {
+        throw new ErrorWithStatus("Goal name is required", 400);
+      }
+
+      let embedded_name = undefined;
+      let ranking = -1; // default ranking##
+      
+      try {
+    embedded_name = await generateEmbedding(goalBase.name);
 
     const ranking = await findSimilarGoals(embedded_name) + 1;
     console.log("ranking", ranking);
+
+  }
+  catch (err) {
+    console.error("Error generating embedding:", err);
+    throw new ErrorWithStatus("Failed to generate embedding", 500);
+  }
 
     const result = await GoalModel.create({
       ...goalBase,
@@ -129,6 +109,7 @@ export const postGoal: RequestHandler<
       createdByUserWithId: req.userId,
       ranking,
     })
+  
 
     const goalObject = result.toObject();
     delete goalObject.embedded_name;
