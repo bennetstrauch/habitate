@@ -22,7 +22,7 @@ import { catchError, of } from 'rxjs';
     MatInputModule,
   ],
   template: `
-    <div class="login-container">
+    <div class="card login-container">
       <h2 class="login-title">Welcome Back</h2>
       <form [formGroup]="form" (ngSubmit)="login()" class="login-form">
         <mat-form-field appearance="outline">
@@ -62,13 +62,8 @@ import { catchError, of } from 'rxjs';
   styles: [
     `
       .login-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        // min-height: 100vh;
-        background-color: #f5f5f5;
-        padding: 20px;
+        margin-top: 00px;
+        
       }
 
       .login-title {

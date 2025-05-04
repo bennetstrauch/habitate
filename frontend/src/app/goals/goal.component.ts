@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { AddHabitComponent } from '../habits/addHabit/addHabit.component';
 import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.component';
+import { DisplayGoalWithLinkComponent } from "./display-habit-with-description";
 
 @Component({
   selector: 'app-goal',
@@ -22,7 +23,8 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
     MatCardModule,
     MatButtonModule,
     AddHabitButtonComponent,
-  ],
+    DisplayGoalWithLinkComponent
+],
   template: `
     <div style="text-align: center;">
       <mat-card class="goal card">
@@ -49,12 +51,10 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
 
         @for( habit of $goal()!.habits; track $index) {
         <mat-card class="habit-card">
-          <div class="habit-container">
-            <div class="habit-name">{{ habit.name }}</div> 
-          
-            <!-- ##checkout -->
-            <div class="habit-description">{{ habit.description }}</div>
-          </div>
+        <app-display-habit-with-description
+            [habitName]="habit.name"
+            [habitDescription]="habit.description || ''"
+          />
         </mat-card>
         }
 

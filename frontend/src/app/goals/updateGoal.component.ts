@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.component';
+import { AutoResizeInputDirective } from '../auto-resize-input.directive';
+import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
 
 @Component({
   selector: 'app-update',
@@ -20,106 +22,185 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
     MatButtonModule,
     MatIconModule,
     AddHabitButtonComponent,
+    AutoResizeInputDirective,
+    DisplayGoalWithLinkComponent,
   ],
   template: `
-    <mat-card>
-      <form [formGroup]="goalForm" (ngSubmit)="updateGoal()">
-        <mat-form-field>
+    <div class="card goal-container">
+      <h3 class="goal-title">Goal</h3>
+      <form [formGroup]="goalForm" (ngSubmit)="updateGoal()" class="goal-form">
+        <mat-form-field appearance="outline">
           <mat-label>Goal</mat-label>
           <input
             matInput
+            appAutoResizeInput
             [formControl]="goalForm.controls.name"
-            placeholder="your heartfelt goal"
+            placeholder="Your heartfelt goal"
           />
         </mat-form-field>
 
-        <br />
-
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Description</mat-label>
           <input
             matInput
+            appAutoResizeInput
             [formControl]="goalForm.controls.description"
             placeholder="Enter description"
           />
         </mat-form-field>
-
-        <mat-card-content>
-          <strong>Habits :</strong>
-
-          @for( habit of $goal()!.habits; track $index) {
-          <mat-card class="habit-card">
-            <div class="habit-container">
-              <span class="habit-name">{{ habit.name }}</span>
-
-              <div>
-                <button
-                  type="button"
-                  class="small-delete-btn"
-                  mat-mini-fab
-                  aria-label="Edit"
-                  (click)="updateHabit(habit._id)"
-                >
-                  <mat-icon>edit</mat-icon>
-                </button>
-                &nbsp;
-                <button
-                  type="button"
-                  class="small-delete-btn"
-                  mat-mini-fab
-                  aria-label="Delete"
-                  (click)="goalsService.deleteHabit(_id(), habit._id)"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-          </mat-card>
-          }
-
-          <!-- not hardcode number ## -->
-          <app-add-habit-button
-            [goal_id]="_id()"
-            [numberOfHabitsForGoal]="$goal()!.habits.length"
-          />
-        </mat-card-content>
-        <br />
-
-        <button
-          mat-raised-button
-          type="submit"
-          [disabled]="this.goalForm.invalid || this.goalForm.pristine"
-        >
-          Update
-        </button>
-        &nbsp;
-        <button
-          type="button"
-          mat-raised-button
-          aria-label="Delete"
-          (click)="deleteGoal()"
-        >
-          <mat-icon>delete</mat-icon> Delete Goal
-        </button>
       </form>
-    </mat-card>
-  `,
-  styleUrls: ['../habits/styles-for-display-habits.scss'],
-  styles: `
-  .small-delete-btn {
-  width: 30px;
-  height: 30px;
-  font-size: 5px; 
-  }
+    </div>
 
-  .delete-goal-btn {
-  width: 90px;
-  height: 30px;
-  font-size: 5px; 
-  }
-  
-  
+    <div class="button-container">
+      <button
+        mat-raised-button
+        class="primary-button"
+        (click)="updateGoal()"
+        [disabled]="goalForm.invalid || goalForm.pristine"
+      >
+        Update
+      </button>
+      <button
+        mat-raised-button
+        class="secondary-button"
+        aria-label="Delete"
+        (click)="deleteGoal()"
+      >
+        <mat-icon>delete</mat-icon> Delete Goal
+      </button>
+    </div>
+
+    <div class="card habits-container">
+      <h3 class="habits-title">Habits</h3>
+      <div class="habits-section">
+        @for (habit of $goal()!.habits; track $index) {
+        <div class="habit-card">
+          <app-display-habit-with-description
+            [habitName]="habit.name"
+            [habitDescription]="habit.description || ''"
+          />
+          <div class="habit-actions">
+            <button
+              type="button"
+              mat-icon-button
+              aria-label="Edit"
+              (click)="updateHabit(habit._id)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              type="button"
+              mat-icon-button
+              aria-label="Delete"
+              (click)="goalsService.deleteHabit(_id(), habit._id)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        }
+        <app-add-habit-button
+          [goal_id]="_id()"
+          [numberOfHabitsForGoal]="$goal()!.habits.length"
+        />
+      </div>
+    </div>
   `,
+  styles: [
+    `
+      .goal-container,
+      .habits-container {
+        margin: 1rem auto;
+      }
+
+      .goal-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        margin: 0px 0px 15px 0px;
+        text-align: center;
+      }
+
+      .goal-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        // width: fit-content;
+        // max-width: 450px;
+        gap: 15px;
+      }
+
+      input {
+        max-width: 40ch;
+        min-width: max(90%, 20ch);
+      }
+
+      mat-form-field {
+        max-width: 45ch;
+        min-width: max(100%, 20ch);
+      }
+
+      .button-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+        margin: 1rem 0;
+      }
+
+      .habits-container {
+        margin-top: 0;
+      }
+
+      .habits-title {
+        font-size: 20px;
+        font-weight: 500;
+        color: #333;
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .habits-section {
+        width: 100%;
+      }
+
+      .habit-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        background: #f5f7fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .habit-card:hover {
+        transform: translateY(-2px);
+      }
+
+     
+
+      .habit-actions {
+        display: flex;
+        gap: 0px;
+      }
+
+      @media (max-width: 600px) {
+        .goal-form {
+          max-width: 100%;
+        }
+
+        .goal-title,
+        .habits-title {
+          font-size: 18px;
+          margin: 10px 0;
+        }
+      }
+    `,
+  ],
 })
 export class UpdateGoalComponent {
   #router = inject(Router);
@@ -153,18 +234,16 @@ export class UpdateGoalComponent {
   updateGoal = () => {
     const goal: Goal = {
       ...this.$goal()!,
-      name: this.goalForm.controls.name.value!, // ! because we check validity on button
+      name: this.goalForm.controls.name.value!,
       description: this.goalForm.controls.description.value ?? '',
     };
 
     this.goalsService.put_goal(goal).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
-        // this.updateHabits() ##whatsthat used or not?
         this.goalsService.update_goals();
-        // ## could also do like in register with email: shows goal updated message on bottom and disappears once edited
         alert('Goal updated successfully!');
-        this.goalForm.markAsPristine(); // reset form to pristine state
+        this.goalForm.markAsPristine();
       }
     });
   };
@@ -191,6 +270,4 @@ export class UpdateGoalComponent {
       'update',
     ]);
   };
-
- 
 }
