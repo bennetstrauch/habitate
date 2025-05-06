@@ -51,6 +51,9 @@ export class RFinalThankyouComponent {
     'Being, self-reflective, will achieve intentions.',
     'Being, self-reflective, will achieve its intentions.',
     'Curving back upon my own Nature, I create again and again.',
+    'Pure reflection leads to break-throughs.',
+    'May your valuable goals be achieved so naturally.',
+
   ];
 
   encouragement = getRandomPhrase(this.encouragements);
