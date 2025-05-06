@@ -3,7 +3,7 @@ import { ReflectionsService } from '../reflections.service';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import confetti from 'canvas-confetti';
-import { getRandomElement } from '../../utils/utils';
+import { getRandomElement, getRandomPhrase } from '../../utils/utils';
 
 @Component({
   selector: 'app-r-final-thankyou',
@@ -11,6 +11,9 @@ import { getRandomElement } from '../../utils/utils';
   template: `
     <div class="flex-column">
       <div class="card">
+        <p style="font-style: italic;">
+          {{ encouragement }}
+        </p>
         <p>
           <strong>Thank you</strong> <br />
           for taking the time to take care of yourSelf. <br />
@@ -37,6 +40,20 @@ import { getRandomElement } from '../../utils/utils';
 export class RFinalThankyouComponent {
   #router = inject(Router);
   reflectionsService = inject(ReflectionsService);
+
+  encouragements = [
+    'Every step counts - and you just took one.',
+    'You showed up my friend :)',
+    'A soft flow of attention in the right direction.',
+    'Effortless Consistency results in life lived consistently effortless.',
+    'Smooth progress is most sustainable.',
+    'Effortless Consistency will really move things for you.',
+    'Being, self-reflective, will achieve intentions.',
+    'Being, self-reflective, will achieve its intentions.',
+    'Curving back upon my own Nature, I create again and again.',
+  ];
+
+  encouragement = getRandomPhrase(this.encouragements);
 
   smileys = [
     '😄',
