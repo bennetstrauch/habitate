@@ -34,7 +34,7 @@ export const calculateStartAndEndDate = (
   let endDate: Date;
 
 
-  const startMoment = moment.utc().add(offset, period);
+  const startMoment = moment().add(offset, period);
 
   const periodForMoment: "isoWeek" | "month" =
     period === "week" ? "isoWeek" : period;
@@ -42,6 +42,7 @@ export const calculateStartAndEndDate = (
   startDate = startMoment.startOf(periodForMoment).toDate(); // isoWeek starts on Monday
   endDate = startMoment.endOf(periodForMoment).endOf("day").toDate();
 
+  console.log("#####startDate: ", startDate, "/n endDate: ", endDate);
   return { startDate, endDate };
 };
 

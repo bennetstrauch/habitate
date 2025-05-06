@@ -6,12 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { HabitProgress } from '@backend/progresses/progress.types';
 import { CommonModule, NgClass } from '@angular/common';
 import { ProgressService } from '../progresses/progresses.service';
-import { formatDateRangeToDisplay, toLocalDateString } from '../utils/utils';
 import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
-import { DisplayGoalWithLinkComponent } from './display-goal-with-link.component';
-import { DateHeaderWithTimestepComponent } from '../progresses/display/date-header-with-timestep.component';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -60,7 +57,6 @@ import { DateHeaderWithTimestepComponent } from '../progresses/display/date-head
   .change-day {
     background-color: transparent; /* Removes the background color */
     color: blue;       /* Sets the text color to grey */
-    // font-weight: bold;
     border: none;
     cursor: pointer;
     opacity: 0.8;
