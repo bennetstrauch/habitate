@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "short_name": "frontend",
+  "name": "Habitate",
+  "short_name": "Habitate",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "start_url": "./",
   "icons": [
     {
-      "src": "icons/icon-72x72.png",
+      "src": "assets/habitatelogo_64.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"

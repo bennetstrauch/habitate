@@ -53,6 +53,7 @@ export class RFinalThankyouComponent {
     'Curving back upon my own Nature, I create again and again.',
     'Pure reflection leads to break-throughs.',
     'May your valuable goals be achieved so naturally.',
+    'The core of you is more valuable than anything.',
 
   ];
 
