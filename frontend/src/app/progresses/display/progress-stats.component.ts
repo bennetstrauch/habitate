@@ -78,6 +78,7 @@ import { ReflectionsService } from '../../reflections/reflections.service';
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
+  
     .progress-display {
     padding: 2px 4x; /* Minimal padding for content */
     margin: 0;

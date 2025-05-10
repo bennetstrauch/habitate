@@ -108,6 +108,7 @@ export class RFinalThankyouComponent {
           }
 
           this.#router.navigate(['', 'goals', 'overview']);
+          this.reflectionsService.loadReflectionStats();
         });
     }
   }
