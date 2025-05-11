@@ -1,19 +1,21 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { UsersService } from './users.service';
 import { User } from '@backend/users/users.types';
 import { CommonModule } from '@angular/common';
 import { validationRulesRegister } from '@global/auth/validationRules';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../environments/environment';
 import { PushSubscription as WebPushSubscription } from 'web-push';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-edit-user-details',
@@ -26,8 +28,29 @@ import { PushSubscription as WebPushSubscription } from 'web-push';
     MatButtonModule,
     MatCheckboxModule,
     MatSelectModule,
+    MatIconModule,
+  ],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('150ms ease-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ opacity: 0 })),
+      ]),
+    ]),
   ],
   template: `
+    <div class="notification" *ngIf="showPushWarning" @fadeInOut>
+      <div class="notification-content">
+        <span>Push Notifications are not always reliable. If you want to be sure, enable both :)</span>
+        <button mat-icon-button (click)="dismissPushWarning()" aria-label="Dismiss notification">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
     <form [formGroup]="editUserForm" class="form">
       <h2>Edit Your Details</h2>
 
@@ -105,95 +128,130 @@ import { PushSubscription as WebPushSubscription } from 'web-push';
     </form>
   `,
   styles: [`
+    .form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .form-field {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 8px;
+    }
 
-.form-field {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 8px;
-}
+    .card {
+      padding: 16px;
+      margin: 16px 0;
+      width: 100%;
+      max-width: 400px;
+    }
 
-.card {
-  padding: 16px;
-  margin: 16px 0;
-  width: 100%;
-  max-width: 400px;
-}
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+    }
 
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
-}
+    .time-selector {
+      display: flex;
+      gap: 10px;
+    }
 
-.time-selector {
-  display: flex;
-  gap: 10px;
-}
+    .time-field {
+      width: 80px;
+    }
 
-.time-field {
-  width: 80px;
-}
+    .disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
 
-.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
+    .notification {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 100%;
+      max-width: 400px;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
 
-:host ::ng-deep .mat-mdc-snack-bar-container {
-  margin: 0 !important;
-  padding: 0 !important;
-  min-width: unset !important;
-  width: auto !important;
-}
+    .notification-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #323232;
+      color: #fff;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
 
-:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__surface {
-  padding: 4px !important;
-  min-width: unset !important;
-  width: auto !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #323232 !important;
-  border-radius: 4px !important;
-  flex-wrap: nowrap !important;
-}
+    .notification-content span {
+      flex-grow: 1;
+      text-align: center;
+    }
 
-:host ::ng-deep .mat-mdc-snack-bar-container .mat-mdc-snack-bar-label {
-  padding: 0 !important;
-  margin: 0 4px 0 0 !important;
-  text-align: center;
-  flex-grow: 0;
-  color: #fff !important;
-  line-height: normal !important;
-  min-width: unset !important;
-}
+    .notification-content button {
+      color: #fff;
+    }
 
-:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__actions {
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-grow: 0;
-}
+    :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-width: unset !important;
+      width: auto !important;
+      bottom: 24px !important;
+      top: auto !important;
+    }
 
-:host ::ng-deep .mat-mdc-snack-bar-container .mdc-snack-bar__action {
-  padding: 0 !important;
-  margin: 0 !important;
-  color: #bb86fc !important;
-  line-height: normal !important;
-  min-width: unset !important;
-}
+    :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__surface {
+      padding: 4px !important;
+      min-width: unset !important;
+      width: auto !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #323232 !important;
+      border-radius: 4px !important;
+      flex-wrap: nowrap !important;
+    }
 
+    :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mat-mdc-snack-bar-label {
+      padding: 0 !important;
+      margin: 0 4px 0 0 !important;
+      text-align: center;
+      flex-grow: 0;
+      color: #fff !important;
+      line-height: normal !important;
+      min-width: unset !important;
+    }
+
+    :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__actions {
+      margin: 0 !important;
+      padding: 0 !important;
+      flex-grow: 0;
+    }
+
+    :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__action {
+      padding: 0 !important;
+      margin: 0 !important;
+      color: #bb86fc !important;
+      line-height: normal !important;
+      min-width: unset !important;
+    }
   `]
 })
 export class EditUserDetailsComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
+
+  private unsavedChangesSnackBar: MatSnackBarRef<SimpleSnackBar> | null = null;
 
   editUserForm = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(validationRulesRegister.name.minLength), Validators.maxLength(validationRulesRegister.name.maxLength)]],
@@ -213,13 +271,20 @@ export class EditUserDetailsComponent implements OnInit {
   periods = ['AM', 'PM'];
   private pushSubscription: PushSubscription | null = null;
   private initialFormValue: any = null;
+  showPushWarning = false;
 
   hasChanges = false;
 
   ngOnInit() {
     // Dynamically enable/disable time fields based on reminders
-    this.editUserForm.get('enablePush')?.valueChanges.subscribe(() => this.updateTimeFieldsState());
-    this.editUserForm.get('enableEmail')?.valueChanges.subscribe(() => this.updateTimeFieldsState());
+    this.editUserForm.get('enablePush')?.valueChanges.subscribe(() => {
+      this.updateTimeFieldsState();
+      this.updatePushWarning();
+    });
+    this.editUserForm.get('enableEmail')?.valueChanges.subscribe(() => {
+      this.updateTimeFieldsState();
+      this.updatePushWarning();
+    });
     this.updateTimeFieldsState(); // Initial state
 
     // Load user details
@@ -253,6 +318,8 @@ export class EditUserDetailsComponent implements OnInit {
         });
         // Store initial form value after patching
         this.initialFormValue = this.editUserForm.getRawValue();
+        // Check initial push warning state
+        this.updatePushWarning();
       },
       error: () => {
         this.snackBar.open('Failed to load user details', 'Close', { duration: 3000 });
@@ -267,10 +334,23 @@ export class EditUserDetailsComponent implements OnInit {
           this.hasChanges = true;
         }
       } else if (this.hasChanges && !this.hasFormChanged()) {
-        this.snackBar.dismiss();
+        if (this.unsavedChangesSnackBar) {
+          this.unsavedChangesSnackBar.dismiss();
+          this.unsavedChangesSnackBar = null;
+        }
         this.hasChanges = false;
       }
     });
+  }
+
+  private updatePushWarning() {
+    const pushEnabled = this.editUserForm.get('enablePush')?.value ?? false;
+    const emailEnabled = this.editUserForm.get('enableEmail')?.value ?? false;
+    this.showPushWarning = pushEnabled && !emailEnabled;
+  }
+
+  dismissPushWarning() {
+    this.showPushWarning = false;
   }
 
   private updateTimeFieldsState() {
@@ -286,16 +366,22 @@ export class EditUserDetailsComponent implements OnInit {
   }
 
   private showSavePrompt() {
-    // ## want to remove the entire left side of the snackbar
+    if (!this.unsavedChangesSnackBar) {
+      this.unsavedChangesSnackBar = this.snackBar.open('Unsaved changes', 'Save', {
+        duration: 0,
+        verticalPosition: 'bottom',
+        horizontalPosition: 'center',
+        panelClass: ['custom-snackbar']
+      });
 
-    this.snackBar.open('Unsaved changes', 'Save', {
-      duration: 0,
-      verticalPosition: 'bottom',
-      horizontalPosition: 'center',
-      panelClass: ['custom-snackbar']
-    }).onAction().subscribe(() => {
-      this.saveChanges();
-    });
+      this.unsavedChangesSnackBar.onAction().subscribe(() => {
+        this.saveChanges();
+      });
+
+      this.unsavedChangesSnackBar.afterDismissed().subscribe(() => {
+        this.unsavedChangesSnackBar = null;
+      });
+    }
   }
 
   private hasFormChanged(): boolean {
@@ -311,10 +397,9 @@ export class EditUserDetailsComponent implements OnInit {
       const initialVal = this.initialFormValue[typedKey];
       const currentVal = currentValue[typedKey];
 
-      // Handle null/undefined and string comparison
       if (initialVal != currentVal) {
         if (typedKey === 'password' && !this.editUserForm.get('password')?.touched) {
-          continue; // Ignore untouched password changes
+          continue;
         }
         console.log(`Field changed: ${key} from ${initialVal} to ${currentVal}`);
         return true;
