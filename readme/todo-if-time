@@ -1,3 +1,6 @@
+userdetails:
+    - showTour-Button
+
 auth: 
     - refreshtoken
     - zod validation

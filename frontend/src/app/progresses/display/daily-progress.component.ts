@@ -144,7 +144,7 @@ export class DailyProgressComponent {
     this.tourService.checkTourStatus().subscribe({
       next: (response) => {
         console.log('Tour status:', response.data);
-        if (!response.data) {
+        if (!response.data && this.goalsService.$goals().length > 0) {
           // Start tour if not completed
           this.tourService.startTour();
         }

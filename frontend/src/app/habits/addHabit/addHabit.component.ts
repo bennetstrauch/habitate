@@ -210,7 +210,13 @@ export class AddHabitComponent {
     this.#goalsService.add_habit(this._id(), newHabit).subscribe((response) => {
       console.log(response);
       this.#goalsService.update_goals();
+
+      if(this.#goalsService.$habitIds().length > 1){
       this.#router.navigate(['', 'goals', this._id(), 'update']);
+      }
+      else{
+        this.#router.navigate(['', 'goals', 'overview']);
+      }
     });
   }
 
