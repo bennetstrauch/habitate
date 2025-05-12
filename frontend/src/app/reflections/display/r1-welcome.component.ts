@@ -4,6 +4,7 @@ import { StateService } from '../../state.service';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute } from '@angular/router';
 import { DailyReflectionService } from '../daily-reflection.service';
+import { UsersService } from '../../users/users.service';
 
 @Component({
   selector: 'app-r1-welcome',
@@ -15,7 +16,13 @@ import { DailyReflectionService } from '../daily-reflection.service';
         ___________________________<br />
         <br />
 
-        {{ welcomePhrase }} <br />
+        @if (stateService.$state().email == 'strauchpost@web.de') {
+        <strong>Salut Mr. Markus. <br> Welch eine Freude dich hier zu sehen.</strong>
+        <br> Es grüßt dein Sohnemann. <br />
+        }
+         @else{
+          {{ welcomePhrase }} <br />
+         }
 
         {{ myAttitude }} reflect with you today. <br />
       </p>
