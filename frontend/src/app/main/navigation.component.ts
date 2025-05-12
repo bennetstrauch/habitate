@@ -18,7 +18,7 @@ import { JoyrideModule } from 'ngx-joyride';
     MatIcon,
     AuthenticationButtonComponent,
     MatMenuModule,
-    JoyrideModule
+    JoyrideModule,
   ],
   template: `
     <div class="nav-div">
@@ -40,7 +40,12 @@ import { JoyrideModule } from 'ngx-joyride';
         <mat-icon>home</mat-icon>
       </button>
 
-      <button mat-button color="primary" (click)="toggleStatsButton()">
+      <button
+        mat-button
+        color="primary"
+        (click)="toggleStatsButton()"
+        [disabled]="!isOverviewActive()"
+      >
         @if (progressService.$displayDailyProgress()) {
         <mat-icon
           joyrideStep="toggleView"
@@ -68,7 +73,6 @@ import { JoyrideModule } from 'ngx-joyride';
         <button mat-menu-item [routerLink]="['', 'user-details']">
           My Profile
         </button>
-    
 
         <button mat-menu-item color="warn" (click)="stateService.logout()">
           Logout
@@ -110,5 +114,9 @@ export class NavigationComponent {
     this.progressService.$displayStats.set(
       !this.progressService.$displayStats()
     );
+  }
+
+  isOverviewActive(): boolean {
+    return this.router.url.includes('overview'); // Adjust the route path as needed
   }
 }
