@@ -26,7 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
             Hey there! 😊
             <br />
             <br />
-            You are here to build up happy habits <br />
+            Are you here to build up happy habits <br />
             that help you pursue your goals <br />
             in a <strong>natural, simple, and non-straining </strong> way ?
           </p>

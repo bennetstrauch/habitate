@@ -18,11 +18,12 @@ import { MatButtonModule } from '@angular/material/button';
       <mat-card class="app-register-step3">
         <mat-card-content>
           <p>
-            To take out the strain <br />
+            To take the strain out<br />
             of scheduling something every time, <br />
             <br />
-            our daily meeting should be like tooth-brushing. <br />
+            our daily meeting should be like teeth-brushing. <br />
             - Nothing to think about.
+            <!-- Not giving it a second thought # -->
           </p>
           <br />
         </mat-card-content>
