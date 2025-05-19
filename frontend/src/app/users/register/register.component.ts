@@ -49,8 +49,8 @@ import { Step6 } from "./step6";
 ],
 
   template: `
+  <div class="card">
     <mat-stepper
-      class="card"
       headerPosition="top"
       linear
       (selectionChange)="addNeededValidatorsOnStepChange($event)"
@@ -105,8 +105,17 @@ import { Step6 } from "./step6";
         </div>
       </mat-step>
     </mat-stepper>
+    </div>
   `,
-  styles: ``,
+  styles: `
+   ::ng-deep .mat-horizontal-stepper-header-container {
+        display: none !important;
+      }
+
+      mat-stepper {
+        background: #ffffff !important;
+      }
+  `,
 })
 export class RegisterComponent {
   #stateService = inject(StateService);

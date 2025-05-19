@@ -18,6 +18,7 @@ import { MatStepperModule } from '@angular/material/stepper';
     <div>
       <mat-card class="welcome-card">
         <mat-card-content>
+          
           <p>
             We want to keep it simple & easy.
             <br />
@@ -33,15 +34,6 @@ import { MatStepperModule } from '@angular/material/stepper';
   `,
   styles: [
     `
-      .welcome-card {
-        max-width: 500px;
-        padding: 1rem;
-        margin: 2rem;
-        border-radius: 8px;
-
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
 
       mat-card-title {
         color: #00796b;

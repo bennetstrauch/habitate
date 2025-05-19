@@ -1,4 +1,4 @@
-import { Component, inject, input, Input, output, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -19,9 +19,11 @@ import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { CommonModule, JsonPipe, KeyValuePipe } from '@angular/common';
 import { validators } from './register.component';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-register-step-one',
+  standalone: true,
   imports: [
     MatFormFieldModule,
     ReactiveFormsModule,
@@ -32,90 +34,107 @@ import { validators } from './register.component';
     MatButton,
     KeyValuePipe,
   ],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('150ms ease-out', style({ opacity: 1 })),
+      ]),
+    ]),
+  ],
   template: `
-    <form [formGroup]="userDetailsForm">
-      <ng-template matStepLabel>Let's habitate your account</ng-template>
+    <div class="form-container" @fadeInOut>
+      <h2>Let's Create Your Account</h2>
+      <form [formGroup]="userDetailsForm" class="form">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label>Your desired name</mat-label>
+          <input
+            matInput
+            placeholder="Pappa Joe"
+            formControlName="name"
+            required
+          />
+        </mat-form-field> <br>
 
-      <mat-form-field>
-        <mat-label> Your desired name: </mat-label>
-        <input
-          matInput
-          placeholder="Pappa Joe"
-          formControlName="name"
-          required
-        />
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label>Your email</mat-label>
+          <input
+            matInput
+            placeholder="lifeislife@bliss.com"
+            formControlName="email"
+            required
+          />
+        </mat-form-field> <br>
 
-        <!-- @if (userDetailsForm.get('name')?.hasError('required')) {
-          <mat-error>Required</mat-error>
-        } @else if (userDetailsForm.get('name')?.hasError('minlength')) {
-          <mat-error>Minimum {{validationRules.name.minLength}}</mat-error>
-        } @else if (userDetailsForm.get('name')?.hasError('maxlength')) {
-          <mat-error>Maximum {{validationRules.name.maxLength}}</mat-error>
-        }  -->
-      </mat-form-field>
-      <br />
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label>Top secret password</mat-label>
+          <input
+            matInput
+            placeholder="MaaamaMia123"
+            formControlName="password"
+            type="password"
+            required
+          />
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label> Your email: </mat-label>
+        <!-- Validation Messages -->
+        @for (validatorEntry of (validators | keyvalue); track $index) { @let
+        validatorField = userDetailsForm.get(validatorEntry['key']); @let
+        validatorFieldErrors = validatorField?.errors; @if
+        (validatorField?.touched && validatorField?.invalid) { @if
+        (validatorFieldErrors!['required']) {
+        <mat-error
+          >{{ validatorEntry['key'] | titlecase }} is required.</mat-error
+        >
+        } @if (validatorFieldErrors!['minlength']) {
+        <mat-error>
+          {{ validatorEntry['key'] | titlecase }} must be at least
+          {{
+            validatorFieldErrors!['minlength']!['requiredLength']
+          }}
+          characters.
+        </mat-error>
+        } @if (validatorFieldErrors!['maxlength']) {
+        <mat-error>
+          {{ validatorEntry['key'] | titlecase }} can be at most
+          {{
+            validatorFieldErrors!['maxlength']!['requiredLength']
+          }}
+          characters.
+        </mat-error>
+        } @if(validatorFieldErrors!['email']){
+        <mat-error>
+          {{ validatorEntry['key'] }} has to be in email format:
+          max...n&#64;example.com
+        </mat-error>
+        } } } @if ($emailExistsError()) {
+        <mat-error>This email is already in use.</mat-error>
+        }
 
-        <input
-          matInput
-          placeholder="lifeislife@bliss.com"
-          formControlName="email"
-          required
-        />
-      </mat-form-field>
-      <br />
-
-      <mat-form-field>
-        <mat-label> Top secret password: </mat-label>
-
-        <input
-          matInput
-          placeholder="MaaamaMia123"
-          formControlName="password"
-          type="password"
-          required
-        />
-      </mat-form-field>
-      <br />
-
-      <button
-        mat-button
-        type="button"
-        [disabled]="!userDetailsForm.valid"
-        (click)="checkEmailAndContinue()"
-      >
-        Continue
-      </button>
-
-      <!-- VALIDATION -->
-      @for(validatorEntry of (validators | keyvalue) ; track $index){ @let
-      validatorField = userDetailsForm.get(validatorEntry['key']); @let
-      validatorFieldErrors = validatorField?.errors; @if(validatorField?.touched
-      && validatorField?.invalid){ @if(validatorFieldErrors!['required']){
-      <mat-error> {{ validatorEntry['key'] }} is required. </mat-error>
-      } @if(validatorFieldErrors!['minlength']){
-      <mat-error>
-        {{ validatorEntry['key'] }} has to be at least
-        {{ validatorFieldErrors!['minlength']!['requiredLength'] }} characters.
-      </mat-error>
-      } @if(validatorFieldErrors!['maxlength']){
-      <mat-error>
-        {{ validatorEntry['key'] }} can be at most
-        {{ validatorFieldErrors!['maxlength']!['requiredLength'] }} characters.
-      </mat-error>
-      } @if(validatorFieldErrors!['email']){
-      <mat-error>
-        {{ validatorEntry['key'] }} has to be in email format:
-        max...n&#64;example.com
-      </mat-error>
-      } } } @if($emailExistsError()){
-      <mat-error> This email is already in use. </mat-error>
-      <!-- {{userDetailsForm.get(validatorEntry['key'])?.errors! | json}} -->
-      }
-    </form>
+        <div class="button-container">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            [disabled]="!userDetailsForm.valid"
+            (click)="checkEmailAndContinue()"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </div>
   `,
+  styles: [
+    `
+      
+
+      mat-error {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    `,
+  ],
 })
 export class RegisterStepOneComponent {
   @Input() userDetailsForm!: FormGroup;
@@ -144,7 +163,6 @@ export class RegisterStepOneComponent {
         this.$emailExistsError.set(false);
         console.log('Proceeding to next step...');
         this.stepper.next();
-        // Here, you can trigger navigation to the next step
       }
     });
   };

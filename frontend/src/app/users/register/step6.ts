@@ -15,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [MatCardModule, MatButtonModule, RouterModule],
   template: `
     <div>
-      <mat-card>
+      <mat-card class="welcome-card">
         <mat-card-content>
           <p>
             <strong>This reflection is a core part of cultivating your habits easily and effectively.</strong> <br />

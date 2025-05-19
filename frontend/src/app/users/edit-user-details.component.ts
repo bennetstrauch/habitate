@@ -54,7 +54,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
     <form [formGroup]="editUserForm" class="form">
       <h2>Edit Your Details</h2>
 
-      <mat-form-field class="form-field">
+      <mat-form-field appearance="outline" class="form-field">
         <mat-label>Name</mat-label>
         <input matInput formControlName="name" required />
         @if (editUserForm.get('name')?.hasError('required')) {
@@ -66,7 +66,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
         }
       </mat-form-field>
 
-      <mat-form-field class="form-field">
+      <mat-form-field appearance="outline" class="form-field">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" required />
         @if (editUserForm.get('email')?.hasError('required')) {
@@ -76,7 +76,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
         }
       </mat-form-field>
 
-      <mat-form-field class="form-field">
+      <mat-form-field appearance="outline" class="form-field">
         <mat-label>Modified Password</mat-label>
         <input matInput type="password" formControlName="password" autocomplete="new-password" />
         @if (editUserForm.get('password')?.hasError('minlength')) {
@@ -84,7 +84,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
         }
       </mat-form-field>
 
-      <mat-form-field class="form-field">
+      <mat-form-field appearance="outline" class="form-field">
         <mat-label>Reflection Trigger</mat-label>
         <input matInput formControlName="reflectionTrigger" />
       </mat-form-field>

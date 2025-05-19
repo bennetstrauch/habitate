@@ -46,12 +46,17 @@ body {
   padding: 20px !important;
   padding-top: 30px !important;
   color: #333 !important;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
   height: fit-content !important;
 }
 
 .joyride-backdrop {
-  background-color: rgba(34, 148, 194, 0.6) !important; /* dark semi-transparent */
+  background-color: rgba(
+    34,
+    148,
+    194,
+    0.6
+  ) !important; /* dark semi-transparent */
 }
 
 /* Title */
@@ -69,17 +74,26 @@ body {
 .joyride-button {
   background-color: #067bad !important;
   /* color: white !important; */
-  
 }
 .joyride-button:hover {
   background-color: #ffffff !important;
-  color:#067bad !important;
+  color: #067bad !important;
   border-color: #067bad !important;
 }
-
 
 .mat-stepper-horizontal {
   width: fit;
   max-width: 80vw; /* Prevents it from exceeding the screen width */
   overflow-x: hidden; /* Hides any potential overflow */
 }
+
+.welcome-card {
+  max-width: 500px;
+  /* padding: 1rem; */
+  margin: 2rem;
+  border-radius: 8px;
+
+  background: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
