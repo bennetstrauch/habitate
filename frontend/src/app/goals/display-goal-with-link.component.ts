@@ -20,6 +20,7 @@ import { RouterLink } from '@angular/router';
       color: rgb(221, 133, 0); /* Goldish */
       // color: rgb(0, 95, 155); /* DarkBlue, also nice */
       display: inline;
+    }
   `,
 })
 export class DisplayGoalWithLinkComponent {

@@ -46,7 +46,7 @@ import { TourService } from '../../users/tour.service';
         <div class="container">
           @for (habit of goal.habits; track $index){ @let progress =
           habit.latestProgress;
-
+<!-- ##tour did not show this. -->
           <div
             class="habit-div"
             [ngClass]="{ 'completed-habit': progress.completed }"

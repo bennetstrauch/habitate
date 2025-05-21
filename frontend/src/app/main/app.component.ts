@@ -32,15 +32,17 @@ import { NgStyle } from '@angular/common';
 export class AppComponent {
   title = 'Habitate';
 
-  dayColorMap: { [key: number]: string } = {
-    0: 'rgb(250, 229, 197)', // Sunday - Goldish
-    1: 'rgb(250, 250, 250)', // Monday - White
-    2: 'rgb(250, 221, 221)', // Tuesday - Light Red
-    3: '#C8E6C9', // Wednesday - Light Green
-    4: '#FFE0B2', // Thursday - Light Orange
-    5: 'rgb(208, 245, 247)', // Friday - Light Cyan
-    6: '#BBDEFB', // Saturday - Light Blue
-  };
-
-  todayColor = this.dayColorMap[new Date().getDay()];
+  
+// #maybe in service?
+  todayColor = dayColorMap[new Date().getDay()];
 }
+
+export const dayColorMap: { [key: number]: string } = {
+  1: 'rgb(250, 229, 197)', // Sunday - Goldish
+  0: 'rgb(250, 250, 250)', // Monday - White
+  2: 'rgb(250, 221, 221)', // Tuesday - Light Red
+  3: '#C8E6C9', // Wednesday - Light Green
+  4: '#FFE0B2', // Thursday - Light Orange
+  5: 'rgb(208, 245, 247)', // Friday - Light Cyan
+  6: '#BBDEFB', // Saturday - Light Blue
+};

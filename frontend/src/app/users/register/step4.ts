@@ -33,7 +33,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
     
             <mat-form-field appearance="outline">
               <mat-label> Reflection-Trigger: </mat-label>
-              <input matInput placeholder="eg. brushing your teeth" formControlName="reflectionTrigger" >
+              <input matInput placeholder="eg. brushing my teeth" formControlName="reflectionTrigger" >
             </mat-form-field> <br>
 
           </form> 

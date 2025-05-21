@@ -21,7 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
             To take the strain out<br />
             of scheduling something every time, <br />
             <br />
-            our daily meeting should be like teeth-brushing. <br />
+            our daily meeting should be like brushing your teeth. <br />
             - Nothing to think about.
             <!-- Not giving it a second thought # -->
           </p>
