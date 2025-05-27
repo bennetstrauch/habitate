@@ -57,6 +57,16 @@ export class ReflectionsService {
   }
 
 
+  
+  setIntention = (userIntention : string) => {
+    if (!this.$reflection()) {
+      console.error('No reflection available to set intention');
+      return;
+    }
+
+    this.$reflection()!.intention = userIntention;
+  }
+
 
   // __________ HTTP REQUESTS __________
 

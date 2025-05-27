@@ -73,6 +73,9 @@ export class ProgressService {
   }
 
   mapProgressesToHabits(progresses: HabitProgress[], dateString: string) {
+    // a) initialize no progress array
+    //  if no progresses found, add all habitids to no progress array
+    // and jump to a.c) progress creation for each habit
     this.goalsService.$goals().forEach((goal) => {
       goal.habits.forEach((habit) => {
         const progress: HabitProgress | undefined = progresses.find(
@@ -82,11 +85,14 @@ export class ProgressService {
         if (progress) {
           habit.latestProgress = progress;
         } else {
+          // a.b) add to noprogress array (contains habitids), no call
           console.log('No progress found for habit: ', habit._id);
           this.createNewProgressAndMapToHabit(habit, dateString);
         }
       });
     });
+    // a.c) if noprogress array not empty, create new progresses in batch
+
   }
 
   createNewProgressAndMapToHabit(habit: Habit, dateString: string) {
@@ -138,6 +144,7 @@ export class ProgressService {
     return this.#http.post<StandardResponse<HabitProgress>>(
       environment.SERVER_URL + '/progresses',
       { date, habit_id }
+      // # latest progress, see in reflecions
     );
   }
 

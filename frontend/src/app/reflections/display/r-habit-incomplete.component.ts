@@ -3,10 +3,13 @@ import { MatButton } from '@angular/material/button';
 import { Habit } from '@backend/goals/goals.types';
 import { DailyReflectionService } from '../daily-reflection.service';
 import { getRandomPhrase } from '../../utils/utils';
+import { ReflectionsService } from '../reflections.service';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'app-r-habit-incomplete',
-  imports: [MatButton],
+  imports: [MatButton, MatFormField, MatLabel, MatInput],
   template: `
     <div class="card">
       <strong>{{ $habit().name }}</strong> <br />
@@ -17,11 +20,16 @@ import { getRandomPhrase } from '../../utils/utils';
       <br />
       <div [innerHTML]="changePhrase"></div>
 
-      <br />
+      <br /> <br>
+      <mat-form-field appearance="outline">
+        <mat-label>Enter your answer / idea</mat-label>
+        <input matInput #userIntention type="text"/>
+      </mat-form-field>
+
       <button
         mat-button
         matStepperNext
-        (click)="dailyReflectionService.handleNextHabitOrGoal()"
+        (click)="setIntentionAndProceed(userIntention.value)"
       >
         Next
       </button>
@@ -30,6 +38,7 @@ import { getRandomPhrase } from '../../utils/utils';
   styles: ``,
 })
 export class RHabitIncompleteComponent {
+  readonly reflectionsService = inject(ReflectionsService);
   readonly dailyReflectionService = inject(DailyReflectionService);
   $currentStep = this.dailyReflectionService.$currentStep;
 
@@ -58,4 +67,9 @@ export class RHabitIncompleteComponent {
   noShamePhrase = getRandomPhrase(this.noShamePhrases);
   tuneInPhrase = getRandomPhrase(this.tuneInPhrases);
   changePhrase = getRandomPhrase(this.changePhrases);
+
+  setIntentionAndProceed(userIntention: string) {
+    this.reflectionsService.setIntention(userIntention);
+    this.dailyReflectionService.handleNextHabitOrGoal();
+  }
 }

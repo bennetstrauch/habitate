@@ -114,8 +114,9 @@ export class DailyReflectionService {
 
   handleNextHabitOrGoal() {
     let currentStep = this.$currentStep();
-
+// for example: goal-1-habit-2
     let currentStepSplit = currentStep.split('-');
+// for example: ['goal', '1', 'habit', '2']
 
     let habitIndex = Number(currentStepSplit[3]) + 1;
     currentStepSplit[3] = habitIndex.toString();
@@ -170,6 +171,7 @@ export class DailyReflectionService {
     const numberToPick = this.incompleteHabit ? 1 : 2;
     return getNumberOfRandomElements(completedHabits, numberToPick);
   }
+
 }
 
 export type HabitWithGoal = {

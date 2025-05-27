@@ -1,24 +1,30 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { DailyReflectionService } from '../daily-reflection.service';
+import { ReflectionsService } from '../reflections.service';
 import { getRandomPhrase } from '../../utils/utils';
 import { MatButton } from '@angular/material/button';
+import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 
 @Component({
   selector: 'app-r-nostrain-intention',
-  imports: [MatButton],
+  imports: [MatButton, MatFormField, MatInput, MatLabel],
   template: `
     <div class="card">
       <br />
       {{ backToEasePhrase }}
-      <br /> <br>
+      <br /><br />
       <div [innerHTML]="simpleChangePhrase"></div>
-      <br>
+        <br /> <br>
+        <mat-form-field appearance="outline">
+          <mat-label>Enter your intention</mat-label>
+          <input matInput #userIntention type="text"/>
+        </mat-form-field>
+    
       <button
         mat-button
-        (click)="dailyReflectionService.$currentStep.set('finalize')"
+        (click)="setIntentionAndProceed(userIntention.value)"
       >
-      <!-- ## multiple options -->
-        I've a brilliant idea !
+        I entered a brilliant idea!
       </button>
     </div>
   `,
@@ -26,7 +32,9 @@ import { MatButton } from '@angular/material/button';
 })
 export class RNostrainIntentionComponent {
   dailyReflectionService = inject(DailyReflectionService);
-
+  reflectionsService = inject(ReflectionsService);
+  reflection = this.reflectionsService.$reflection;
+ 
 
   goodNouns = [
     'ease',
@@ -62,8 +70,6 @@ export class RNostrainIntentionComponent {
     'playful',
     'fun',
     'enjoyable',
-    // "flowing",
-    // "free",
     'light-hearted',
   ];
 
@@ -78,8 +84,6 @@ export class RNostrainIntentionComponent {
     'more playful',
     'more fun',
     'more enjoyable',
-    // "more flowing",
-    // "more free",
     'more light-hearted',
   ];
 
@@ -87,7 +91,7 @@ export class RNostrainIntentionComponent {
 
   backToEasePhrases = [
     `Let's bring it back to ${this.goodNoun}.`,
-    `Let us transform the ${getRandomPhrase(this.struggleNouns)} into ##.`,
+    `Let us transform the ${getRandomPhrase(this.struggleNouns)} into ${this.goodNoun}.`,
     `Let's make it ${getRandomPhrase(this.backToGoodAdjectives)} again.`,
     `Let's make it a little ${getRandomPhrase(this.goodTransitionAdjective)}.`,
     `Let's make it ${getRandomPhrase(this.goodTransitionAdjective)}.`,
@@ -111,7 +115,7 @@ export class RNostrainIntentionComponent {
     `Let's make it a little more playful.`,
     `Let's make it fun again.`,
     `Let's make it a little more joyful.`,
-    'Let us transfrom the strain into ease.',
+    'Let us transform the strain into ease.',
     'Let us transform the strain into joy.',
     'Let us roll it with ease again.',
     `Let's bring it back to ease.`,
@@ -128,9 +132,8 @@ export class RNostrainIntentionComponent {
     "Let's transform the heat into softness.",
   ];
 
-  goodNounsForTomorrow = this.goodNouns.filter( noun => noun !== this.goodNoun);
+  goodNounsForTomorrow = this.goodNouns.filter((noun) => noun !== this.goodNoun);
   goodNounForTomorrow = getRandomPhrase(this.goodNounsForTomorrow);
-
 
   smallAdjectives = [
     'small',
@@ -138,14 +141,24 @@ export class RNostrainIntentionComponent {
     'gentle',
     'soft',
     'easy',
-    'sublte'
+    'subtle',
   ];
 
   changeWords = [
-    'change', 'adjustment', 'switch', 'fine-tunement', 'shift', 'modification'
-  ]
-  // ### edit more options and add same to incompleted-habit-intention later on
-  simpleChangePhrase = [
-    `What <strong>${getRandomPhrase(this.smallAdjectives)} ${getRandomPhrase(this.changeWords)}</strong> to make it happen with ${this.goodNounForTomorrow} tomorrow?`,
+    'change',
+    'adjustment',
+    'switch',
+    'fine-tunement',
+    'shift',
+    'modification',
   ];
+
+  simpleChangePhrase = getRandomPhrase([
+    `What <strong>${getRandomPhrase(this.smallAdjectives)} ${getRandomPhrase(this.changeWords)}</strong> to make it happen with ${this.goodNounForTomorrow} tomorrow?`,
+  ]);
+
+  setIntentionAndProceed(userIntention: string) {
+    this.reflectionsService.setIntention(userIntention);
+    this.dailyReflectionService.$currentStep.set('finalize');
+  }
 }

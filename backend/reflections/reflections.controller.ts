@@ -59,16 +59,16 @@ export const getReflection: GetReflectionReqHandler = async (
   try {
     const { reflection_id } = req.params;
 
-    const progress = (await ReflectionModel.findOne(
+    const reflection = (await ReflectionModel.findOne(
       { reflection_id },
       { embedded_name: 0, __v: 0 }
     )) as Reflection | null;
 
-    if (!progress) {
+    if (!reflection) {
       throw new ErrorWithStatus("getReflectionError: Not found", 404);
     }
 
-    res.json({ success: true, data: progress });
+    res.json({ success: true, data: reflection });
   } catch (err) {
     next(err);
   }
@@ -129,11 +129,15 @@ export const putReflection: PutReflectionReqHandler = async (
     const oldReflection = (await ReflectionModel.findOneAndUpdate(
       { _id: reflection_id },
       { $set: updatedReflection },
-      { returnDocument: "before" } // or returnOriginal: true for older versions
+      { returnDocument: "before",
+        // creates new if non-existent
+        upsert: true  
+       }
+       // or returnOriginal: true for older versions
     )) as Reflection;
 
     // no await to save time
-    updateReflectionDateIfNeeded(oldReflection, updatedReflection);
+    updateLatestReflectionDateIfNeeded(oldReflection, updatedReflection);
 
     // # change data to true or so
     res.status(200).json({ success: true, data: 1 });
@@ -142,7 +146,7 @@ export const putReflection: PutReflectionReqHandler = async (
   }
 };
 
-async function updateReflectionDateIfNeeded(
+async function updateLatestReflectionDateIfNeeded(
   oldReflection: Reflection,
   updatedReflection: Reflection
 ) {
