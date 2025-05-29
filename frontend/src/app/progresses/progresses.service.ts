@@ -72,28 +72,41 @@ export class ProgressService {
     });
   }
 
+  // ## review + goals.flatmap needed? no i not have all habits somewhere?
   mapProgressesToHabits(progresses: HabitProgress[], dateString: string) {
-    // a) initialize no progress array
-    //  if no progresses found, add all habitids to no progress array
-    // and jump to a.c) progress creation for each habit
-    this.goalsService.$goals().forEach((goal) => {
-      goal.habits.forEach((habit) => {
-        const progress: HabitProgress | undefined = progresses.find(
-          (progress) => progress.habit_id === habit._id
-        );
+  const noProgressHabitIds: string[] = [];
 
-        if (progress) {
-          habit.latestProgress = progress;
-        } else {
-          // a.b) add to noprogress array (contains habitids), no call
-          console.log('No progress found for habit: ', habit._id);
-          this.createNewProgressAndMapToHabit(habit, dateString);
-        }
-      });
+  this.goalsService.$goals().forEach((goal) => {
+    goal.habits.forEach((habit) => {
+      const progress = progresses.find(p => p.habit_id === habit._id);
+
+      if (progress) {
+        habit.latestProgress = progress;
+      } else {
+        noProgressHabitIds.push(habit._id);
+      }
     });
-    // a.c) if noprogress array not empty, create new progresses in batch
+  });
 
+  if (noProgressHabitIds.length > 0) {
+    this.create_progresses_batch(dateString, noProgressHabitIds).subscribe((response) => {
+      if (response.success) {
+        response.data.forEach((newProgress) => {
+          const habit = this.goalsService
+            .$goals()
+            .flatMap(goal => goal.habits)
+            .find(h => h._id === newProgress.habit_id);
+          if (habit) {
+            habit.latestProgress = newProgress;
+          }
+        });
+      } else {
+        alert("Error creating batch progress entries.");
+      }
+    });
   }
+}
+
 
   createNewProgressAndMapToHabit(habit: Habit, dateString: string) {
     console.log(
@@ -147,6 +160,13 @@ export class ProgressService {
       // # latest progress, see in reflecions
     );
   }
+
+  create_progresses_batch(date: string, habit_ids: string[]) {
+  return this.#http.post<StandardResponse<HabitProgress[]>>(
+    environment.SERVER_URL + '/progresses/batch',
+    { date, habit_ids }
+  );
+}
 
   put_progress(progress: HabitProgress) {
     return this.#http.put<StandardResponse<number>>(

@@ -15,7 +15,7 @@ import {
 } from "../utils/functionsAndVariables";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
-import { createAndSaveProgressForDate } from "./newProgress";
+import { createAndSaveProgressForDate, getNewProgressForDate } from "./newProgress";
 
 type ToggleProgressReqHandler = RequestHandler<
   { habitId: string; date: string },
@@ -135,6 +135,36 @@ export const createProgress: CreateProgressReqHandler = async (
     next(err);
   }
 };
+
+
+type CreateBatchProgressReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<HabitProgress[]>,
+  { date: string; habit_ids: string[] }
+>;
+
+export const createBatchProgresses: CreateBatchProgressReqHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { date, habit_ids } = req.body;
+
+    const dateObj = new Date(date);
+
+    const progressesToInsert = habit_ids.map((habit_id) =>
+      getNewProgressForDate(habit_id, dateObj)
+    );
+
+    const createdProgresses = await HabitProgressModel.insertMany(progressesToInsert);
+
+    res.json({ success: true, data: createdProgresses });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 type PutProgressReqHandler = RequestHandler<
   { progress_id: string },

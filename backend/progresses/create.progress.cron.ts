@@ -27,30 +27,31 @@ async function getUserIdsForTimeZones(timeZones: string[], date: Date) {
 
   return userIds;
 }
+// ##### can be removed most likely
 
 // Runs every hour, on the hour
 // # should we check for existing progress and only create if not existing?
-cron.schedule("0 * * * *", async () => {
-  console.log("Running create progress cron job at: ", new Date());
+// cron.schedule("0 * * * *", async () => {
+//   console.log("Running create progress cron job at: ", new Date());
 
-  const timeZones = getTimeZonesStartingNewDay();
-  const date = getDateForTimezone(timeZones[0])
-  const userIds = await getUserIdsForTimeZones(timeZones, date);
+//   const timeZones = getTimeZonesStartingNewDay();
+//   const date = getDateForTimezone(timeZones[0])
+//   const userIds = await getUserIdsForTimeZones(timeZones, date);
 
   
-  if (userIds.length > 0) {
-    console.log(
-      "Creating progresses and dailyReflection for users: ",
-      userIds,
-      "and timeZones: ",
-      timeZones,
-      "at date: ",
-      date
-    );
-  }
-  await createHabitProgressesForUserIds(userIds, date);
-  await createDailyReflectionForUserIds(userIds, date);
-});
+//   if (userIds.length > 0) {
+//     console.log(
+//       "Creating progresses and dailyReflection for users: ",
+//       userIds,
+//       "and timeZones: ",
+//       timeZones,
+//       "at date: ",
+//       date
+//     );
+//   }
+//   await createHabitProgressesForUserIds(userIds, date);
+//   await createDailyReflectionForUserIds(userIds, date);
+// });
 
 
 

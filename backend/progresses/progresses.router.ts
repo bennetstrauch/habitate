@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  createBatchProgresses,
   createProgress,
   getProgress,
   getProgresses,
@@ -17,5 +18,7 @@ router.get("/stats", getProgressStats);
 
 router.get("/:progress_id", getProgress);
 router.put("/:progress_id", putProgress);
+
+router.post("/batch", createBatchProgresses);
 
 export const progressRouter = router;
