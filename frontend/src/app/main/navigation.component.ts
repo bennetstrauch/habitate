@@ -36,6 +36,7 @@ import { JoyrideModule } from 'ngx-joyride';
         mat-button
         color="primary"
         [routerLink]="['', 'goals', 'overview']"
+        [disabled]="isOverviewActive()"
       >
         <mat-icon>home</mat-icon>
       </button>
