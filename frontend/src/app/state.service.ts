@@ -22,14 +22,17 @@ export const intitialState: GlobalState = {
 export class StateService {
   #router = inject(Router);
 
-  $state = signal<GlobalState>(intitialState);
+  $state = signal<GlobalState>(
+    JSON.parse(localStorage.getItem('HABITATE_APP_STATE') || 'null') ??
+      intitialState
+  );
 
   myeffect = effect(() => {
     localStorage.setItem('HABITATE_APP_STATE', JSON.stringify(this.$state()));
   });
 
   isLoggedIn() {
-    return this.$state()._id ? true : false;
+    return !!this.$state()._id;
   }
 
   // ##refactor
