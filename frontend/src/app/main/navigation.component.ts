@@ -65,8 +65,10 @@ import { JoyrideModule } from 'ngx-joyride';
           mat-menu-item
           [disabled]="
             goalsService.$goals().length >= validationRulesGoals.maxLength
+            || goalsService.$habitIds().length == 0
           "
           [routerLink]="['', 'goals', 'add']"
+          
         >
           Add Goal
         </button>
