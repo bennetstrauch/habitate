@@ -9,6 +9,15 @@
     gap: 7px;
   }
 
+  .subtle-add-habit-button {
+  opacity: 0.7;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  text-transform: none; // prevent full caps
+  color: #97c5db;  
+}
+
+
   .goal-div {
     padding: 10 px;
       font-size: 18px;

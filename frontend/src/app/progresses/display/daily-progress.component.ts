@@ -25,7 +25,7 @@ import { TourService } from '../../users/tour.service';
     MatButton,
     WeeklyReflectionComponent,
     DateHeaderWithTimestepComponent,
-    JoyrideModule
+    JoyrideModule,
   ],
   template: `
     <app-date-header-with-timestep
@@ -43,10 +43,21 @@ import { TourService } from '../../users/tour.service';
           [goalName]="goal.name"
         />
 
+        <!-- Display AddHabitButton if no HabitsYetCreated -->
+        @if (goal.habits.length === 0 && goalsService.$goals().length === 1) {
+        <button
+          mat-button
+          class="subtle-add-habit-button"
+          [routerLink]="['', 'goals', goal._id, 'habits', 'add']"
+        >
+          Add a Habit
+        </button>
+        }
+
         <div class="container">
           @for (habit of goal.habits; track $index){ @let progress =
           habit.latestProgress;
-<!-- ##tour did not show this. -->
+          <!-- ##tour did not show this. -->
           <div
             class="habit-div"
             [ngClass]="{ 'completed-habit': progress.completed }"
@@ -137,7 +148,6 @@ export class DailyProgressComponent {
     this.dailyReflectionsService.initDailyReflection();
     this.dailyReflectionsService.$currentStep.set('start');
   }
-
 
   ngOnInit() {
     // Check tour status on component initialization
