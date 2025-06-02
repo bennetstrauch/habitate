@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, effect, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,6 +6,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, NgClass } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { ReflectionReminderService } from './reflection-reminder.service';
+import { PushSubscription as WebPushSubscription } from 'web-push';
+import { firstValueFrom } from 'rxjs';
+import { UsersService } from '../../users/users.service';
 
 @Component({
   selector: 'app-reflection-reminder',
@@ -39,7 +43,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
       <div class="card" [style.background-color]="backgroundColor">
         <h3>Reflection Reminder</h3>
         <div class="checkbox-group">
-          <mat-checkbox formControlName="enablePush">Push Notifications</mat-checkbox>
+          <mat-checkbox formControlName="enablePush">Push Notifications for this device</mat-checkbox>
           <mat-checkbox formControlName="enableEmail">Email Notifications</mat-checkbox>
         </div>
 
@@ -74,88 +78,98 @@ import { animate, style, transition, trigger } from '@angular/animations';
       </div>
     </form>
   `,
-  styles: [`
-    .card {
-      padding: 16px;
-      width: 80%;
-      max-width: 400px;
-    }
+  styles: [
+    `
+      .card {
+        padding: 16px;
+        width: 80%;
+        max-width: 400px;
+      }
 
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 12px;
-    }
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 12px;
+      }
 
-    .time-selector {
-      display: flex;
-      gap: 10px;
-    }
+      .time-selector {
+        display: flex;
+        gap: 10px;
+      }
 
-    .time-field {
-      width: 80px;
-    }
+      .time-field {
+        width: 80px;
+      }
 
-    .disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
+      .disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
 
-    .notification {
-      position: fixed;
-      top: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      width: 100%;
-      max-width: 400px;
-      padding: 0 16px;
-      box-sizing: border-box;
-    }
+      .notification {
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 100%;
+        max-width: 400px;
+        padding: 0 16px;
+        box-sizing: border-box;
+      }
 
-    .notification-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #323232;
-      color: #fff;
-      border-radius: 4px;
-      padding: 8px 16px;
-      font-size: 14px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
+      .notification-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #323232;
+        color: #fff;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-    .notification-content span {
-      flex-grow: 1;
-      text-align: center;
-    }
+      .notification-content span {
+        flex-grow: 1;
+        text-align: center;
+      }
 
-    .notification-content button {
-      color: #fff;
-      background: none;
-      border: none;             /* Ensure no border */
-  box-shadow: none;
-    }
-
-
-
-  `],
+      .notification-content button {
+        color: #fff;
+        background: none;
+        border: none;
+        box-shadow: none;
+      }
+    `,
+  ],
 })
-export class ReflectionReminderComponent {
+export class ReflectionReminderComponent implements OnInit {
   @Input({ required: true }) userDetailsForm!: FormGroup;
   @Input() backgroundColor: string = '#f9f9f9';
-  // @Output() pushWarningChange = new EventEmitter<boolean>();
 
   hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   minutes = ['00', '15', '30', '45'];
   periods = ['AM', 'PM'];
 
-  // Signals for reactive state
   showPushWarning = signal(false);
-  isReminderEnabled = signal(false)
+  isReminderEnabled = signal(false);
 
+  private reflectionReminderService = inject(ReflectionReminderService);
+  private usersService = inject(UsersService);
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Initialize enablePush based on current device subscription
+    try {
+      const userDetails = await firstValueFrom(this.usersService.getUserDetails());
+      const existingSubscriptions = userDetails?.data.reflectionDetails.pushSubscriptions || [];
+      const isDeviceSubscribed = await this.reflectionReminderService.isCurrentDeviceSubscribed(existingSubscriptions);
+      this.userDetailsForm.get('enablePush')?.setValue(isDeviceSubscribed, { emitEvent: false });
+    } catch (error) {
+      console.error('Failed to fetch user details:', error);
+      this.userDetailsForm.get('enablePush')?.setValue(false, { emitEvent: false });
+    }
+
     // Dynamically show/hide push warning and enable/disable time fields
     this.userDetailsForm.get('enablePush')?.valueChanges.subscribe(() => {
       this.updatePushWarning();
@@ -163,7 +177,7 @@ export class ReflectionReminderComponent {
     this.userDetailsForm.get('enableEmail')?.valueChanges.subscribe(() => {
       this.updatePushWarning();
     });
-    this.updatePushWarning(); // Initial state
+    this.updatePushWarning();
   }
 
   updatePushWarning() {
@@ -176,6 +190,4 @@ export class ReflectionReminderComponent {
   dismissPushWarning() {
     this.showPushWarning.set(false);
   }
-
-
 }

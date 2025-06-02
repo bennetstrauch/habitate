@@ -1,18 +1,11 @@
 import {
   Component,
-  effect,
   inject,
-  Input,
-  output,
-  signal,
-  viewChild,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
-  AbstractControl,
   FormBuilder,
-  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -31,9 +24,14 @@ import { Step5 } from './step5';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { StateService } from '../../state.service';
 import { Step6 } from './step6';
-import { dayColorMap } from '../../main/app.component';
+
+import { PushSubscription as WebPushSubscription } from 'web-push';
+import { ReflectionReminderComponent } from '../../reflections/reflection-reminder/reflection-reminder.component';
+import { ReflectionReminderService } from '../../reflections/reflection-reminder/reflection-reminder.service';
 
 @Component({
+  selector: 'app-register',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatStepperModule,
@@ -46,7 +44,8 @@ import { dayColorMap } from '../../main/app.component';
     Step4,
     Step4_2,
     Step5,
-    Step6
+    Step6,
+    ReflectionReminderComponent,
   ],
   template: `
     <div class="card">
@@ -92,6 +91,14 @@ import { dayColorMap } from '../../main/app.component';
           </div>
         </mat-step>
 
+        <mat-step [stepControl]="userDetailsForm">
+          <app-reflection-reminder [userDetailsForm]="userDetailsForm" />
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </mat-step>
+
         <mat-step>
           <app-register-step5
             [reflectionTrigger]="userDetailsForm.controls.reflectionTrigger.value"
@@ -120,12 +127,22 @@ import { dayColorMap } from '../../main/app.component';
     mat-stepper {
       background: #ffffff !important;
     }
+
+    .card {
+      padding: 16px;
+      margin: 16px auto;
+      max-width: 600px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
   `,
 })
 export class RegisterComponent {
   #stateService = inject(StateService);
   #usersService = inject(UsersService);
   #router = inject(Router);
+  #reflectionReminderService = inject(ReflectionReminderService);
 
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     name: ['', validators.name],
@@ -148,42 +165,41 @@ export class RegisterComponent {
     }
   }
 
-  register() {
-    let reflectionReminderTime: string | undefined;
-    const enablePush = this.userDetailsForm.get('enablePush')?.value || false;
-    const enableEmail = this.userDetailsForm.get('enableEmail')?.value || false;
-    // ##this logic is double in here and user-details.component.ts
-    if (enablePush || enableEmail) {
-      const hour = parseInt(this.userDetailsForm.get('hour')?.value || '08');
-      const minute = this.userDetailsForm.get('minute')?.value;
-      const period = this.userDetailsForm.get('period')?.value;
-      const adjustedHour = period === 'PM' && hour < 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
-      reflectionReminderTime = `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
-    }
+  async register() {
+    if (this.userDetailsForm.valid) {
+      const enablePush = this.userDetailsForm.get('enablePush')?.value || false;
+      const pushSubscriptions = await this.#reflectionReminderService.handlePushSubscription(enablePush, []);
+      const reflectionReminderTime = this.#reflectionReminderService.getReflectionReminderTime(this.userDetailsForm);
 
-    const userDetails = {
-      ...this.userDetailsForm.value,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      reflectionDetails: {
-        enablePush,
-        enableEmail,
-        reflectionReminderTime,
-      },
-    };
+      const userDetails: User = {
+        name: this.userDetailsForm.get('name')?.value || '',
+        email: this.userDetailsForm.get('email')?.value || '',
+        password: this.userDetailsForm.get('password')?.value || '',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        reflectionTrigger: this.userDetailsForm.get('reflectionTrigger')?.value || '',
+        reflectionDetails: {
+          enablePush: pushSubscriptions.length > 0,
+          enableEmail: this.userDetailsForm.get('enableEmail')?.value || false,
+          reflectionReminderTime,
+          pushSubscriptions,
+        },
+        tourCompleted: false,
+      };
 
-    this.#usersService
-      .register(userDetails as User)
-      .subscribe((response) => {
-        console.log(response);
-
-        if (response.success) {
-          alert('Account created successfully. Welcome on board!');
-        } else {
-          alert('Sorry, something went wrong. Please try again or try later.');
-        }
-
-        this.#router.navigate(['', 'login']);
+      this.#usersService.register(userDetails).subscribe({
+        next: (response) => {
+          if (response.success) {
+            alert('Account created successfully. Welcome on board!');
+            this.#router.navigate(['', 'login']);
+          } else {
+            alert('Sorry, something went wrong. Please try again or try later.');
+          }
+        },
+        error: () => {
+          alert('Registration failed. Please try again.');
+        },
       });
+    }
   }
 }
 
@@ -193,9 +209,7 @@ export const validators = {
     Validators.minLength(validationRulesRegister.name.minLength),
     Validators.maxLength(validationRulesRegister.name.maxLength),
   ],
-
   email: [Validators.required, Validators.email],
-
   password: [
     Validators.required,
     Validators.minLength(validationRulesRegister.password.minLength),

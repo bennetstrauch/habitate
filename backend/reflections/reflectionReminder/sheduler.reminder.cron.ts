@@ -15,10 +15,10 @@ export interface ReminderDetails {
   latestReflectionDate: Date | null;
   enableEmail: boolean;
   enablePush: boolean;
-  pushSubscription: PushSubscription;
+  pushSubscriptions: PushSubscription[];
 }
 
-cron.schedule("00,15,30,45 * * * *", async () => {
+cron.schedule("00,15,27,30,45 * * * *", async () => {
   console.log("Running reflection reminder job at: ", new Date());
   const nowUTC = DateTime.utc();
   const reminderDetailsForMatchingUsers =
@@ -37,7 +37,7 @@ cron.schedule("00,15,30,45 * * * *", async () => {
         $match: {
           $expr: {
             $and: [
-              // Condition 1: reflectionReminderTime within 15 minutes before to equal current time
+              // Condition 1: reflectionReminderTime within 14 minutes before to equal current time
               {
                 $and: [
                   {
@@ -100,9 +100,10 @@ cron.schedule("00,15,30,45 * * * *", async () => {
           email: 1,
           timezone: 1,
           reflectionReminderTime: "$reflectionDetails.reflectionReminderTime",
+          latestReflectionDate: "$reflectionDetails.latestReflectionDate",
           enableEmail: "$reflectionDetails.enableEmail",
           enablePush: "$reflectionDetails.enablePush",
-          pushSubscription: "$reflectionDetails.pushSubscription",
+          pushSubscriptions: "$reflectionDetails.pushSubscriptions", // Updated to fetch array
         },
       },
     ]);

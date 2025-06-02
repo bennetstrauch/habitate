@@ -22,7 +22,11 @@ const ReflectionDetailsSchema = new Schema<ReflectionDetails>(
     reflectionReminderTime: { type: String, required: false },
     enableEmail: { type: Boolean, required: true, default: false },
     enablePush: { type: Boolean, required: true, default: false },
-    pushSubscription: { type: PushSubscriptionSchema, required: false },
+    pushSubscriptions: {
+      type: [PushSubscriptionSchema],
+      required: false,
+      default: [],
+    },
     latestReflectionDate: { type: Date, required: false },
 
     firstEmailReceived: { type: Boolean, required: false, default: false },

@@ -6,7 +6,7 @@ export interface ReflectionDetails {
 
   enablePush: boolean;
   enableEmail: boolean;
-  pushSubscription?: PushSubscription ;
+  pushSubscriptions?: PushSubscription[];
 
   firstEmailReceived?: boolean;
 }
@@ -19,6 +19,6 @@ export interface User {
 
   reflectionTrigger: string;
   reflectionDetails: ReflectionDetails;
- 
+
   tourCompleted: boolean;
 }
