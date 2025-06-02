@@ -94,7 +94,7 @@ export const postGoal: RequestHandler<
       try {
     embedded_name = await generateEmbedding(goalBase.name);
 
-     ranking = await findSimilarGoals(embedded_name) + 1;
+    ranking = (await findSimilarGoals(embedded_name)) + 1;
     console.log("ranking", ranking);
 
   }
