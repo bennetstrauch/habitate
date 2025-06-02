@@ -16,6 +16,7 @@ import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/s
 import { environment } from '../../environments/environment';
 import { PushSubscription as WebPushSubscription } from 'web-push';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { ReflectionReminderComponent } from '../reflections/reflection-reminder/reflection-reminder.component';
 
 @Component({
   selector: 'app-edit-user-details',
@@ -29,6 +30,8 @@ import { animate, style, transition, trigger } from '@angular/animations';
     MatCheckboxModule,
     MatSelectModule,
     MatIconModule,
+    ReflectionReminderComponent
+    // #### change started here ####
   ],
   animations: [
     trigger('fadeInOut', [
@@ -89,42 +92,9 @@ import { animate, style, transition, trigger } from '@angular/animations';
         <input matInput formControlName="reflectionTrigger" />
       </mat-form-field>
 
-      <div class="card">
-        <h3>Reflection Reminders</h3>
-        <div class="checkbox-group">
-          <mat-checkbox formControlName="enablePush">Push Notifications</mat-checkbox>
-          <mat-checkbox formControlName="enableEmail">Email Notifications</mat-checkbox>
-        </div>
-
-        <div class="time-selector">
-          <mat-form-field class="time-field">
-            <mat-label>Hour</mat-label>
-            <mat-select formControlName="hour">
-              @for (hour of hours; track hour) {
-                <mat-option [value]="hour">{{ hour }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field class="time-field">
-            <mat-label>Minute</mat-label>
-            <mat-select formControlName="minute">
-              @for (minute of minutes; track minute) {
-                <mat-option [value]="minute">{{ minute }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field class="time-field">
-            <mat-label>Period</mat-label>
-            <mat-select formControlName="period">
-              @for (period of periods; track period) {
-                <mat-option [value]="period">{{ period }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
+      <app-reflection-reminder
+        [userDetailsForm]="editUserForm" />
+      
     </form>
   `,
   styles: [`
@@ -279,11 +249,9 @@ export class EditUserDetailsComponent implements OnInit {
     // Dynamically enable/disable time fields based on reminders
     this.editUserForm.get('enablePush')?.valueChanges.subscribe(() => {
       this.updateTimeFieldsState();
-      this.updatePushWarning();
     });
     this.editUserForm.get('enableEmail')?.valueChanges.subscribe(() => {
       this.updateTimeFieldsState();
-      this.updatePushWarning();
     });
     this.updateTimeFieldsState(); // Initial state
 
@@ -319,7 +287,6 @@ export class EditUserDetailsComponent implements OnInit {
         // Store initial form value after patching
         this.initialFormValue = this.editUserForm.getRawValue();
         // Check initial push warning state
-        this.updatePushWarning();
       },
       error: () => {
         this.snackBar.open('Failed to load user details', 'Close', { duration: 3000 });
@@ -343,18 +310,10 @@ export class EditUserDetailsComponent implements OnInit {
     });
   }
 
-  private updatePushWarning() {
-    const pushEnabled = this.editUserForm.get('enablePush')?.value ?? false;
-    const emailEnabled = this.editUserForm.get('enableEmail')?.value ?? false;
-    this.showPushWarning = pushEnabled && !emailEnabled;
-  }
 
-  dismissPushWarning() {
-    this.showPushWarning = false;
-  }
-
+  // ## do i need this?
   private updateTimeFieldsState() {
-    const isEnabled = this.isReminderEnabled();
+    const isEnabled = this.editUserForm.get('enablePush')?.value || this.editUserForm.get('enableEmail')?.value;
     ['hour', 'minute', 'period'].forEach(field => {
       const control = this.editUserForm.get(field);
       if (isEnabled) {
@@ -455,15 +414,16 @@ export class EditUserDetailsComponent implements OnInit {
     if (this.editUserForm.valid) {
       const enablePush = this.editUserForm.get('enablePush')?.value || false;
       this.pushSubscription = await this.handlePushSubscription(enablePush);
+      const enableEmail = this.editUserForm.get('enableEmail')?.value || false;
 
       let reflectionReminderTime: string | undefined;
-      if (this.isReminderEnabled()) {
-        const hour = parseInt(this.editUserForm.get('hour')?.value || '08');
-        const minute = this.editUserForm.get('minute')?.value;
-        const period = this.editUserForm.get('period')?.value;
-        const adjustedHour = period === 'PM' && hour < 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
-        reflectionReminderTime = `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
-      }
+        if (enablePush || enableEmail) {
+          const hour = parseInt(this.editUserForm.get('hour')?.value || '08');
+          const minute = this.editUserForm.get('minute')?.value;
+          const period = this.editUserForm.get('period')?.value;
+          const adjustedHour = period === 'PM' && hour < 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
+          reflectionReminderTime = `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
+        }
 
       const updatedUser: Partial<User> = {
         name: this.editUserForm.get('name')?.value || undefined,
@@ -493,9 +453,6 @@ export class EditUserDetailsComponent implements OnInit {
     }
   }
 
-  isReminderEnabled(): boolean {
-    return (this.editUserForm.get('enablePush')?.value || this.editUserForm.get('enableEmail')?.value) ?? false;
-  }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);

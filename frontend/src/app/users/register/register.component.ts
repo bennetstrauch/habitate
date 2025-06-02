@@ -152,6 +152,7 @@ export class RegisterComponent {
     let reflectionReminderTime: string | undefined;
     const enablePush = this.userDetailsForm.get('enablePush')?.value || false;
     const enableEmail = this.userDetailsForm.get('enableEmail')?.value || false;
+    // ##this logic is double in here and user-details.component.ts
     if (enablePush || enableEmail) {
       const hour = parseInt(this.userDetailsForm.get('hour')?.value || '08');
       const minute = this.userDetailsForm.get('minute')?.value;

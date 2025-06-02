@@ -7,6 +7,8 @@ export interface ReflectionDetails {
   enablePush: boolean;
   enableEmail: boolean;
   pushSubscription?: PushSubscription ;
+
+  firstEmailReceived?: boolean;
 }
 
 export interface User {

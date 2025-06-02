@@ -24,6 +24,8 @@ const ReflectionDetailsSchema = new Schema<ReflectionDetails>(
     enablePush: { type: Boolean, required: true, default: false },
     pushSubscription: { type: PushSubscriptionSchema, required: false },
     latestReflectionDate: { type: Date, required: false },
+
+    firstEmailReceived: { type: Boolean, required: false, default: false },
   },
   { _id: false }
 );
