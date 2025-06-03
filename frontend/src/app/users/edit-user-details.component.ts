@@ -98,6 +98,10 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
 
       <app-reflection-reminder [userDetailsForm]="editUserForm" />
     </form>
+
+    @if(this.error){
+      this.error
+    }
   `,
   styles: [
     `
@@ -208,6 +212,8 @@ export class EditUserDetailsComponent implements OnInit {
   private initialFormValue: any = null;
   hasChanges = false;
 
+  error = '';
+
   ngOnInit(){
     this.loadUserDetails();
   }
@@ -256,8 +262,9 @@ export class EditUserDetailsComponent implements OnInit {
 
   } catch (err) {
      console.error('User details fetch failed', err);
+     this.error = err instanceof Error ? err.message : 'Unknown error';
     this.snackBar.open('Failed to load user details', 'Close', {
-      duration: 3000,
+      duration: 30000,
     });
   }
 // ##factor out
