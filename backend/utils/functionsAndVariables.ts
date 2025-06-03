@@ -63,7 +63,7 @@ export function getRandomPhrase(options: string[]): string {
   return getRandomElement<string>(options);
 }
 
-const logoPath = path.join(__dirname, "../../global/assets/habitatelogo_64.png");
+const logoPath = path.join(__dirname, "../../../global/assets/habitatelogo_64.png");
 
 export const logoAttachmentForEmail = {
         filename: "logo.png",
