@@ -5,7 +5,7 @@ import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { LoginRequest } from '@backend/types/login/loginRequest';
 import { LoginResponse } from '@backend/types/login/loginResponse';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -68,4 +68,5 @@ export class UsersService {
       user
     );
   }
+
 }

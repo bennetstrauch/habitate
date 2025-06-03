@@ -13,6 +13,7 @@ import { reflectionsRouter } from "./reflections/reflections.router";
 // to run the cron jobs need to import them here:
 import "./progresses/create.progress.cron";
 import "./reflections/reflectionReminder/sheduler.reminder.cron";
+import { logPayload } from "./utils/log";
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use("/progresses", checkToken, progressRouter);
 app.use("/reflections", checkToken, reflectionsRouter);
 
 app.get("/health", healthCheck);
+app.post('/log', logPayload)
+
 
 app.use(routerNotFoundHandler);
 app.use(errorHandler);

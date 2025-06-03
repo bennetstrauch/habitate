@@ -3,11 +3,13 @@ import { FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PushSubscription as WebPushSubscription } from 'web-push';
 import { environment } from '../../../environments/environment';
+import { LoggingService } from '../../utils/logging.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReflectionReminderService {
+  private loggingService = inject(LoggingService); // Assuming LoggingService is provided in the app module
   private snackBar = inject(MatSnackBar);
 
   async handlePushSubscription(
@@ -15,7 +17,8 @@ export class ReflectionReminderService {
     existingSubscriptions: WebPushSubscription[] = []
   ): Promise<WebPushSubscription[]> {
     const registration = await navigator.serviceWorker.ready;
-    const currentSubscription = await registration.pushManager.getSubscription();
+    const currentSubscription =
+      await registration.pushManager.getSubscription();
 
     let updatedSubscriptions = [...existingSubscriptions];
 
@@ -48,27 +51,71 @@ export class ReflectionReminderService {
         });
       }
 
-      const applicationServerKey = this.urlBase64ToUint8Array(environment.vapidPublicKey);
+      const applicationServerKey = this.urlBase64ToUint8Array(
+        environment.vapidPublicKey
+      );
       const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey,
       });
 
       // Convert browser PushSubscription to web-push PushSubscription
-      updatedSubscriptions.push(newSubscription.toJSON() as WebPushSubscription);
+      updatedSubscriptions.push(
+        newSubscription.toJSON() as WebPushSubscription
+      );
       return updatedSubscriptions;
     } catch (error) {
       console.error('Failed to subscribe to push notifications:', error);
-      this.snackBar.open('Failed to enable push notifications', 'Close', { duration: 3000 });
+      this.snackBar.open('Failed to enable push notifications', 'Close', {
+        duration: 3000,
+      });
       return updatedSubscriptions;
     }
   }
 
-  async isCurrentDeviceSubscribed(existingSubscriptions: WebPushSubscription[] = []): Promise<boolean> {
+  async isCurrentDeviceSubscribed(
+    existingSubscriptions: WebPushSubscription[] = []
+  ): Promise<boolean> {
+    if (!('serviceWorker' in navigator)) {
+      this.loggingService.logToBackend(
+        'ERROR',
+        'Service worker not supported in this browser',
+        'ReflectionReminderService'
+      );
+      return false;
+    }
     const registration = await navigator.serviceWorker.ready;
-    const currentSubscription = await registration.pushManager.getSubscription();
-    if (!currentSubscription) return false;
-    return existingSubscriptions.some((sub) => sub.endpoint === currentSubscription.endpoint);
+    if (!registration) {
+      this.loggingService.logToBackend(
+        'ERROR',
+        'Service worker registration is undefined',
+        'ReflectionReminderService'
+      );
+      return false;
+    }
+    if (!registration.pushManager) {
+      this.loggingService.logToBackend(
+        'ERROR',
+        'PushManager not available',
+        'ReflectionReminderService'
+      );
+      return false;
+    }
+
+     this.loggingService.logToBackend('INFO', 'Checking push subscription', 'ReflectionReminderService');
+    const currentSubscription =
+      await registration.pushManager.getSubscription();
+    if (!currentSubscription) {
+      this.loggingService.logToBackend(
+        'INFO',
+        'No active push subscription found',
+        'ReflectionReminderService'
+      );
+      return false;
+    }
+    return existingSubscriptions.some(
+      (sub) => sub.endpoint === currentSubscription.endpoint
+    );
   }
 
   getReflectionReminderTime(form: FormGroup): string | undefined {
@@ -79,15 +126,22 @@ export class ReflectionReminderService {
       const hour = parseInt(form.get('hour')?.value || '08');
       const minute = form.get('minute')?.value;
       const period = form.get('period')?.value;
-      const adjustedHour = period === 'PM' && hour < 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
+      const adjustedHour =
+        period === 'PM' && hour < 12
+          ? hour + 12
+          : period === 'AM' && hour === 12
+          ? 0
+          : hour;
       return `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
     }
     return undefined;
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
     for (let i = 0; i < rawData.length; ++i) {
