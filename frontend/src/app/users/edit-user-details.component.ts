@@ -100,7 +100,7 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
     </form>
 
     @if(this.error){
-      this.error
+      {{error}}
     }
   `,
   styles: [
