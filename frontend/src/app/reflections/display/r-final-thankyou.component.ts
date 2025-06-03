@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import confetti from 'canvas-confetti';
 import { getRandomElement, getRandomPhrase } from '../../utils/utils';
+import { StateService } from '../../state.service';
 
 @Component({
   selector: 'app-r-final-thankyou',
@@ -18,6 +19,10 @@ import { getRandomElement, getRandomPhrase } from '../../utils/utils';
           <strong>Thank you</strong> <br />
           for taking the time to take care of yourSelf. <br />
         </p>
+
+        @if(stateService.$state().name === 'Antwan') {
+          <p> PS: Special Message to Antwan: <br> You are loved and appreciated.</p>
+  }
         <div>
           <button mat-button (click)="completeReflection()">
             Finish Reflection
@@ -38,8 +43,12 @@ import { getRandomElement, getRandomPhrase } from '../../utils/utils';
     `,
 })
 export class RFinalThankyouComponent {
+
   #router = inject(Router);
   reflectionsService = inject(ReflectionsService);
+  stateService = inject(StateService);
+
+  
 
   encouragements = [
     'Every step counts - and you just took one.',
