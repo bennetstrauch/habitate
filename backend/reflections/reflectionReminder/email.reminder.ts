@@ -72,7 +72,7 @@ const greeting = () =>
     "Good to see you ",
   ]);
 
-const constructWelcomePhrase = (userName: string) => {
+export const constructWelcomePhrase = (userName: string) => {
   const salutation = getRandomPhrase([
     "my friend.",
     "dear " + userName + ".",

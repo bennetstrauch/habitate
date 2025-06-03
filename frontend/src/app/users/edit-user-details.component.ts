@@ -12,7 +12,11 @@ import { CommonModule } from '@angular/common';
 import { validationRulesRegister } from '@global/auth/validationRules';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { MatSnackBar, MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
+import {
+  MatSnackBar,
+  MatSnackBarRef,
+  SimpleSnackBar,
+} from '@angular/material/snack-bar';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ReflectionReminderComponent } from '../reflections/reflection-reminder/reflection-reminder.component';
 import { PushSubscription as WebPushSubscription } from 'web-push';
@@ -34,7 +38,10 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
   ],
   animations: [
     trigger('fadeInOut', [
-      transition(':enter', [style({ opacity: 0 }), animate('150ms ease-out', style({ opacity: 1 }))]),
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('150ms ease-out', style({ opacity: 1 })),
+      ]),
       transition(':leave', [animate('150ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
@@ -46,11 +53,15 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         <mat-label>Name</mat-label>
         <input matInput formControlName="name" required />
         @if (editUserForm.get('name')?.hasError('required')) {
-          <mat-error>Required</mat-error>
+        <mat-error>Required</mat-error>
         } @else if (editUserForm.get('name')?.hasError('minlength')) {
-          <mat-error>Minimum {{ validationRules.name.minLength }} characters</mat-error>
+        <mat-error
+          >Minimum {{ validationRules.name.minLength }} characters</mat-error
+        >
         } @else if (editUserForm.get('name')?.hasError('maxlength')) {
-          <mat-error>Maximum {{ validationRules.name.maxLength }} characters</mat-error>
+        <mat-error
+          >Maximum {{ validationRules.name.maxLength }} characters</mat-error
+        >
         }
       </mat-form-field>
 
@@ -58,17 +69,25 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" required />
         @if (editUserForm.get('email')?.hasError('required')) {
-          <mat-error>Required</mat-error>
+        <mat-error>Required</mat-error>
         } @else if (editUserForm.get('email')?.hasError('email')) {
-          <mat-error>Invalid email format</mat-error>
+        <mat-error>Invalid email format</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Modified Password</mat-label>
-        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+        <input
+          matInput
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+        />
         @if (editUserForm.get('password')?.hasError('minlength')) {
-          <mat-error>Minimum {{ validationRules.password.minLength }} characters</mat-error>
+        <mat-error
+          >Minimum
+          {{ validationRules.password.minLength }} characters</mat-error
+        >
         }
       </mat-form-field>
 
@@ -103,7 +122,10 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         top: auto !important;
       }
 
-      :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__surface {
+      :host
+        ::ng-deep
+        .mat-mdc-snack-bar-container.custom-snackbar
+        .mdc-snack-bar__surface {
         padding: 4px !important;
         min-width: unset !important;
         width: auto !important;
@@ -115,7 +137,10 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         flex-wrap: nowrap !important;
       }
 
-      :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mat-mdc-snack-bar-label {
+      :host
+        ::ng-deep
+        .mat-mdc-snack-bar-container.custom-snackbar
+        .mat-mdc-snack-bar-label {
         padding: 0 !important;
         margin: 0 4px 0 0 !important;
         text-align: center;
@@ -125,13 +150,19 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         min-width: unset !important;
       }
 
-      :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__actions {
+      :host
+        ::ng-deep
+        .mat-mdc-snack-bar-container.custom-snackbar
+        .mdc-snack-bar__actions {
         margin: 0 !important;
         padding: 0 !important;
         flex-grow: 0;
       }
 
-      :host ::ng-deep .mat-mdc-snack-bar-container.custom-snackbar .mdc-snack-bar__action {
+      :host
+        ::ng-deep
+        .mat-mdc-snack-bar-container.custom-snackbar
+        .mdc-snack-bar__action {
         padding: 0 !important;
         margin: 0 !important;
         color: #bb86fc !important;
@@ -150,9 +181,19 @@ export class EditUserDetailsComponent implements OnInit {
   private unsavedChangesSnackBar: MatSnackBarRef<SimpleSnackBar> | null = null;
 
   editUserForm = this.formBuilder.group({
-    name: ['', [Validators.required, Validators.minLength(validationRulesRegister.name.minLength), Validators.maxLength(validationRulesRegister.name.maxLength)]],
+    name: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(validationRulesRegister.name.minLength),
+        Validators.maxLength(validationRulesRegister.name.maxLength),
+      ],
+    ],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.minLength(validationRulesRegister.password.minLength)]],
+    password: [
+      '',
+      [Validators.minLength(validationRulesRegister.password.minLength)],
+    ],
     reflectionTrigger: [''],
     enablePush: [false],
     enableEmail: [false],
@@ -160,6 +201,8 @@ export class EditUserDetailsComponent implements OnInit {
     minute: ['15'],
     period: ['PM'],
   });
+
+  firstEmailReceived = true;
 
   validationRules = validationRulesRegister;
   private initialFormValue: any = null;
@@ -186,9 +229,10 @@ export class EditUserDetailsComponent implements OnInit {
             period = 'AM';
           }
         }
-        const isDeviceSubscribed = await this.reflectionReminderService.isCurrentDeviceSubscribed(
-          user.reflectionDetails.pushSubscriptions || []
-        );
+        const isDeviceSubscribed =
+          await this.reflectionReminderService.isCurrentDeviceSubscribed(
+            user.reflectionDetails.pushSubscriptions || []
+          );
         this.editUserForm.patchValue({
           name: user.name,
           email: user.email,
@@ -201,9 +245,14 @@ export class EditUserDetailsComponent implements OnInit {
           period,
         });
         this.initialFormValue = this.editUserForm.getRawValue();
+
+        this.firstEmailReceived =
+          user.reflectionDetails.firstEmailReceived ?? true;
       },
       error: () => {
-        this.snackBar.open('Failed to load user details', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load user details', 'Close', {
+          duration: 3000,
+        });
       },
     });
 
@@ -226,12 +275,16 @@ export class EditUserDetailsComponent implements OnInit {
 
   private showSavePrompt() {
     if (!this.unsavedChangesSnackBar) {
-      this.unsavedChangesSnackBar = this.snackBar.open('Unsaved changes', 'Save', {
-        duration: 0,
-        verticalPosition: 'bottom',
-        horizontalPosition: 'center',
-        panelClass: ['custom-snackbar'],
-      });
+      this.unsavedChangesSnackBar = this.snackBar.open(
+        'Unsaved changes',
+        'Save',
+        {
+          duration: 0,
+          verticalPosition: 'bottom',
+          horizontalPosition: 'center',
+          panelClass: ['custom-snackbar'],
+        }
+      );
 
       this.unsavedChangesSnackBar.onAction().subscribe(() => {
         this.saveChanges();
@@ -257,10 +310,15 @@ export class EditUserDetailsComponent implements OnInit {
       const currentVal = currentValue[typedKey];
 
       if (initialVal != currentVal) {
-        if (typedKey === 'password' && !this.editUserForm.get('password')?.touched) {
+        if (
+          typedKey === 'password' &&
+          !this.editUserForm.get('password')?.touched
+        ) {
           continue;
         }
-        console.log(`Field changed: ${key} from ${initialVal} to ${currentVal}`);
+        console.log(
+          `Field changed: ${key} from ${initialVal} to ${currentVal}`
+        );
         return true;
       }
     }
@@ -270,39 +328,89 @@ export class EditUserDetailsComponent implements OnInit {
   async saveChanges() {
     if (this.editUserForm.valid) {
       const enablePush = this.editUserForm.get('enablePush')?.value || false;
-      const existingSubscriptions = (await this.usersService.getUserDetails().toPromise())?.data
-        .reflectionDetails.pushSubscriptions || [];
-      const pushSubscriptions = await this.reflectionReminderService.handlePushSubscription(
-        enablePush,
-        existingSubscriptions
-      );
-      const reflectionReminderTime = this.reflectionReminderService.getReflectionReminderTime(this.editUserForm);
+      const existingSubscriptions =
+        (await this.usersService.getUserDetails().toPromise())?.data
+          .reflectionDetails.pushSubscriptions || [];
+      const pushSubscriptions =
+        await this.reflectionReminderService.handlePushSubscription(
+          enablePush,
+          existingSubscriptions
+        );
+      const reflectionReminderTime =
+        this.reflectionReminderService.getReflectionReminderTime(
+          this.editUserForm
+        );
+
+      const enableEmail = this.editUserForm.get('enableEmail')?.value || false;
+      const name = this.editUserForm.get('name')?.value || undefined;
+
+      const email = this.editUserForm.get('email')?.value || undefined;
 
       const updatedUser: Partial<User> = {
-        name: this.editUserForm.get('name')?.value || undefined,
-        email: this.editUserForm.get('email')?.value || undefined,
-        password: this.editUserForm.get('password')?.touched ? this.editUserForm.get('password')?.value || undefined : undefined,
-        reflectionTrigger: this.editUserForm.get('reflectionTrigger')?.value ?? undefined,
+        name: name,
+        email: email,
+        password: this.editUserForm.get('password')?.touched
+          ? this.editUserForm.get('password')?.value || undefined
+          : undefined,
+        reflectionTrigger:
+          this.editUserForm.get('reflectionTrigger')?.value ?? undefined,
         reflectionDetails: {
           enablePush: pushSubscriptions.length > 0,
-          enableEmail: this.editUserForm.get('enableEmail')?.value || false,
+          enableEmail: enableEmail,
           reflectionReminderTime,
           pushSubscriptions,
         },
       };
 
-      this.usersService.updateUser(updatedUser).pipe(
-        tap(() => {
-          this.snackBar.open('User details updated successfully', 'Close', { duration: 3000 });
-          this.hasChanges = false;
-          this.editUserForm.markAsPristine();
-          this.initialFormValue = this.editUserForm.getRawValue();
-        }),
-        catchError((error) => {
-          this.snackBar.open('Failed to update user details', 'Close', { duration: 3000 });
-          return of(null);
-        })
-      ).subscribe();
+       if (
+              !this.firstEmailReceived &&
+              enableEmail &&
+              !this.initialFormValue.enableEmail
+              && email && name
+            ) {
+              this.usersService.sendTestEmail(email, name).subscribe({
+                next: () => {
+                  this.snackBar.open(
+                    // #better english
+                    'We have sent you a test email. Please check if you received one, or if it landed in the SpamFolder. If so, please unspam it, for successful receival of future reminders.',
+                    'Close',
+                    { duration: 10000 }
+                  );
+                  this.firstEmailReceived = true;
+
+                  if (updatedUser.reflectionDetails) {
+                    updatedUser.reflectionDetails.firstEmailReceived = true;
+                  }
+                },
+                error: () => {
+                  this.snackBar.open('Failed to send test email', 'Close', {
+                    duration: 5000,
+                  });
+                },
+              });
+            }
+
+      this.usersService
+        .updateUser(updatedUser)
+        .pipe(
+          tap(() => {
+            this.snackBar.open('User details updated successfully', 'Close', {
+              duration: 3000,
+            });
+            this.hasChanges = false;
+            this.editUserForm.markAsPristine();
+            this.initialFormValue = this.editUserForm.getRawValue();
+
+           
+          }),
+          catchError((error) => {
+            this.snackBar.open('Failed to update user details', 'Close', {
+              duration: 3000,
+            });
+            return of(null);
+          })
+        )
+        .subscribe();
     }
   }
 }

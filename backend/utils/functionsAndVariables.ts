@@ -3,6 +3,7 @@ import { HabitProgress } from "../progresses/progress.types";
 import { DateTime } from "luxon";
 import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
+import path from "path";
 
 export const appNameForSendingEmails = `"Habitate" <${process.env.EMAIL_USER}>`;
 
@@ -61,3 +62,11 @@ export function getRandomElement<T>(options: T[]): T {
 export function getRandomPhrase(options: string[]): string {
   return getRandomElement<string>(options);
 }
+
+const logoPath = path.join(__dirname, "../../global/assets/habitatelogo_64.png");
+
+export const logoAttachmentForEmail = {
+        filename: "logo.png",
+        path: logoPath,
+        cid: "habitateLogo",
+      }

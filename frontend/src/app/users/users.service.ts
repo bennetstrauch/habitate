@@ -13,7 +13,6 @@ import { map } from 'rxjs';
 export class UsersService {
   #http = inject(HttpClient);
 
-
   // __________ HTTP _________________________
 
   register(user: User) {
@@ -30,10 +29,16 @@ export class UsersService {
     );
   }
 
-
   checkEmail(email: string) {
     return this.#http.get<StandardResponse<boolean>>(
       environment.SERVER_URL + '/users/check-email' + `?email=${email}`
+    );
+  }
+
+  sendTestEmail(email: string, username: string) {
+    return this.#http.post<StandardResponse<string>>(
+      environment.SERVER_URL + '/users/send-test-email',
+      { email, username }
     );
   }
 
@@ -45,15 +50,22 @@ export class UsersService {
   }
 
   setNewPassword(data: { token: string; newPassword: string }) {
-    return this.#http.post(environment.SERVER_URL + '/users/set-new-password', data);
+    return this.#http.post(
+      environment.SERVER_URL + '/users/set-new-password',
+      data
+    );
   }
-  
 
   getUserDetails() {
-    return this.#http.get<StandardResponse<User>>(environment.SERVER_URL + '/users/me');
+    return this.#http.get<StandardResponse<User>>(
+      environment.SERVER_URL + '/users/me'
+    );
   }
 
   updateUser(user: Partial<User>) {
-    return this.#http.patch<StandardResponse<string>>(environment.SERVER_URL + '/users/me/update', user);
+    return this.#http.patch<StandardResponse<string>>(
+      environment.SERVER_URL + '/users/me/update',
+      user
+    );
   }
 }
