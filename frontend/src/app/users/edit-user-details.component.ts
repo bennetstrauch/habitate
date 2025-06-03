@@ -11,7 +11,7 @@ import { User } from '@backend/users/users.types';
 import { CommonModule } from '@angular/common';
 import { validationRulesRegister } from '@global/auth/validationRules';
 import { catchError, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import {
   MatSnackBar,
   MatSnackBarRef,
@@ -208,12 +208,19 @@ export class EditUserDetailsComponent implements OnInit {
   private initialFormValue: any = null;
   hasChanges = false;
 
-  async ngOnInit() {
-    // Load user details
-    this.usersService.getUserDetails().subscribe({
-      next: async (response) => {
-        const user = response.data;
-        let hour = '08',
+  ngOnInit(){
+    this.loadUserDetails();
+  }
+
+  async loadUserDetails() {
+  try {
+    const response = await lastValueFrom(this.usersService.getUserDetails());
+    const user = response.data;
+    const isDeviceSubscribed = await this.reflectionReminderService.isCurrentDeviceSubscribed(
+      user.reflectionDetails.pushSubscriptions || []
+    );
+
+    let hour = '08',
           minute = '15',
           period = 'PM';
         if (user.reflectionDetails.reflectionReminderTime) {
@@ -229,11 +236,8 @@ export class EditUserDetailsComponent implements OnInit {
             period = 'AM';
           }
         }
-        const isDeviceSubscribed =
-          await this.reflectionReminderService.isCurrentDeviceSubscribed(
-            user.reflectionDetails.pushSubscriptions || []
-          );
-        this.editUserForm.patchValue({
+
+    this.editUserForm.patchValue({
           name: user.name,
           email: user.email,
           password: '',
@@ -248,16 +252,16 @@ export class EditUserDetailsComponent implements OnInit {
 
         this.firstEmailReceived =
           user.reflectionDetails.firstEmailReceived ?? true;
-      },
-      error: () => {
-        this.snackBar.open('Failed to load user details', 'Close', {
-          duration: 3000,
-        });
-      },
-    });
+      
 
-    // Watch for form value changes
-    this.editUserForm.valueChanges.subscribe(() => {
+  } catch (err) {
+     console.error('User details fetch failed', err);
+    this.snackBar.open('Failed to load user details', 'Close', {
+      duration: 3000,
+    });
+  }
+// ##factor out
+  this.editUserForm.valueChanges.subscribe(() => {
       if (this.editUserForm.valid && this.hasFormChanged()) {
         if (!this.hasChanges) {
           this.showSavePrompt();
@@ -271,7 +275,75 @@ export class EditUserDetailsComponent implements OnInit {
         this.hasChanges = false;
       }
     });
-  }
+}
+
+
+
+
+  // async ngOnInit() {
+  //   // Load user details
+  //   this.usersService.getUserDetails().subscribe({
+  //     next: async (response) => {
+  //       const user = response.data;
+  //       let hour = '08',
+  //         minute = '15',
+  //         period = 'PM';
+  //       if (user.reflectionDetails.reflectionReminderTime) {
+  //         const time = user.reflectionDetails.reflectionReminderTime;
+  //         [hour, minute] = time.split(':');
+  //         if (parseInt(hour) > 12) {
+  //           hour = (parseInt(hour) - 12).toString().padStart(2, '0');
+  //           period = 'PM';
+  //         } else if (parseInt(hour) === 12) {
+  //           period = 'PM';
+  //         } else if (parseInt(hour) === 0) {
+  //           hour = '12';
+  //           period = 'AM';
+  //         }
+  //       }
+  //       const isDeviceSubscribed =
+  //         await this.reflectionReminderService.isCurrentDeviceSubscribed(
+  //           user.reflectionDetails.pushSubscriptions || []
+  //         );
+  //       this.editUserForm.patchValue({
+  //         name: user.name,
+  //         email: user.email,
+  //         password: '',
+  //         reflectionTrigger: user.reflectionTrigger,
+  //         enablePush: isDeviceSubscribed,
+  //         enableEmail: user.reflectionDetails.enableEmail,
+  //         hour,
+  //         minute,
+  //         period,
+  //       });
+  //       this.initialFormValue = this.editUserForm.getRawValue();
+
+  //       this.firstEmailReceived =
+  //         user.reflectionDetails.firstEmailReceived ?? true;
+  //     },
+  //     error: () => {
+  //       this.snackBar.open('Failed to load user details', 'Close', {
+  //         duration: 3000,
+  //       });
+  //     },
+  //   });
+
+  //   // Watch for form value changes
+  //   this.editUserForm.valueChanges.subscribe(() => {
+  //     if (this.editUserForm.valid && this.hasFormChanged()) {
+  //       if (!this.hasChanges) {
+  //         this.showSavePrompt();
+  //         this.hasChanges = true;
+  //       }
+  //     } else if (this.hasChanges && !this.hasFormChanged()) {
+  //       if (this.unsavedChangesSnackBar) {
+  //         this.unsavedChangesSnackBar.dismiss();
+  //         this.unsavedChangesSnackBar = null;
+  //       }
+  //       this.hasChanges = false;
+  //     }
+  //   });
+  // }
 
   private showSavePrompt() {
     if (!this.unsavedChangesSnackBar) {

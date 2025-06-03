@@ -63,6 +63,7 @@ export function getRandomPhrase(options: string[]): string {
   return getRandomElement<string>(options);
 }
 
+// ## logo path is different between dev (one ../ less) and production.
 const logoPath = path.join(__dirname, "../../../global/assets/habitatelogo_64.png");
 
 export const logoAttachmentForEmail = {
