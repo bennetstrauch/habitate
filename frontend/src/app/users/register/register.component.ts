@@ -28,6 +28,7 @@ import { Step6 } from './step6';
 import { PushSubscription as WebPushSubscription } from 'web-push';
 import { ReflectionReminderComponent } from '../../reflections/reflection-reminder/reflection-reminder.component';
 import { ReflectionReminderService } from '../../reflections/reflection-reminder/reflection-reminder.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-register',
@@ -52,7 +53,7 @@ import { ReflectionReminderService } from '../../reflections/reflection-reminder
       <mat-stepper
         headerPosition="top"
         linear
-        (selectionChange)="addNeededValidatorsOnStepChange($event)"
+        (selectionChange)="onStepChange($event)"
         #stepper
       >
         <mat-step [stepControl]="userDetailsForm">
@@ -85,14 +86,6 @@ import { ReflectionReminderService } from '../../reflections/reflection-reminder
 
         <mat-step>
           <app-register-step4-2 [userDetailsForm]="userDetailsForm" />
-          <div>
-            <button mat-button matStepperPrevious>Back</button>
-            <button mat-button matStepperNext>Next</button>
-          </div>
-        </mat-step>
-
-        <mat-step [stepControl]="userDetailsForm">
-          <app-reflection-reminder [userDetailsForm]="userDetailsForm" />
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button mat-button matStepperNext>Next</button>
@@ -143,6 +136,9 @@ export class RegisterComponent {
   #usersService = inject(UsersService);
   #router = inject(Router);
   #reflectionReminderService = inject(ReflectionReminderService);
+  #snackBar = inject(MatSnackBar);
+
+  firstEmailReceived = false;
 
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     name: ['', validators.name],
@@ -156,12 +152,35 @@ export class RegisterComponent {
     period: ['PM'],
   });
 
-  addNeededValidatorsOnStepChange(event: StepperSelectionEvent) {
+  onStepChange(event: StepperSelectionEvent) {
+    // add valdidators to the reflectionTrigger field:
     if (event.selectedIndex === 3) {
       this.userDetailsForm.controls.reflectionTrigger.addValidators(
         Validators.required
       );
       this.userDetailsForm.controls.reflectionTrigger.updateValueAndValidity();
+    }
+
+    else // Send test email when moving from step 4-2 (index 4) to next step
+    if (event.previouslySelectedIndex === 4 && event.selectedIndex === 5 && !this.firstEmailReceived) {
+      const enableEmail = this.userDetailsForm.get('enableEmail')?.value || false;
+      if (enableEmail) {
+        const email = this.userDetailsForm.get('email')?.value || '';
+        const name = this.userDetailsForm.get('name')?.value || 'Friend';
+        this.#usersService.sendTestEmail(email, name).subscribe({
+          next: () => {
+            this.#snackBar.open(
+              'We have sent you a test email just to test. Please check if you received one, or if it landed in the SpamFolder. If so, please unspam it.',
+              'Close',
+              { duration: 15000 }
+            );
+            this.firstEmailReceived = true;
+          },
+          error: () => {
+            this.#snackBar.open('Failed to send test email', 'Close', { duration: 5000 });
+          },
+        });
+      }
     }
   }
 
@@ -182,6 +201,7 @@ export class RegisterComponent {
           enableEmail: this.userDetailsForm.get('enableEmail')?.value || false,
           reflectionReminderTime,
           pushSubscriptions,
+          firstEmailReceived: this.firstEmailReceived,
         },
         tourCompleted: false,
       };

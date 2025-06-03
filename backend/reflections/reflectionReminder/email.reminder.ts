@@ -4,11 +4,15 @@ import { transporter } from "../../utils/emailTransporter";
 import {
   appNameForSendingEmails,
   getRandomPhrase,
+  logoAttachmentForEmail,
 } from "../../utils/functionsAndVariables";
 import { ReminderDetails } from "./sheduler.reminder.cron";
 
 // 👇 Path to the logo image file
-const logoPath = path.join(__dirname, "../../../global/assets/habitatelogo_64.png");
+const logoPath = path.join(
+  __dirname,
+  "../../../global/assets/habitatelogo_64.png"
+);
 
 export async function sendEmailReminder(reminderDetails: ReminderDetails) {
   console.log("Sending email reminder to:", reminderDetails.email);
@@ -47,13 +51,7 @@ export async function sendEmailReminder(reminderDetails: ReminderDetails) {
     to: reminderDetails.email,
     subject: "Would you like to reflect with us today?",
     html,
-    attachments: [
-      {
-        filename: "logo.png",
-        path: logoPath,
-        cid: "habitateLogo", // 👈 referenced in <img src="cid:habitateLogo" />
-      },
-    ],
+    attachments: [logoAttachmentForEmail],
   });
 }
 

@@ -1,33 +1,40 @@
-import { RequestHandler } from 'express';
-import { StandardResponse } from '../types/standardResponse';
-import { ErrorWithStatus } from '../utils/error.class';
-import path from 'path';
-import { constructWelcomePhrase } from '../reflections/reflectionReminder/email.reminder';
+import { RequestHandler } from "express";
+import { StandardResponse } from "../types/standardResponse";
+import { ErrorWithStatus } from "../utils/error.class";
+import path from "path";
+import { constructWelcomePhrase } from "../reflections/reflectionReminder/email.reminder";
 import { transporter } from "../utils/emailTransporter";
-import { appNameForSendingEmails, logoAttachmentForEmail } from '../utils/functionsAndVariables';
+import {
+  appNameForSendingEmails,
+  logoAttachmentForEmail,
+} from "../utils/functionsAndVariables";
 
+type SendTestEmailReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<string>,
+  { email: string; username: string },
+  unknown
+>;
 
-type SendTestEmailReqHandler = RequestHandler<unknown, StandardResponse<string>, { email: string; username: string }, unknown>;
-
-export const sendTestEmailController: SendTestEmailReqHandler = async (req, res, next) => {
+export const sendTestEmailController: SendTestEmailReqHandler = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email, username } = req.body;
 
     if (!email || !username) {
-      throw new ErrorWithStatus('Email and username are required', 400);
+      throw new ErrorWithStatus("Email and username are required", 400);
     }
 
     await sendTestEmail(email, username);
 
-    
-
-    res.status(200).json({ success: true, data: 'Test email sent' });
+    res.status(200).json({ success: true, data: "Test email sent" });
   } catch (err) {
     next(err);
   }
 };
-
-
 
 async function sendTestEmail(email: string, username: string) {
   console.log("Sending test email to:", email);
@@ -41,8 +48,8 @@ async function sendTestEmail(email: string, username: string) {
       </div>
       <p style="font-size: 16px; text-align: center;">${welcome}</p>
       <p style="font-size: 16px; text-align: center;">
-        This is a test email to ensure you receive our reminders. 
-        Please check your spam folder if you don't see this in your inbox and mark it as "not spam."
+        This is a test email to ensure you receive our gentle reminders. 
+        If this email landed in your spam-folder, please mark it as "not spam."
       </p>
       <p style="font-size: 14px; color: #777; text-align: center;">
         From your friends at <strong>MyHabitate</strong> ❤️
@@ -56,7 +63,7 @@ async function sendTestEmail(email: string, username: string) {
     subject: "Test Email from MyHabitate",
     html,
     attachments: [
-        // change for emailreminder as well.
+      // change for emailreminder as well.
       logoAttachmentForEmail,
     ],
   });

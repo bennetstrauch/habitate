@@ -359,6 +359,7 @@ export class EditUserDetailsComponent implements OnInit {
           enableEmail: enableEmail,
           reflectionReminderTime,
           pushSubscriptions,
+          
         },
       };
 
