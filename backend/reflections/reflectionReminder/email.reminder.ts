@@ -25,7 +25,7 @@ export async function sendEmailReminder(reminderDetails: ReminderDetails) {
         <img src="cid:habitateLogo" alt="MyHabitate Logo" style="width: 80px; height: auto;" />
       </div>
       <p style="font-size: 16px; text-align: center;">${welcome}</p>
-      <p style="font-size: 16px; text-align: center;">Would you like to take a moment for yourSelf?</p>
+      <p style="font-size: 16px; text-align: center;">Would you like to take a moment for your Self?</p>
       <div style="text-align: center; margin: 30px 0;">
         <a href="https://myhabitate.com"
            style="

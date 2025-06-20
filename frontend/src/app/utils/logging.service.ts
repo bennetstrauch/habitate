@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { environment } from 'frontend/src/environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoggingService {
-  constructor(private http: HttpClient) {}
+  #http = inject(HttpClient);
 
   logToBackend(
     level: 'INFO' | 'ERROR',
@@ -22,6 +23,7 @@ export class LoggingService {
       component,
       userAgent: navigator.userAgent,
     };
-    return this.http.post('/logs', logPayload);
+    console.log('Logging to backend:', logPayload, environment.SERVER_URL + '/log');
+    return this.#http.post( environment.SERVER_URL + '/log', logPayload);
   }
 }

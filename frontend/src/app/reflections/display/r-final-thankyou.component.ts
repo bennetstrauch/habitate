@@ -17,7 +17,7 @@ import { StateService } from '../../state.service';
         </p>
         <p>
           <strong>Thank you</strong> <br />
-          for taking the time to take care of yourSelf. <br />
+          for taking the time to take care of your Self. <br />
         </p>
 
         @if(stateService.$state().name === 'Antwan') {

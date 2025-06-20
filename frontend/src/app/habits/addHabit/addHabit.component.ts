@@ -175,6 +175,19 @@ import { AddHelpComponent } from './addHelp.component';
     </mat-stepper>
   `,
   styles: `
+
+
+  ::ng-deep .mat-horizontal-stepper-header-container {
+        display: none !important;
+      }
+
+      @media screen and (max-width: 768px) {
+        ::ng-deep .mat-stepper {
+          max-width: 100vw important!; /* Ensure it does not exceed screen width */
+          width: 100%; /* Take full available width */
+          margin: auto;
+        }
+      }
     
   `,
 })

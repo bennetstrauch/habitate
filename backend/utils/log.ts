@@ -17,6 +17,7 @@ type LogReqHandler = RequestHandler<
 >;
 // POST endpoint to receive and log to console
 export const logPayload: LogReqHandler = (req, res) => {
+    console.log("Received log payload:");
   try {
     const { timestamp, level, message, data, component, userAgent } = req.body;
 
