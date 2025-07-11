@@ -107,7 +107,7 @@ import { ProgressStatsComponent } from '../progresses/display/progress-stats.com
   #left-side,
 #right-side {
   transition: width 0.2s ease;
-  border: 5px solid lightgray;
+  // border: 5px solid lightgray;
 }
 
 #right-side {
