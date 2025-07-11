@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,22 +23,21 @@ import { ProgressStatsComponent } from '../progresses/display/progress-stats.com
     ProgressStatsComponent,
   ],
   template: `
-    <!-- <app-date-header-with-timestep
-      [$currentTimeStep]="progressService.$currentTimeStep",
-      [$dateOrDateRangeToShow]="progressService.$dateOrDateRangeToShow()"
-    /> -->
+   
+    <div class="flex-row">
+      <div #left id="left-side"></div>
 
-    @if (progressService.$displayDailyProgress()) {
+      @if (progressService.$displayDailyProgress()) {
+      <app-daily-progress></app-daily-progress>
+      } 
+      
+      @if (progressService.$displayStats()) {
+      <app-progress-stats></app-progress-stats>
+      }
 
-    <!-- <app-date-header-with-timestep [$currentTimeStep]="progressService.$currentTimeStep"/> -->
+      <div #right id="right-side">{{reflectionsService.$reflection()?.intention}}</div>
+    </div>
 
-    <app-daily-progress></app-daily-progress>
-    } @if (progressService.$displayStats()) {
-
-    <app-progress-stats></app-progress-stats>
-
-    }
-    
     <!-- <div style="text-align: center;">
     <p style="color: lightgray; font-size: 0.9em;">
       <i>Author's note: </i> <br>
@@ -105,6 +104,19 @@ import { ProgressStatsComponent } from '../progresses/display/progress-stats.com
   height: auto; /* Ensure no extra height */
   }
 
+  #left-side,
+#right-side {
+  transition: width 0.2s ease;
+  border: 5px solid lightgray;
+}
+
+#right-side {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  transform: rotate(-10deg); /* Slight tilt */
+  white-space: pre-wrap; /* Preserve line breaks if needed */
+}
+
   `,
 })
 export class OverviewComponent {
@@ -113,6 +125,43 @@ export class OverviewComponent {
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
   readonly reflectionsService = inject(ReflectionsService);
+
+  @ViewChild('left') leftDivRef!: ElementRef;
+  @ViewChild('right') rightDivRef!: ElementRef;
+
+  private resizeObserver!: ResizeObserver;
+
+  ngAfterViewInit(): void {
+    this.setupResizeObserver();
+  }
+
+setupResizeObserver(): void {
+    this.resizeObserver = new ResizeObserver(() => this.syncWidths());
+    this.resizeObserver.observe(this.leftDivRef.nativeElement);
+    this.resizeObserver.observe(this.rightDivRef.nativeElement);
+
+    this.syncWidths(); // initial sync
+  }
+
+   syncWidths(): void {
+    const leftEl = this.leftDivRef.nativeElement;
+    const rightEl = this.rightDivRef.nativeElement;
+
+    // Reset widths first to get accurate natural size
+    leftEl.style.width = 'auto';
+    rightEl.style.width = 'auto';
+
+    const maxWidth = Math.max(leftEl.offsetWidth, rightEl.offsetWidth);
+    leftEl.style.width = `${maxWidth}px`;
+    rightEl.style.width = `${maxWidth}px`;
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+  }
+
 
   // ## currentTimeStep and we need another one for DayStep or different components?
   $currentTimeStep = this.progressService.$dailyProgressTimeStep;

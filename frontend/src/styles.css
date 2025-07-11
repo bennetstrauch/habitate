@@ -31,6 +31,12 @@ body {
   align-items: center;
   flex-direction: column;
 }
+
+.flex-row {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
 /* 
 .joyride-step__content {
   display: block !important; 

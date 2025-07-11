@@ -1,10 +1,11 @@
 import { Component, inject, input, Input, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ProgressService } from '../progresses.service';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-date-header-with-timestep',
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatButtonToggleModule],
   template: `
     <div class="flex-row">
       <button
@@ -27,6 +28,8 @@ import { ProgressService } from '../progresses.service';
       >
         <mat-icon>navigate_next</mat-icon>
       </button>
+
+      
     </div>
   `,
   styles: `
