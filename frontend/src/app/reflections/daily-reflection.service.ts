@@ -12,11 +12,13 @@ import { RFinalThankyouComponent } from './display/r-final-thankyou.component';
 import { RNoResistance } from './display/r-intention-general.component';
 import { RIntentionGeneral2Component } from './display/r-intention-general-2.component';
 import { RNostrainIntentionComponent } from './display/r-nostrain-intention.component';
+import { ReflectionsService } from './reflections.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DailyReflectionService {
+  readonly reflectionsService = inject(ReflectionsService);
   readonly goalsService = inject(GoalsService);
   $currentStep = signal('start');
 
@@ -131,10 +133,16 @@ export class DailyReflectionService {
       if (this.stepsMappedToHabitOrGoal.get(nextGoal)) {
         this.$currentStep.set(nextGoal);
       } else {
-        this.$currentStep.set('finalize');
-      }
+        // check if intention was set
+        this.reflectionsService.$reflection()?.intention ?
+        // if yes go to end
+        this.$currentStep.set('finalize')
+        // if no go to general intention
+        : this.$currentStep.set('intention-general');
+      
     }
   }
+}
 
   getHabitsWithGoal = () =>
     this.goalsService
