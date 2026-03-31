@@ -61,6 +61,7 @@ import { UpliftersService } from '../../uplifters/uplifters.service';
           <!-- ##tour did not show this. -->
           <div
             class="habit-div"
+            [attr.data-habit-id]="habit._id"
             [ngClass]="{ 'completed-habit': progress.completed }"
             (click)="!upliftersService.$isViewingUplifter() && toggleCompleted(progress, habit._id)"
             [style.cursor]="upliftersService.$isViewingUplifter() ? 'default' : 'pointer'"

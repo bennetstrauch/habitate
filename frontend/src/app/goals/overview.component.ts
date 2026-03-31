@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +25,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
   ],
   template: `
 
-    <div class="flex-row">
+    <div class="flex-row" #flexRow>
       <div #left id="left-side">
         @if (upliftersService.$connections().length > 0) {
           <div class="profile-nav">
@@ -51,7 +51,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
         @if (commentsService.$comments().length > 0) {
           <div class="comments-left">
             @for (comment of commentsService.$comments(); track comment._id) {
-              <div class="comment-card">
+              <div class="comment-card" [attr.data-comment-id]="comment._id" [style.color]="todayAccentColor">
                 <div class="comment-from">{{ comment.from_user_name }}</div>
                 <div class="comment-text" (click)="toggleComment(comment._id)">
                   @if (expandedCommentId() === comment._id) {
@@ -60,7 +60,6 @@ import { CommentsService, Comment } from '../comments/comments.service';
                     {{ comment.text.length > 60 ? comment.text.slice(0, 60) + '…' : comment.text }}
                   }
                 </div>
-                <div class="comment-habit">↳ {{ comment.habit_name }}</div>
                 <button class="comment-delete" (click)="deleteComment(comment._id)" title="Remove">×</button>
               </div>
             }
@@ -77,6 +76,12 @@ import { CommentsService, Comment } from '../comments/comments.service';
       }
 
       <div #right id="right-side">{{reflectionsService.$reflection()?.intention}}</div>
+
+      <svg class="arrows-overlay" aria-hidden="true">
+        @for (path of $arrowPaths(); track $index) {
+          <path [attr.d]="path" fill="none" [attr.stroke]="todayAccentColor" stroke-width="1.5" stroke-opacity="0.65" stroke-linecap="round" />
+        }
+      </svg>
     </div>
 
     <!-- <div style="text-align: center;">
@@ -109,11 +114,19 @@ import { CommentsService, Comment } from '../comments/comments.service';
 }
 
   .flex-row {
-    // border: 1px solid black;
     display: flex;
+    position: relative;
     margin-top: 1px;
     margin-bottom: 1px;
     padding: 0px;
+  }
+
+  .arrows-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
   }
 
   .habit-div {
@@ -200,17 +213,16 @@ import { CommentsService, Comment } from '../comments/comments.service';
 .comment-card {
   position: relative;
   font-family: 'Caveat', cursive;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   transform: rotate(8deg);
   text-align: right;
   max-width: 140px;
-  color: #777;
   line-height: 1.3;
 }
 
 .comment-from {
   font-size: 0.75rem;
-  color: #bbb;
+  opacity: 0.6;
   font-family: inherit;
   margin-bottom: 1px;
 }
@@ -218,12 +230,6 @@ import { CommentsService, Comment } from '../comments/comments.service';
 .comment-text {
   cursor: pointer;
   word-break: break-word;
-}
-
-.comment-habit {
-  font-size: 0.72rem;
-  color: #bbb;
-  margin-top: 1px;
 }
 
 .comment-delete {
@@ -253,9 +259,11 @@ export class OverviewComponent {
   readonly commentsService = inject(CommentsService);
 
   expandedCommentId = signal<string | null>(null);
+  $arrowPaths = signal<string[]>([]);
 
   @ViewChild('left') leftDivRef!: ElementRef;
   @ViewChild('right') rightDivRef!: ElementRef;
+  @ViewChild('flexRow') flexRowRef!: ElementRef;
 
   private resizeObserver!: ResizeObserver;
 
@@ -271,17 +279,66 @@ setupResizeObserver(): void {
     this.syncWidths(); // initial sync
   }
 
-   syncWidths(): void {
+  syncWidths(): void {
     const leftEl = this.leftDivRef.nativeElement;
     const rightEl = this.rightDivRef.nativeElement;
 
-    // Reset widths first to get accurate natural size
     leftEl.style.width = 'auto';
     rightEl.style.width = 'auto';
 
     const maxWidth = Math.max(leftEl.offsetWidth, rightEl.offsetWidth);
     leftEl.style.width = `${maxWidth}px`;
     rightEl.style.width = `${maxWidth}px`;
+
+    this.computeArrows();
+  }
+
+  computeArrows(): void {
+    const container = this.flexRowRef?.nativeElement;
+    if (!container || !this.progressService.$displayDailyProgress()) {
+      this.$arrowPaths.set([]);
+      return;
+    }
+
+    const cr = container.getBoundingClientRect();
+    const paths: string[] = [];
+
+    for (const comment of this.commentsService.$comments()) {
+      const commentEl: Element | null = container.querySelector(`[data-comment-id="${comment._id}"]`);
+      const habitEl: Element | null = document.querySelector(`[data-habit-id="${comment.habit_id}"]`);
+      if (!commentEl || !habitEl) continue;
+
+      const cRect = commentEl.getBoundingClientRect();
+      const hRect = habitEl.getBoundingClientRect();
+
+      const x1 = cRect.right - cr.left;
+      const y1 = cRect.top + cRect.height / 2 - cr.top;
+      const x2 = hRect.left - cr.left;
+      const y2 = hRect.top + hRect.height / 2 - cr.top;
+
+      // Cubic bezier: tangents go horizontal from each endpoint
+      const cp = Math.abs(x2 - x1) * 0.45;
+      const cx1 = x1 + cp;
+      const cx2 = x2 - cp;
+
+      // Arrowhead at (x2, y2), approach direction from (cx2, y2)
+      const adx = x2 - cx2;
+      const ady = y2 - y2; // 0 — tangent is horizontal at endpoint
+      const angle = Math.atan2(ady, adx);
+      const hs = 7;
+      const ha = 0.45;
+      const ax1 = x2 - hs * Math.cos(angle - ha);
+      const ay1 = y2 - hs * Math.sin(angle - ha);
+      const ax2 = x2 - hs * Math.cos(angle + ha);
+      const ay2 = y2 - hs * Math.sin(angle + ha);
+
+      paths.push(
+        `M ${x1} ${y1} C ${cx1} ${y1} ${cx2} ${y2} ${x2} ${y2} ` +
+        `M ${ax1} ${ay1} L ${x2} ${y2} L ${ax2} ${ay2}`
+      );
+    }
+
+    this.$arrowPaths.set(paths);
   }
 
   ngOnDestroy(): void {
@@ -328,6 +385,13 @@ setupResizeObserver(): void {
     }
 
     console.log(this.goalsService.$goals(), 'goals');
+
+    effect(() => {
+      this.commentsService.$comments();
+      this.progressService.$displayDailyProgress();
+      this.progressService.$dailyProgressDate();
+      setTimeout(() => this.computeArrows(), 80);
+    });
   }
 }
 
