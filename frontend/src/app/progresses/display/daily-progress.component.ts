@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { DateHeaderWithTimestepComponent } from './date-header-with-timestep.component';
 import { GoalsService } from '../../goals/goals.service';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
@@ -33,6 +33,10 @@ import { UpliftersService } from '../../uplifters/uplifters.service';
       [$currentTimeStep]="progressService.$dailyProgressTimeStep"
       [$dateOrDateRangeToShow]="progressService.$dateToShow()"
     ></app-date-header-with-timestep>
+
+    @if (mobileIntention()) {
+      <div class="mobile-intention">{{ mobileIntention() }}</div>
+    }
 
     <div class="card">
       @for (goal of goalsService.$goals(); track $index) {
@@ -115,9 +119,22 @@ import { UpliftersService } from '../../uplifters/uplifters.service';
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
+  .mobile-intention {
+    display: none;
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    text-align: center;
+    color: #888;
+    padding: 2px 16px;
+  }
+  @media (max-width: 600px) {
+    .mobile-intention { display: block; }
+  }
   `,
 })
 export class DailyProgressComponent {
+  readonly mobileIntention = input<string>('');
+
   tourService = inject(TourService);
 
   goalsService = inject(GoalsService);

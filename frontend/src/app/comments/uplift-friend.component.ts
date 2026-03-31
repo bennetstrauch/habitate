@@ -23,7 +23,12 @@ type Step = 'select' | 'progress' | 'comment' | 'done';
         <p class="label">Choose a friend to uplift</p>
         <div class="friend-list">
           @for (c of upliftersService.$connections(); track c._id) {
-            <button class="friend-btn" (click)="selectFriend(c)">
+            <button
+              class="friend-btn"
+              [class.maxed]="(commentCounts()[c._id] ?? 0) >= 2"
+              [disabled]="(commentCounts()[c._id] ?? 0) >= 2"
+              (click)="selectFriend(c)"
+            >
               {{ c.name }}
               @if (commentCounts()[c._id] !== undefined) {
                 <span class="count-badge">{{ commentCounts()[c._id] }} ✦</span>
@@ -107,7 +112,8 @@ type Step = 'select' | 'progress' | 'comment' | 'done';
       gap: 6px;
       transition: background 0.15s;
     }
-    .friend-btn:hover { background: #f5f5f5; }
+    .friend-btn:hover:not(:disabled) { background: #f5f5f5; }
+    .friend-btn.maxed { opacity: 0.4; cursor: not-allowed; }
     .count-badge { font-size: 0.75rem; color: #aaa; }
     .goal-section { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
     .goal-name { font-size: 0.8rem; color: #aaa; padding-left: 4px; }

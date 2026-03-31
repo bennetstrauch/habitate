@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { GoalsService } from './goals.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,9 +48,9 @@ import { CommentsService, Comment } from '../comments/comments.service';
           </div>
         }
 
-        @if (commentsService.$comments().length > 0) {
+        @if (commentsService.$comments().length > 0 && !upliftersService.$isViewingUplifter()) {
           <div class="comments-left">
-            @for (comment of commentsService.$comments(); track comment._id) {
+            @for (comment of $visibleComments(); track comment._id) {
               <div class="comment-card" [attr.data-comment-id]="comment._id" [style.color]="todayAccentColor">
                 <div class="comment-from">{{ comment.from_user_name }}</div>
                 <div class="comment-text" (click)="toggleComment(comment._id)">
@@ -63,12 +63,18 @@ import { CommentsService, Comment } from '../comments/comments.service';
                 <button class="comment-delete" (click)="deleteComment(comment._id)" title="Remove">×</button>
               </div>
             }
+            @if (commentsService.$comments().length > $maxVisibleComments() && !showAllComments()) {
+              <button class="show-all-btn" [style.color]="todayAccentColor" (click)="showAllComments.set(true)">Show all sweet comments</button>
+            }
+            @if (showAllComments()) {
+              <button class="show-all-btn" [style.color]="todayAccentColor" (click)="hideAllComments()">Hide all comments</button>
+            }
           </div>
         }
       </div>
 
       @if (progressService.$displayDailyProgress()) {
-      <app-daily-progress></app-daily-progress>
+      <app-daily-progress [mobileIntention]="reflectionsService.$reflection()?.intention ?? ''"></app-daily-progress>
       } 
       
       @if (progressService.$displayStats()) {
@@ -79,7 +85,8 @@ import { CommentsService, Comment } from '../comments/comments.service';
 
       <svg class="arrows-overlay" aria-hidden="true">
         @for (path of $arrowPaths(); track $index) {
-          <path [attr.d]="path" fill="none" [attr.stroke]="todayAccentColor" stroke-width="1.5" stroke-opacity="0.65" stroke-linecap="round" />
+          <path [attr.d]="path.curve" fill="none" [attr.stroke]="todayAccentColor" stroke-width="1.5" stroke-opacity="0.55" stroke-linecap="round" />
+          <circle [attr.cx]="path.endX" [attr.cy]="path.endY" r="2.5" [attr.fill]="todayAccentColor" opacity="0.65" />
         }
       </svg>
     </div>
@@ -115,6 +122,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
 
   .flex-row {
     display: flex;
+    align-items: flex-start;
     position: relative;
     margin-top: 1px;
     margin-bottom: 1px;
@@ -152,7 +160,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
   }
 
   .progress-display {
-  padding: 2px 4x; /* Minimal padding for content */
+  padding: 2px 4px;
   margin: 0;
   line-height: 1; /* Remove extra line height spacing */
   height: auto; /* Ensure no extra height */
@@ -247,6 +255,56 @@ import { CommentsService, Comment } from '../comments/comments.service';
 
 .comment-delete:hover { color: #e57373; }
 
+.show-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  padding: 2px 0;
+  text-align: right;
+  font-family: 'Caveat', cursive;
+}
+.show-all-btn:hover { opacity: 1; }
+
+@media (max-width: 600px) {
+  .flex-row { flex-direction: column; }
+  app-daily-progress,
+  app-progress-stats { order: 1; width: 100%; }
+  #left-side { order: 2; width: 100% !important; display: flex; flex-direction: column; }
+  #right-side { display: none; }
+  .arrows-overlay { display: none; }
+
+  .comments-left {
+    order: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 8px 16px;
+    gap: 8px;
+  }
+  .comment-card { transform: none; text-align: center; }
+
+  .profile-nav {
+    order: 2;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 4px;
+  }
+  .profile-btn {
+    border-right: none !important;
+    border-bottom: 2px solid transparent;
+    padding: 4px 12px;
+    text-align: center;
+  }
+  .profile-btn.active { border-bottom: 2px solid; }
+
+  .show-all-btn { text-align: center; width: 100%; }
+}
+
   `,
 })
 export class OverviewComponent {
@@ -259,7 +317,12 @@ export class OverviewComponent {
   readonly commentsService = inject(CommentsService);
 
   expandedCommentId = signal<string | null>(null);
-  $arrowPaths = signal<string[]>([]);
+  showAllComments = signal(false);
+  $maxVisibleComments = signal(100);
+  $visibleComments = computed(() =>
+    this.showAllComments() ? this.commentsService.$comments() : this.commentsService.$comments().slice(0, this.$maxVisibleComments())
+  );
+  $arrowPaths = signal<{ curve: string; endX: number; endY: number }[]>([]);
 
   @ViewChild('left') leftDivRef!: ElementRef;
   @ViewChild('right') rightDivRef!: ElementRef;
@@ -291,17 +354,57 @@ setupResizeObserver(): void {
     rightEl.style.width = `${maxWidth}px`;
 
     this.computeArrows();
+    this.computeMaxVisibleComments();
+  }
+
+  private _computingCommentLimit = false;
+
+  computeMaxVisibleComments(): void {
+    if (this.showAllComments() || this._computingCommentLimit) return;
+
+    const progressEl = document.querySelector('app-daily-progress');
+    const leftEl = this.leftDivRef?.nativeElement;
+    if (!progressEl || !leftEl) return;
+
+    const availableHeight = progressEl.getBoundingClientRect().height;
+    const profileNavEl = leftEl.querySelector('.profile-nav');
+    const profileNavHeight = profileNavEl ? profileNavEl.getBoundingClientRect().height : 0;
+    const commentsEl: HTMLElement | null = leftEl.querySelector('.comments-left');
+    if (!commentsEl) return;
+
+    const availableForComments = availableHeight - profileNavHeight - 24;
+    const cards = Array.from(commentsEl.querySelectorAll('.comment-card')) as HTMLElement[];
+
+    let totalH = 0;
+    let count = 0;
+    for (const card of cards) {
+      totalH += card.getBoundingClientRect().height + 10;
+      if (totalH <= availableForComments) count++;
+      else break;
+    }
+
+    const newLimit = Math.max(1, count);
+    if (newLimit < this.$maxVisibleComments()) {
+      this._computingCommentLimit = true;
+      this.$maxVisibleComments.set(newLimit);
+      setTimeout(() => { this._computingCommentLimit = false; }, 200);
+    }
   }
 
   computeArrows(): void {
     const container = this.flexRowRef?.nativeElement;
-    if (!container || !this.progressService.$displayDailyProgress()) {
+    if (!container || !this.progressService.$displayDailyProgress() || this.upliftersService.$isViewingUplifter()) {
       this.$arrowPaths.set([]);
       return;
     }
 
     const cr = container.getBoundingClientRect();
-    const paths: string[] = [];
+    const paths: { curve: string; endX: number; endY: number }[] = [];
+
+    // Fixed x: just inside the left edge of the daily-progress card
+    const progressEl = document.querySelector('app-daily-progress');
+    if (!progressEl) return;
+    const cardX = progressEl.getBoundingClientRect().left - cr.left + 8;
 
     for (const comment of this.commentsService.$comments()) {
       const commentEl: Element | null = container.querySelector(`[data-comment-id="${comment._id}"]`);
@@ -313,29 +416,18 @@ setupResizeObserver(): void {
 
       const x1 = cRect.right - cr.left;
       const y1 = cRect.top + cRect.height / 2 - cr.top;
-      const x2 = hRect.left - cr.left;
+      const x2 = cardX;
       const y2 = hRect.top + hRect.height / 2 - cr.top;
 
-      // Cubic bezier: tangents go horizontal from each endpoint
       const cp = Math.abs(x2 - x1) * 0.45;
       const cx1 = x1 + cp;
       const cx2 = x2 - cp;
 
-      // Arrowhead at (x2, y2), approach direction from (cx2, y2)
-      const adx = x2 - cx2;
-      const ady = y2 - y2; // 0 — tangent is horizontal at endpoint
-      const angle = Math.atan2(ady, adx);
-      const hs = 7;
-      const ha = 0.45;
-      const ax1 = x2 - hs * Math.cos(angle - ha);
-      const ay1 = y2 - hs * Math.sin(angle - ha);
-      const ax2 = x2 - hs * Math.cos(angle + ha);
-      const ay2 = y2 - hs * Math.sin(angle + ha);
-
-      paths.push(
-        `M ${x1} ${y1} C ${cx1} ${y1} ${cx2} ${y2} ${x2} ${y2} ` +
-        `M ${ax1} ${ay1} L ${x2} ${y2} L ${ax2} ${ay2}`
-      );
+      paths.push({
+        curve: `M ${x1} ${y1} C ${cx1} ${y1} ${cx2} ${y2} ${x2} ${y2}`,
+        endX: x2,
+        endY: y2,
+      });
     }
 
     this.$arrowPaths.set(paths);
@@ -375,8 +467,14 @@ setupResizeObserver(): void {
     this.commentsService.deleteComment(id).subscribe(r => {
       if (r.success) {
         this.commentsService.$comments.update(cs => cs.filter(c => c._id !== id));
+        this.$maxVisibleComments.set(100);
       }
     });
+  }
+
+  hideAllComments() {
+    this.showAllComments.set(false);
+    this.$maxVisibleComments.set(100);
   }
 
   constructor() {
@@ -390,6 +488,7 @@ setupResizeObserver(): void {
       this.commentsService.$comments();
       this.progressService.$displayDailyProgress();
       this.progressService.$dailyProgressDate();
+      this.upliftersService.$isViewingUplifter();
       setTimeout(() => this.computeArrows(), 80);
     });
   }

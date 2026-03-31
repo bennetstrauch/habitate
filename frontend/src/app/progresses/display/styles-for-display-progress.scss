@@ -9,6 +9,10 @@
     gap: 7px;
   }
 
+  .habit-div mat-icon {
+    flex-shrink: 0;
+  }
+
   .subtle-add-habit-button {
   opacity: 0.7;
   font-size: 0.85rem;

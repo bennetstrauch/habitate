@@ -22,6 +22,15 @@ export const postComment: RequestHandler<
 
     await requireFriendship(req.userId, to_user_id);
 
+    const startOfDay = moment.utc(date, "YYYY-MM-DD").startOf("day").toDate();
+    const endOfDay = moment.utc(date, "YYYY-MM-DD").endOf("day").toDate();
+    const existingCount = await CommentModel.countDocuments({
+      from_user_id: idToObjectId(req.userId),
+      to_user_id: idToObjectId(to_user_id),
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+    if (existingCount >= 2) throw new ErrorWithStatus("You can only send 2 comments per friend per day", 400);
+
     const sender = await UserModel.findById(req.userId, "name");
     if (!sender) throw new ErrorWithStatus("User not found", 404);
 
