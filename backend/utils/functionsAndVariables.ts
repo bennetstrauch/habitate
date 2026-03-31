@@ -5,7 +5,7 @@ import { ObjectId } from "../types/ObjectId.type";
 import moment from "moment-timezone";
 import path from "path";
 
-export const appNameForSendingEmails = `"Habitate" <${process.env.EMAIL_FROM}>`;
+export const appNameForSendingEmails = `"Habitate" <${process.env.EMAIL_FROM ?? process.env.EMAIL_USER}>`;
 
 export function capitalizeFirstLetter(str: string): string {
   if (!str) return str;
