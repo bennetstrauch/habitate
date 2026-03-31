@@ -12,12 +12,13 @@ import { StatsBase } from "fs";
 import { StatBase } from "../progresses/progress.types";
 import { ObjectId } from "../types/ObjectId.type";
 import { idToObjectId } from "../utils/functionsAndVariables";
+import { requireFriendship } from "../utils/friendship";
 
 type GetReflectionForDateReqHandler = RequestHandler<
   unknown,
   StandardResponse<Reflection | null>,
   unknown,
-  { date: string }
+  { date: string; forUserId?: string }
 >;
 
 export const getReflectionForDate: GetReflectionForDateReqHandler = async (
@@ -26,19 +27,21 @@ export const getReflectionForDate: GetReflectionForDateReqHandler = async (
   next
 ) => {
   try {
-    const user_id = req.userId;
-    const { date } = req.query;
+    const { date, forUserId } = req.query;
 
-    if (!user_id) {
+    if (!req.userId) {
       throw new ErrorWithStatus("Invalid userId", 401);
     }
 
-    console.log("Getting reflection for date and userId", date, user_id);
+    const targetUserId = forUserId
+      ? await requireFriendship(req.userId, forUserId)
+      : req.userId;
 
-    const reflection = await getReflectionFromDBOrCreate(
-      user_id,
-      new Date(date)
-    );
+    console.log("Getting reflection for date and userId", date, targetUserId);
+
+    const reflection = forUserId
+      ? await ReflectionModel.findOne({ user_id: idToObjectId(targetUserId), date: new Date(date) })
+      : await getReflectionFromDBOrCreate(targetUserId, new Date(date));
 
     res.json({ success: true, data: reflection });
   } catch (err) {
@@ -196,7 +199,7 @@ type getReflectionStatsReqHandler = RequestHandler<
   unknown,
   StandardResponse<StatBase>,
   unknown,
-  { startDate: Date; endDate: Date }
+  { startDate: Date; endDate: Date; forUserId?: string }
 >;
 
 export const getReflectionStats: getReflectionStatsReqHandler = async (
@@ -205,22 +208,25 @@ export const getReflectionStats: getReflectionStatsReqHandler = async (
   next
 ) => {
   try {
-    const user_id = req.userId;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, forUserId } = req.query;
 
-    if (!user_id) {
+    if (!req.userId) {
       throw new ErrorWithStatus("Invalid userId", 401);
     }
+
+    const targetUserId = forUserId
+      ? await requireFriendship(req.userId, forUserId)
+      : req.userId;
 
     console.log(
       "Getting reflection stats for date range and userId",
       new Date(startDate),
       endDate,
-      user_id
+      targetUserId
     );
 
     const stats = await getReflectionStatsForDateRange(
-      user_id,
+      targetUserId,
       new Date(startDate),
       new Date(endDate)
     );

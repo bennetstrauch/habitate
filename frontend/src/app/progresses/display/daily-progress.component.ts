@@ -14,6 +14,7 @@ import { StatsService } from '../stats.service';
 import { DailyReflectionService } from '../../reflections/daily-reflection.service';
 import { JoyrideModule, JoyrideService } from 'ngx-joyride';
 import { TourService } from '../../users/tour.service';
+import { UpliftersService } from '../../uplifters/uplifters.service';
 
 @Component({
   selector: 'app-daily-progress',
@@ -43,8 +44,8 @@ import { TourService } from '../../users/tour.service';
           [goalName]="goal.name"
         />
 
-        <!-- Display AddHabitButton if no HabitsYetCreated -->
-        @if (goal.habits.length === 0 && goalsService.$goals().length === 1) {
+        <!-- Display AddHabitButton if no HabitsYetCreated and viewing own profile -->
+        @if (goal.habits.length === 0 && goalsService.$goals().length === 1 && !upliftersService.$isViewingUplifter()) {
         <button
           mat-button
           class="subtle-add-habit-button"
@@ -61,7 +62,8 @@ import { TourService } from '../../users/tour.service';
           <div
             class="habit-div"
             [ngClass]="{ 'completed-habit': progress.completed }"
-            (click)="toggleCompleted(progress, habit._id)"
+            (click)="!upliftersService.$isViewingUplifter() && toggleCompleted(progress, habit._id)"
+            [style.cursor]="upliftersService.$isViewingUplifter() ? 'default' : 'pointer'"
             joyrideStep="markHabit"
             title="Mark as Done"
             text="Click on habit to change completed status"
@@ -88,7 +90,7 @@ import { TourService } from '../../users/tour.service';
         </button>
       </div>
 
-      } @if(!reflectionsService.$reflection()?.completed){
+      } @if(!reflectionsService.$reflection()?.completed && !upliftersService.$isViewingUplifter()){
 
       <button
         mat-raised-button
@@ -122,6 +124,7 @@ export class DailyProgressComponent {
   statsService = inject(StatsService);
   reflectionsService = inject(ReflectionsService);
   dailyReflectionsService = inject(DailyReflectionService);
+  upliftersService = inject(UpliftersService);
 
   toggleCompleted(progress: HabitProgress, habitId: string) {
     progress.completed = !progress.completed;

@@ -18,6 +18,7 @@ import {
 } from '../utils/utils';
 import { Router } from '@angular/router';
 import { Habit } from '@backend/goals/goals.types';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,7 @@ export class ProgressService {
   #router = inject(Router);
   #http = inject(HttpClient);
   readonly goalsService = inject(GoalsService);
+  readonly upliftersService = inject(UpliftersService);
 
   $displayStats = signal<boolean>(false);
   $displayDailyProgress = computed(() => !this.$displayStats());
@@ -88,7 +90,7 @@ export class ProgressService {
     });
   });
 
-  if (noProgressHabitIds.length > 0) {
+  if (noProgressHabitIds.length > 0 && !this.upliftersService.$isViewingUplifter()) {
     this.create_progresses_batch(dateString, noProgressHabitIds).subscribe((response) => {
       if (response.success) {
         response.data.forEach((newProgress) => {

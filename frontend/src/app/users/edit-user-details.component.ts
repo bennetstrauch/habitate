@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,6 +21,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { ReflectionReminderComponent } from '../reflections/reflection-reminder/reflection-reminder.component';
 import { PushSubscription as WebPushSubscription } from 'web-push';
 import { ReflectionReminderService } from '../reflections/reflection-reminder/reflection-reminder.service';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Component({
   selector: 'app-edit-user-details',
@@ -102,6 +103,53 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
     @if(this.error){
       {{error}}
     }
+
+    <!-- ── Uplifters ── -->
+    <section class="uplifters-section">
+      <h2>Uplifters</h2>
+
+      <div class="invite-code-row">
+        <span class="invite-label">Your invite code:</span>
+        @if ($inviteCode()) {
+          <strong class="invite-code">{{ $inviteCode() }}</strong>
+          <button mat-icon-button (click)="copyInviteCode()" title="Copy">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button mat-icon-button (click)="regenerateCode()" title="Get new code">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        } @else {
+          <button mat-button (click)="loadInviteCode()">Show my code</button>
+        }
+      </div>
+
+      <div class="add-row">
+        <mat-form-field appearance="outline" class="code-input">
+          <mat-label>Add Uplifter by code</mat-label>
+          <input matInput [value]="$connectCode()" (input)="$connectCode.set($any($event.target).value.toUpperCase())" maxlength="6" />
+        </mat-form-field>
+        <button mat-raised-button (click)="connectByCode()" [disabled]="$connectCode().length < 6">
+          Add
+        </button>
+      </div>
+      @if ($connectError()) {
+        <p class="connect-error">{{ $connectError() }}</p>
+      }
+
+      <ul class="connections-list">
+        @for (c of upliftersService.$connections(); track c._id) {
+        <li>
+          <span>{{ c.name }}</span>
+          <button mat-icon-button (click)="removeUplifter(c._id)" title="Remove">
+            <mat-icon>close</mat-icon>
+          </button>
+        </li>
+        }
+        @if (upliftersService.$connections().length === 0) {
+          <li class="empty-note">No Uplifters yet.</li>
+        }
+      </ul>
+    </section>
   `,
   styles: [
     `
@@ -173,6 +221,65 @@ import { ReflectionReminderService } from '../reflections/reflection-reminder/re
         line-height: normal !important;
         min-width: unset !important;
       }
+
+      .uplifters-section {
+        width: 100%;
+        max-width: 400px;
+        margin: 24px auto 0;
+      }
+
+      .invite-code-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .invite-label {
+        color: gray;
+        font-size: 0.9em;
+      }
+
+      .invite-code {
+        letter-spacing: 3px;
+        font-size: 1.1em;
+      }
+
+      .add-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .code-input {
+        flex: 1;
+      }
+
+      .connect-error {
+        color: red;
+        font-size: 0.85em;
+        margin: 0 0 8px;
+      }
+
+      .connections-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .connections-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 0;
+      }
+
+      .empty-note {
+        color: gray;
+        font-size: 0.9em;
+      }
     `,
   ],
 })
@@ -181,6 +288,11 @@ export class EditUserDetailsComponent implements OnInit {
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
   private reflectionReminderService = inject(ReflectionReminderService);
+  readonly upliftersService = inject(UpliftersService);
+
+  $inviteCode = signal<string>('');
+  $connectCode = signal<string>('');
+  $connectError = signal<string>('');
 
   private unsavedChangesSnackBar: MatSnackBarRef<SimpleSnackBar> | null = null;
 
@@ -216,6 +328,7 @@ export class EditUserDetailsComponent implements OnInit {
 
   ngOnInit(){
     this.loadUserDetails();
+    this.upliftersService.loadConnections().subscribe();
   }
 
   async loadUserDetails() {
@@ -402,6 +515,42 @@ export class EditUserDetailsComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  loadInviteCode() {
+    this.upliftersService.getInviteCode().subscribe(r => {
+      if (r.success) this.$inviteCode.set(r.data.inviteCode ?? '');
+    });
+  }
+
+  regenerateCode() {
+    this.upliftersService.regenerateInviteCode().subscribe(r => {
+      if (r.success) this.$inviteCode.set(r.data.inviteCode ?? '');
+    });
+  }
+
+  copyInviteCode() {
+    navigator.clipboard.writeText(this.$inviteCode());
+    this.snackBar.open('Code copied!', '', { duration: 1500 });
+  }
+
+  connectByCode() {
+    this.$connectError.set('');
+    this.upliftersService.connect(this.$connectCode()).subscribe({
+      next: r => {
+        if (r.success) {
+          this.$connectCode.set('');
+          this.snackBar.open(`${r.data.name} added as Uplifter`, '', { duration: 2500 });
+        }
+      },
+      error: err => {
+        this.$connectError.set(err?.error?.message ?? 'Could not connect. Check the code.');
+      }
+    });
+  }
+
+  removeUplifter(friendId: string) {
+    this.upliftersService.removeConnection(friendId).subscribe();
   }
 
   async saveChanges() {

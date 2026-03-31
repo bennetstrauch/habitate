@@ -21,4 +21,7 @@ export interface User {
   reflectionDetails: ReflectionDetails;
 
   tourCompleted: boolean;
+
+  inviteCode?: string;
+  connections?: string[];
 }

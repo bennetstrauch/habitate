@@ -1,16 +1,16 @@
 import { NgStyle } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Component({
   selector: 'app-display-goal-with-link',
   imports: [RouterLink, NgStyle],
   template: `
     <div
-    class="goal-name"
-      [routerLink]="['', 'goals', goalId()]"
-     [ngStyle]="
-        {'color': todayColor }"
+      class="goal-name"
+      [routerLink]="upliftersService.$isViewingUplifter() ? null : ['', 'goals', goalId()]"
+      [ngStyle]="{'color': todayColor}"
     >
       {{ goalName() }}
     </div>
@@ -26,6 +26,7 @@ import { RouterLink } from '@angular/router';
 export class DisplayGoalWithLinkComponent {
   readonly goalId = input.required<string>();
   readonly goalName = input.required<string>();
+  readonly upliftersService = inject(UpliftersService);
 
   dayColorMap: { [key: number]: string } = {
     // 0: 'rgb(208, 245, 247)', // test

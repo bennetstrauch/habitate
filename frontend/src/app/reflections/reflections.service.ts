@@ -7,6 +7,7 @@ import { ProgressService } from '../progresses/progresses.service';
 import { toLocalDateString } from '../utils/utils';
 import { StatBase } from '@backend/progresses/progress.types';
 import { StatsService } from '../progresses/stats.service';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,19 +16,23 @@ export class ReflectionsService {
   #http = inject(HttpClient);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
-  
+  upliftersService = inject(UpliftersService);
+
   $reflection = signal<Reflection | null>(null);
 
   $reflectionStats = signal<StatBase | null>(null);
   // ## effect on change of timestep, but we need separted timesteps for stats and dailyprogress
 
-  // for daily progress
+  // for daily progress — re-runs when date OR active profile changes
   setReflectionOnDateChange = effect(() => {
     const dateString = toLocalDateString(
       this.progressService.$dailyProgressDate()
     );
+    const forUserId = this.upliftersService.$isViewingUplifter()
+      ? this.upliftersService.$activeProfileId()
+      : undefined;
 
-    this.get_reflection(dateString).subscribe((response) => {
+    this.get_reflection(dateString, forUserId).subscribe((response) => {
       if (response.success) {
         this.$reflection.set(response.data);
         console.log('Reflection:', response.data);
@@ -38,22 +43,23 @@ export class ReflectionsService {
 
   // forStats
 
-    triggerLoadReflectionStats = effect(() => {
-   
-      this.loadReflectionStats();
-        });
-  
+  triggerLoadReflectionStats = effect(() => {
+    this.loadReflectionStats();
+  });
+
 
   loadReflectionStats = async () => {
-
     const { startDate, endDate } = this.statsService.$progressDateRange();
+    const forUserId = this.upliftersService.$isViewingUplifter()
+      ? this.upliftersService.$activeProfileId()
+      : undefined;
 
-    this.get_reflection_stats(startDate, endDate).subscribe((response) => {
+    this.get_reflection_stats(startDate, endDate, forUserId).subscribe((response) => {
       if (response.success) {
         this.$reflectionStats.set(response.data);
         console.log('Reflection Stats:', response.data);
       }
-    }); 
+    });
   }
 
 
@@ -70,9 +76,13 @@ export class ReflectionsService {
 
   // __________ HTTP REQUESTS __________
 
-  get_reflection(dateStringWithoutTime: string) {
+  get_reflection(dateStringWithoutTime: string, forUserId?: string) {
+    let params = new HttpParams().set('date', dateStringWithoutTime);
+    if (forUserId) params = params.set('forUserId', forUserId);
+
     return this.#http.get<StandardResponse<Reflection>>(
-      environment.SERVER_URL + '/reflections' + '?date=' + dateStringWithoutTime
+      environment.SERVER_URL + '/reflections',
+      { params }
     );
   }
 
@@ -84,16 +94,15 @@ export class ReflectionsService {
   }
 
 
-   get_reflection_stats(startDate: Date, endDate: Date) {
-      const params = new HttpParams()
-        .set('startDate', startDate.toISOString())
-        .set('endDate', endDate.toISOString());
-  
-      return this.#http.get<StandardResponse<StatBase>>(
-        environment.SERVER_URL + '/reflections' +'/' + 'stats',
-        {
-          params,
-        }
-      );
-    }
+  get_reflection_stats(startDate: Date, endDate: Date, forUserId?: string) {
+    let params = new HttpParams()
+      .set('startDate', startDate.toISOString())
+      .set('endDate', endDate.toISOString());
+    if (forUserId) params = params.set('forUserId', forUserId);
+
+    return this.#http.get<StandardResponse<StatBase>>(
+      environment.SERVER_URL + '/reflections/stats',
+      { params }
+    );
+  }
 }

@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reflectionsRouter = void 0;
+const express_1 = require("express");
+const reflections_controller_1 = require("./reflections.controller");
+const router = (0, express_1.Router)();
+router.get("/", reflections_controller_1.getReflectionForDate);
+router.put("/:reflection_id", reflections_controller_1.putReflection);
+router.get("/stats", reflections_controller_1.getReflectionStats);
+exports.reflectionsRouter = router;

@@ -9,6 +9,7 @@ import { ProgressService } from '../progresses/progresses.service';
 import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -125,6 +126,7 @@ export class OverviewComponent {
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
   readonly reflectionsService = inject(ReflectionsService);
+  readonly upliftersService = inject(UpliftersService);
 
   @ViewChild('left') leftDivRef!: ElementRef;
   @ViewChild('right') rightDivRef!: ElementRef;
@@ -170,7 +172,7 @@ setupResizeObserver(): void {
   // signature const function if(condition : boolean)navigateTo(path: string){}
 
   constructor() {
-    if (this.goalsService.$goals().length === 0) {
+    if (this.goalsService.$goals().length === 0 && !this.upliftersService.$isViewingUplifter()) {
       this.#router.navigate(['', 'goals', 'add']);
     }
 

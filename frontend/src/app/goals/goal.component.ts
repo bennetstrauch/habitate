@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AddHabitComponent } from '../habits/addHabit/addHabit.component';
 import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.component';
 import { DisplayGoalWithLinkComponent } from "./display-habit-with-description";
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Component({
   selector: 'app-goal',
@@ -42,9 +43,11 @@ import { DisplayGoalWithLinkComponent } from "./display-habit-with-description";
       /> -->
       </mat-card>
 
+      @if (!upliftersService.$isViewingUplifter()) {
       <button mat-raised-button aria-label="Edit" (click)="updateGoal()">
         <mat-icon>edit</mat-icon> Edit
       </button>
+      }
 
       <mat-card class="habit card">
         <u>Habits</u> <br />
@@ -58,11 +61,13 @@ import { DisplayGoalWithLinkComponent } from "./display-habit-with-description";
         </mat-card>
         }
 
+        @if (!upliftersService.$isViewingUplifter()) {
         <!-- not hardcode number ## -->
         <app-add-habit-button
           [goal_id]="_id()"
           [numberOfHabitsForGoal]="$goal()!.habits.length"
         />
+        }
       </mat-card>
       <br />
     </div>
@@ -95,6 +100,7 @@ import { DisplayGoalWithLinkComponent } from "./display-habit-with-description";
 export class GoalComponent {
   #router = inject(Router);
   #goalsService = inject(GoalsService);
+  upliftersService = inject(UpliftersService);
 
   readonly _id = input.required<string>();
 

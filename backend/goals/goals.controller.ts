@@ -7,6 +7,7 @@ import { findSimilarGoals } from "../database/queries";
 import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
 import { createDailyHabitProgressForGoals } from "../progresses/create.progress.cron";
 import { GoalModel, UserModel } from "../database/schemas";
+import { requireFriendship } from "../utils/friendship";
 
 type GetGoalsReqHandler = RequestHandler<
   { createNewProgressesForToday?: boolean },
@@ -15,24 +16,29 @@ type GetGoalsReqHandler = RequestHandler<
 
 // #refactor
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
-  const { timezone = "UTC" } = req.query as { timezone?: string };
+  const { timezone = "UTC", forUserId } = req.query as { timezone?: string; forUserId?: string };
 
   try {
-    let userGoals: Goal[] = await getGoalsDB(req.userId);
+    const targetUserId = forUserId
+      ? await requireFriendship(req.userId, forUserId)
+      : req.userId;
+
+    const userGoals: Goal[] = await getGoalsDB(targetUserId);
 
     res.json({ success: true, data: userGoals });
 
-    const updateTimezoneResult = await UserModel.updateOne(
-      { _id: req.userId, timezone: { $ne: timezone } },
-      { $set: { timezone: timezone } }
-    );
-
-    console.log(
-      "usersNewTimezone",
-      timezone,
-      "updatedCount:",
-      updateTimezoneResult.modifiedCount
-    );
+    if (!forUserId) {
+      const updateTimezoneResult = await UserModel.updateOne(
+        { _id: req.userId, timezone: { $ne: timezone } },
+        { $set: { timezone: timezone } }
+      );
+      console.log(
+        "usersNewTimezone",
+        timezone,
+        "updatedCount:",
+        updateTimezoneResult.modifiedCount
+      );
+    }
   } catch (err) {
     next(err);
   }

@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { intitialState, StateService } from '../state.service';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { AuthenticationButtonComponent } from '../users/authentication.component';
@@ -9,6 +9,7 @@ import { validationRulesGoals } from '@global/auth/validationRules';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProgressService } from '../progresses/progresses.service';
 import { JoyrideModule } from 'ngx-joyride';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Component({
   selector: 'app-navigation',
@@ -26,12 +27,10 @@ import { JoyrideModule } from 'ngx-joyride';
       <app-authentication-button />
       } @if (stateService.isLoggedIn()) {
 
-      <!-- less padding for this one, so lines are bigger -->
       <button mat-button [matMenuTriggerFor]="menu">
         <mat-icon>menu</mat-icon>
       </button>
 
-      <!-- ## home should be in middle of button -->
       <button
         mat-button
         color="primary"
@@ -59,8 +58,27 @@ import { JoyrideModule } from 'ngx-joyride';
         }
       </button>
 
+      <!-- Profile switcher: Me + each uplifter -->
+      @if (upliftersService.$connections().length > 0) {
+      <div class="profile-switcher">
+        <button
+          mat-button
+          [class.active-profile]="!upliftersService.$isViewingUplifter()"
+          (click)="switchProfile('')"
+        >Me</button>
+        @for (c of upliftersService.$connections(); track c._id) {
+        <button
+          mat-button
+          [class.active-profile]="upliftersService.$activeProfileId() === c._id"
+          (click)="switchProfile(c._id)"
+        >{{ c.name }}</button>
+        }
+      </div>
+      }
+
       <!-- Dropdown Menu -->
       <mat-menu #menu="matMenu">
+        @if (!upliftersService.$isViewingUplifter()) {
         <button
           mat-menu-item
           [disabled]="
@@ -68,10 +86,10 @@ import { JoyrideModule } from 'ngx-joyride';
             || goalsService.$habitIds().length == 0
           "
           [routerLink]="['', 'goals', 'add']"
-          
         >
           Add Goal
         </button>
+        }
 
         <button mat-menu-item [routerLink]="['', 'user-details']">
           My Profile
@@ -81,32 +99,48 @@ import { JoyrideModule } from 'ngx-joyride';
           Logout
         </button>
       </mat-menu>
-
-      <!-- implement## -->
-      <!-- <button mat-button color="accent" [routerLink]="['', 'goals', 'add']">
-        Log
-      </button> -->
       }
     </div>
   `,
-  // unified css ##
   styles: `
-    button{
+    button {
       border-radius: 0px;
     }
-  .nav-div {
-    display: flex;
-    justify-content: space-between;
-  }
+    .nav-div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .profile-switcher {
+      display: flex;
+      gap: 2px;
+    }
+    .active-profile {
+      font-weight: bold;
+      text-decoration: underline;
+    }
   `,
 })
-export class NavigationComponent {
+export class NavigationComponent implements OnInit {
   readonly stateService = inject(StateService);
   readonly progressService = inject(ProgressService);
   readonly goalsService = inject(GoalsService);
+  readonly upliftersService = inject(UpliftersService);
 
   router = inject(Router);
   validationRulesGoals = validationRulesGoals;
+
+  ngOnInit() {
+    if (this.stateService.isLoggedIn()) {
+      this.upliftersService.loadConnections().subscribe();
+    }
+  }
+
+  switchProfile(userId: string) {
+    this.upliftersService.$activeProfileId.set(userId);
+    this.goalsService.update_goals();
+  }
 
   logout() {
     this.stateService.$state.set(intitialState);
@@ -120,6 +154,6 @@ export class NavigationComponent {
   }
 
   isOverviewActive(): boolean {
-    return this.router.url.includes('overview'); // Adjust the route path as needed
+    return this.router.url.includes('overview');
   }
 }

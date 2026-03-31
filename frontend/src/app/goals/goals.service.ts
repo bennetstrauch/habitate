@@ -5,6 +5,7 @@ import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.types';
 import { environment } from 'frontend/src/environments/environment';
 import { Router } from '@angular/router';
 import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils.shared';
+import { UpliftersService } from '../uplifters/uplifters.service';
 
 
 @Injectable({
@@ -12,6 +13,7 @@ import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils.shared';
 })
 export class GoalsService {
   #router = inject(Router);
+  #upliftersService = inject(UpliftersService);
 
   #http = inject(HttpClient);
 
@@ -68,11 +70,18 @@ export class GoalsService {
   // ____________ HTTP REQUESTS ____________
 
 
-  get_goals(page: number = 1) {
+  get_goals() {
     const userTimezone = this.getTimezone();
+    const activeProfileId = this.#upliftersService.$activeProfileId();
+
+    let params = new HttpParams().set('timezone', userTimezone);
+    if (this.#upliftersService.$isViewingUplifter()) {
+      params = params.set('forUserId', activeProfileId);
+    }
 
     return this.#http.get<StandardResponse<Goal[]>>(
-      environment.SERVER_URL + '/goals' + '?timezone=' + userTimezone
+      environment.SERVER_URL + '/goals',
+      { params }
     );
   }
 

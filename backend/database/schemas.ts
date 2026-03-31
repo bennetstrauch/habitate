@@ -50,6 +50,9 @@ const userSchema = new Schema<User>({
   reflectionDetails: { type: ReflectionDetailsSchema, required: false },
 
   tourCompleted: { type: Boolean, default: false },
+
+  inviteCode: { type: String, required: false, sparse: true },
+  connections: { type: [Schema.Types.ObjectId], ref: "user", default: [] },
 });
 
 export const UserModel = model<User>("user", userSchema);
