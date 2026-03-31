@@ -81,7 +81,7 @@ import { ProgressPeriod } from '../progress-period.enum';
             <button mat-raised-button>
               <button mat-button class="progress-display">
                 <strong>{{
-                  reflectionStats?.completed ?? 'Could not load stats'
+                  reflectionStats?.completed ?? 0
                 }}</strong>
                 <!-- move that in method # -->
                 / 7

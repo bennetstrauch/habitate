@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { intitialState, StateService } from '../state.service';
+import { StateService } from '../state.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -58,44 +58,27 @@ import { UpliftersService } from '../uplifters/uplifters.service';
         }
       </button>
 
-      <!-- Profile switcher: Me + each uplifter -->
-      @if (upliftersService.$connections().length > 0) {
-      <div class="profile-switcher">
-        <button
-          mat-button
-          [class.active-profile]="!upliftersService.$isViewingUplifter()"
-          (click)="switchProfile('')"
-        >Me</button>
-        @for (c of upliftersService.$connections(); track c._id) {
-        <button
-          mat-button
-          [class.active-profile]="upliftersService.$activeProfileId() === c._id"
-          (click)="switchProfile(c._id)"
-        >{{ c.name }}</button>
-        }
-      </div>
-      }
-
       <!-- Dropdown Menu -->
       <mat-menu #menu="matMenu">
         @if (!upliftersService.$isViewingUplifter()) {
         <button
           mat-menu-item
-          [disabled]="
-            goalsService.$goals().length >= validationRulesGoals.maxLength
-            || goalsService.$habitIds().length == 0
-          "
+          [disabled]="goalsService.$goals().length >= validationRulesGoals.maxLength || goalsService.$habitIds().length == 0"
           [routerLink]="['', 'goals', 'add']"
         >
           Add Goal
         </button>
         }
 
+        <button mat-menu-item [routerLink]="['', 'uplifters']">
+          Uplifters
+        </button>
+
         <button mat-menu-item [routerLink]="['', 'user-details']">
           My Profile
         </button>
 
-        <button mat-menu-item color="warn" (click)="stateService.logout()">
+        <button mat-menu-item (click)="stateService.logout()">
           Logout
         </button>
       </mat-menu>
@@ -112,14 +95,6 @@ import { UpliftersService } from '../uplifters/uplifters.service';
       align-items: center;
       flex-wrap: wrap;
     }
-    .profile-switcher {
-      display: flex;
-      gap: 2px;
-    }
-    .active-profile {
-      font-weight: bold;
-      text-decoration: underline;
-    }
   `,
 })
 export class NavigationComponent implements OnInit {
@@ -127,24 +102,14 @@ export class NavigationComponent implements OnInit {
   readonly progressService = inject(ProgressService);
   readonly goalsService = inject(GoalsService);
   readonly upliftersService = inject(UpliftersService);
+  validationRulesGoals = validationRulesGoals;
 
   router = inject(Router);
-  validationRulesGoals = validationRulesGoals;
 
   ngOnInit() {
     if (this.stateService.isLoggedIn()) {
       this.upliftersService.loadConnections().subscribe();
     }
-  }
-
-  switchProfile(userId: string) {
-    this.upliftersService.$activeProfileId.set(userId);
-    this.goalsService.update_goals();
-  }
-
-  logout() {
-    this.stateService.$state.set(intitialState);
-    this.router.navigate(['', 'login']);
   }
 
   toggleStatsButton() {

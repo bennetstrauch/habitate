@@ -109,6 +109,20 @@ export const HabitProgressModel = model<HabitProgress>(
   habitProgressSchema
 );
 
+import { Comment } from "../comments/comments.types";
+
+const commentSchema = new Schema({
+  from_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
+  from_user_name: { type: String, required: true },
+  to_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
+  habit_id: { type: Schema.Types.ObjectId, required: true },
+  habit_name: { type: String, required: true },
+  date: { type: Date, required: true },
+  text: { type: String, required: true, maxlength: 120 },
+});
+
+export const CommentModel = model<Comment>("Comment", commentSchema);
+
 const reflectionSchema = new Schema({
   _id: { type: Schema.Types.ObjectId, required: true },
   user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },

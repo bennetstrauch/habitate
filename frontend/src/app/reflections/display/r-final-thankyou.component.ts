@@ -1,14 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReflectionsService } from '../reflections.service';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import confetti from 'canvas-confetti';
 import { getRandomElement, getRandomPhrase } from '../../utils/utils';
 import { StateService } from '../../state.service';
+import { UpliftersService } from '../../uplifters/uplifters.service';
+import { UpliftFriendComponent } from '../../comments/uplift-friend.component';
 
 @Component({
   selector: 'app-r-final-thankyou',
-  imports: [MatButton],
+  imports: [MatButton, UpliftFriendComponent],
   template: `
     <div class="flex-column">
       <div class="card">
@@ -22,8 +24,19 @@ import { StateService } from '../../state.service';
 
         @if(stateService.$state().name === 'Antwan') {
           <p> PS: Special Message to Antwan: <br> You are loved and appreciated.</p>
-  }
-        <div>
+        }
+
+        @if (showUplift()) {
+          <app-uplift-friend />
+          <br />
+        }
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+          @if (!showUplift() && upliftersService.$connections().length > 0) {
+            <button mat-button (click)="showUplift.set(true)">
+              ✦ Uplift a Friend
+            </button>
+          }
           <button mat-button (click)="completeReflection()">
             Finish Reflection
           </button>
@@ -47,6 +60,8 @@ export class RFinalThankyouComponent {
   #router = inject(Router);
   reflectionsService = inject(ReflectionsService);
   stateService = inject(StateService);
+  upliftersService = inject(UpliftersService);
+  showUplift = signal(false);
 
   
 

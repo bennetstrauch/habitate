@@ -54,5 +54,13 @@ export const routes: Routes = [
         (c) => c.EditUserDetailsComponent
       ),
     canActivate: [() => inject(StateService).isLoggedIn()],
-  }
+  },
+  {
+    path: 'uplifters',
+    loadComponent: () =>
+      import('../uplifters/uplifters.component').then(
+        (c) => c.UpliftersComponent
+      ),
+    canActivate: [() => inject(StateService).isLoggedIn()],
+  },
 ];

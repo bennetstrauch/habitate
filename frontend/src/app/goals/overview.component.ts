@@ -10,6 +10,7 @@ import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
 import { UpliftersService } from '../uplifters/uplifters.service';
+import { CommentsService, Comment } from '../comments/comments.service';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -18,15 +19,54 @@ import { UpliftersService } from '../uplifters/uplifters.service';
   imports: [
     MatIconModule,
     MatButtonModule,
-    MatIconModule,
     CommonModule,
     DailyProgressComponent,
     ProgressStatsComponent,
   ],
   template: `
-   
+
     <div class="flex-row">
-      <div #left id="left-side"></div>
+      <div #left id="left-side">
+        @if (upliftersService.$connections().length > 0) {
+          <div class="profile-nav">
+            <button
+              class="profile-btn"
+              [class.active]="!upliftersService.$isViewingUplifter()"
+              [style.color]="!upliftersService.$isViewingUplifter() ? todayAccentColor : null"
+              [style.border-right-color]="!upliftersService.$isViewingUplifter() ? todayAccentColor : null"
+              (click)="switchProfile('')"
+            >Me</button>
+            @for (c of upliftersService.$connections(); track c._id) {
+              <button
+                class="profile-btn"
+                [class.active]="upliftersService.$activeProfileId() === c._id"
+                [style.color]="upliftersService.$activeProfileId() === c._id ? todayAccentColor : null"
+                [style.border-right-color]="upliftersService.$activeProfileId() === c._id ? todayAccentColor : null"
+                (click)="switchProfile(c._id)"
+              >{{ c.name }}</button>
+            }
+          </div>
+        }
+
+        @if (commentsService.$comments().length > 0) {
+          <div class="comments-left">
+            @for (comment of commentsService.$comments(); track comment._id) {
+              <div class="comment-card">
+                <div class="comment-from">{{ comment.from_user_name }}</div>
+                <div class="comment-text" (click)="toggleComment(comment._id)">
+                  @if (expandedCommentId() === comment._id) {
+                    {{ comment.text }}
+                  } @else {
+                    {{ comment.text.length > 60 ? comment.text.slice(0, 60) + '…' : comment.text }}
+                  }
+                </div>
+                <div class="comment-habit">↳ {{ comment.habit_name }}</div>
+                <button class="comment-delete" (click)="deleteComment(comment._id)" title="Remove">×</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
 
       @if (progressService.$displayDailyProgress()) {
       <app-daily-progress></app-daily-progress>
@@ -108,15 +148,98 @@ import { UpliftersService } from '../uplifters/uplifters.service';
   #left-side,
 #right-side {
   transition: width 0.2s ease;
-  // border: 5px solid lightgray;
+}
+
+.profile-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding-right: 16px;
+  padding-top: 8px;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  border-right: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #aaa;
+  padding: 3px 8px;
+  text-align: right;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.profile-btn:hover {
+  color: #555;
+}
+
+.profile-btn.active {
+  font-weight: 600;
+  border-right: 2px solid;
 }
 
 #right-side {
   font-family: 'Caveat', cursive;
   font-size: 1.5rem;
-  transform: rotate(-10deg); /* Slight tilt */
-  white-space: pre-wrap; /* Preserve line breaks if needed */
+  transform: rotate(-10deg);
+  white-space: pre-wrap;
 }
+
+.comments-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  padding-right: 16px;
+  padding-top: 16px;
+}
+
+.comment-card {
+  position: relative;
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  transform: rotate(8deg);
+  text-align: right;
+  max-width: 140px;
+  color: #777;
+  line-height: 1.3;
+}
+
+.comment-from {
+  font-size: 0.75rem;
+  color: #bbb;
+  font-family: inherit;
+  margin-bottom: 1px;
+}
+
+.comment-text {
+  cursor: pointer;
+  word-break: break-word;
+}
+
+.comment-habit {
+  font-size: 0.72rem;
+  color: #bbb;
+  margin-top: 1px;
+}
+
+.comment-delete {
+  position: absolute;
+  top: -4px;
+  right: -12px;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.comment-delete:hover { color: #e57373; }
 
   `,
 })
@@ -127,6 +250,9 @@ export class OverviewComponent {
   readonly progressService = inject(ProgressService);
   readonly reflectionsService = inject(ReflectionsService);
   readonly upliftersService = inject(UpliftersService);
+  readonly commentsService = inject(CommentsService);
+
+  expandedCommentId = signal<string | null>(null);
 
   @ViewChild('left') leftDivRef!: ElementRef;
   @ViewChild('right') rightDivRef!: ElementRef;
@@ -170,6 +296,31 @@ setupResizeObserver(): void {
 
   // ####ideax: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
   // signature const function if(condition : boolean)navigateTo(path: string){}
+
+  private dayAccentColorMap: Record<number, string> = {
+    0: 'rgb(160, 110, 20)',   // Sunday
+    2: 'rgb(120, 45, 0)',     // Tuesday
+    3: 'rgb(75, 100, 0)',     // Wednesday
+    5: 'rgb(0, 110, 116)',    // Friday
+  };
+  todayAccentColor = this.dayAccentColorMap[new Date().getDay()] ?? '#222';
+
+  switchProfile(userId: string) {
+    this.upliftersService.$activeProfileId.set(userId);
+    this.goalsService.update_goals();
+  }
+
+  toggleComment(id: string) {
+    this.expandedCommentId.update(current => current === id ? null : id);
+  }
+
+  deleteComment(id: string) {
+    this.commentsService.deleteComment(id).subscribe(r => {
+      if (r.success) {
+        this.commentsService.$comments.update(cs => cs.filter(c => c._id !== id));
+      }
+    });
+  }
 
   constructor() {
     if (this.goalsService.$goals().length === 0 && !this.upliftersService.$isViewingUplifter()) {

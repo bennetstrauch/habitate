@@ -267,5 +267,5 @@ const getReflectionStatsForDateRange = async (
 
   console.log("ReflectionStats:", reflectionStats);
 
-  return reflectionStats[0] as StatBase;
+  return (reflectionStats[0] ?? { completed: 0 }) as StatBase;
 };
