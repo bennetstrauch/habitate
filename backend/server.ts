@@ -10,6 +10,7 @@ import { progressRouter } from "./progresses/progresses.router";
 import { healthCheck } from "./utils/healthcheck";
 import { reflectionsRouter } from "./reflections/reflections.router";
 import { commentsRouter } from "./comments/comments.router";
+import { suggestionsRouter } from "./suggestions/suggestions.router";
 
 // to run the cron jobs need to import them here:
 import "./progresses/create.progress.cron";
@@ -30,6 +31,7 @@ app.use("/goals", checkToken, goalsRouter);
 app.use("/progresses", checkToken, progressRouter);
 app.use("/reflections", checkToken, reflectionsRouter);
 app.use("/comments", checkToken, commentsRouter);
+app.use("/suggestions", checkToken, suggestionsRouter);
 
 app.get("/health", healthCheck);
 app.post('/log', logPayload)

@@ -110,6 +110,7 @@ export const HabitProgressModel = model<HabitProgress>(
 );
 
 import { Comment } from "../comments/comments.types";
+import { ActivitySuggestion } from "../suggestions/suggestions.types";
 
 const commentSchema = new Schema({
   from_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
@@ -140,4 +141,32 @@ const reflectionSchema = new Schema({
 export const ReflectionModel = model<Reflection>(
   "Reflection",
   reflectionSchema
+);
+
+const activitySuggestionSchema = new Schema(
+  {
+    from_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    from_user_name: { type: String, required: true },
+    to_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    date: { type: Date, required: true },
+    text: { type: String, required: true, maxlength: 90 },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "dismissed"],
+      default: "pending",
+    },
+    completed: { type: Boolean, default: false },
+    goal_id: { type: Schema.Types.ObjectId, ref: "goal", default: null },
+  },
+  { timestamps: true }
+);
+
+activitySuggestionSchema.index(
+  { from_user_id: 1, to_user_id: 1, date: 1 },
+  { unique: true }
+);
+
+export const ActivitySuggestionModel = model<ActivitySuggestion>(
+  "ActivitySuggestion",
+  activitySuggestionSchema
 );
