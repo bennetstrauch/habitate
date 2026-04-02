@@ -76,7 +76,8 @@ export const getSuggestions: RequestHandler<
         date: { $gte: startOfDay, $lte: endOfDay },
         status: "accepted",
       });
-      return res.json({ success: true, data: suggestions as unknown as ActivitySuggestion[] });
+      res.json({ success: true, data: suggestions as unknown as ActivitySuggestion[] });
+      return;
     }
 
     const suggestions = await ActivitySuggestionModel.find({
