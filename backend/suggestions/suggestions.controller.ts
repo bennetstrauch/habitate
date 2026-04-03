@@ -6,6 +6,7 @@ import { requireFriendship } from "../utils/friendship";
 import { ActivitySuggestion, MAX_SUGGESTION_LENGTH } from "./suggestions.types";
 import { idToObjectId } from "../utils/functionsAndVariables";
 import moment from "moment-timezone";
+import { sendPushToUser } from "../utils/push";
 
 export const postSuggestion: RequestHandler<
   unknown,
@@ -43,6 +44,8 @@ export const postSuggestion: RequestHandler<
       res
         .status(201)
         .json({ success: true, data: suggestion as unknown as ActivitySuggestion });
+
+      sendPushToUser(to_user_id, `✨ ${sender.name} suggested an activity`, text.trim()).catch(() => {});
     } catch (err: any) {
       if (err.code === 11000)
         throw new ErrorWithStatus(

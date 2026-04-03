@@ -6,6 +6,7 @@ import { requireFriendship } from "../utils/friendship";
 import { Comment, MAX_COMMENT_LENGTH } from "./comments.types";
 import { idToObjectId } from "../utils/functionsAndVariables";
 import moment from "moment-timezone";
+import { sendPushToUser } from "../utils/push";
 
 export const postComment: RequestHandler<
   unknown,
@@ -45,6 +46,8 @@ export const postComment: RequestHandler<
     });
 
     res.status(201).json({ success: true, data: comment as unknown as Comment });
+
+    sendPushToUser(to_user_id, `💬 ${sender.name}`, comment.habit_name).catch(() => {});
   } catch (err) {
     next(err);
   }
