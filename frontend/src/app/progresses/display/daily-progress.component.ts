@@ -207,7 +207,6 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
         >
           Start Daily Reflection
         </button>
-        <br />
       }
 
       <!-- ── Uplifter view: suggest activity button + inline form (today only) ── -->
@@ -248,9 +247,9 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
                   mat-raised-button
                   color="primary"
                   (click)="submitSuggestion()"
-                  [disabled]="!$suggestionText().trim()"
+                  [disabled]="!$suggestionText().trim() || $sendingSuggestion()"
                 >
-                  Send
+                  {{ $sendingSuggestion() ? 'Sending…' : 'Send' }}
                 </button>
                 <button mat-button (click)="$showSuggestForm.set(false)">Cancel</button>
               </div>
@@ -270,9 +269,11 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
       text-align: center;
       color: #888;
       padding: 2px 16px;
+      margin: 10px 0;
     }
     @media (max-width: 600px) {
       .mobile-intention { display: block; }
+      .card { margin-top: 10px; }
     }
 
     .suggestion-habit { color: #5a8a5a; }
@@ -340,6 +341,7 @@ export class DailyProgressComponent {
   $suggestionText = signal('');
   $suggestionGoalId = signal<string | null>(null);
   $suggestAdjective = signal(SUGGEST_ADJECTIVES[0]);
+  $sendingSuggestion = signal(false);
 
   constructor() {
     effect(() => {
@@ -403,9 +405,11 @@ export class DailyProgressComponent {
     const date = this.progressService.$dailyProgressDate().toISOString().split('T')[0];
     const toUserId = this.upliftersService.$activeProfileId();
 
+    this.$sendingSuggestion.set(true);
     this.suggestionsService
       .post(toUserId, date, text, this.$suggestionGoalId())
       .subscribe((r) => {
+        this.$sendingSuggestion.set(false);
         if (r.success) {
           this.$showSuggestForm.set(false);
           this.$suggestionText.set('');

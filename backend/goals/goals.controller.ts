@@ -98,7 +98,10 @@ export const postGoal: RequestHandler<
       let ranking = -1; // default ranking##
 
       try {
-    embedded_name = await generateEmbedding(goalBase.name);
+    const embeddingInput = goalBase.description?.trim()
+      ? `${goalBase.name}: ${goalBase.description}`
+      : goalBase.name;
+    embedded_name = await generateEmbedding(embeddingInput);
 
     ranking = (await findSimilarGoals(embedded_name)) + 1;
     console.log("ranking", ranking);

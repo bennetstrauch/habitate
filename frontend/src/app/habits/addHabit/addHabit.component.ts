@@ -1,4 +1,4 @@
-import { Component, inject, input, viewChild } from '@angular/core';
+import { Component, inject, input, signal, viewChild } from '@angular/core';
 import { GoalsService } from '../../goals/goals.service';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -19,6 +19,7 @@ import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Location } from '@angular/common';
 import { AddHelpComponent } from './addHelp.component';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-add-habit',
@@ -31,6 +32,7 @@ import { AddHelpComponent } from './addHelp.component';
     MatInputModule,
     ReactiveFormsModule,
     MatButtonModule,
+    TextFieldModule,
   ],
   template: `
     <mat-stepper class="card" linear #stepper>
@@ -57,11 +59,14 @@ import { AddHelpComponent } from './addHelp.component';
       <mat-step [stepControl]="habitForm.step1">
         <mat-form-field>
           <mat-label>Habit</mat-label>
-          <input
+          <textarea
             matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="3"
             [formControl]="habitForm.step1.controls.name"
             placeholder="Enter Habit"
-          />
+          ></textarea>
         </mat-form-field>
 
         <div>
@@ -84,11 +89,14 @@ import { AddHelpComponent } from './addHelp.component';
         <form [formGroup]="habitForm.step2">
           <mat-form-field>
             <mat-label>Description</mat-label>
-            <input
+            <textarea
               matInput
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="5"
               formControlName="description"
               placeholder="Enter description"
-            />
+            ></textarea>
           </mat-form-field>
           <div>
             <button mat-button matStepperPrevious>Back</button>
@@ -164,9 +172,10 @@ import { AddHelpComponent } from './addHelp.component';
             mat-raised-button
             type="submit"
             color="primary"
+            [disabled]="$submitting()"
             (click)="addHabit()"
           >
-            Yes, Submit
+            {{ $submitting() ? 'Adding…' : 'Yes, Submit' }}
           </button>
           <br />
           <button mat-button (click)="goToStep(3)">Revise</button> <br />
@@ -196,6 +205,7 @@ export class AddHabitComponent {
   #router = inject(Router);
 
   _id = input.required<string>();
+  $submitting = signal(false);
 
   constructor(private location: Location) {}
 
@@ -220,7 +230,9 @@ export class AddHabitComponent {
       frequency: this.habitForm.step3.value.frequency!,
     };
 
+    this.$submitting.set(true);
     this.#goalsService.add_habit(this._id(), newHabit).subscribe((response) => {
+      this.$submitting.set(false);
       console.log(response);
       this.#goalsService.update_goals();
 

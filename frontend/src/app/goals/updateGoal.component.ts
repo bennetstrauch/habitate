@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.component';
 import { AutoResizeInputDirective } from '../auto-resize-input.directive';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
 
 @Component({
@@ -24,6 +25,7 @@ import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
     AddHabitButtonComponent,
     AutoResizeInputDirective,
     DisplayGoalWithLinkComponent,
+    TextFieldModule,
   ],
   template: `
     <div class="card goal-container">
@@ -31,22 +33,26 @@ import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
       <form [formGroup]="goalForm" (ngSubmit)="updateGoal()" class="goal-form">
         <mat-form-field appearance="outline">
           <mat-label>Goal</mat-label>
-          <input
+          <textarea
             matInput
-            appAutoResizeInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="3"
             [formControl]="goalForm.controls.name"
             placeholder="Your heartfelt goal"
-          />
+          ></textarea>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Description</mat-label>
-          <input
+          <textarea
             matInput
-            appAutoResizeInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="5"
             [formControl]="goalForm.controls.description"
             placeholder="Enter description"
-          />
+          ></textarea>
         </mat-form-field>
       </form>
     </div>

@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-update-habit',
@@ -20,6 +21,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatButtonModule,
     MatIconModule,
     MatSliderModule,
+    TextFieldModule,
   ],
   template: `
   <!-- #make it all centered, look nicer -->
@@ -28,22 +30,28 @@ import { MatSliderModule } from '@angular/material/slider';
 
         <mat-form-field>
           <mat-label>Habit</mat-label>
-          <input
+          <textarea
             matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="3"
             [formControl]="habitForm.controls.name"
             placeholder="your heartfelt goal"
-          />
+          ></textarea>
         </mat-form-field>
 
         <br />
 
         <mat-form-field>
           <mat-label>Description</mat-label>
-          <input
+          <textarea
             matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="5"
             [formControl]="habitForm.controls.description"
             placeholder="Enter description"
-          />
+          ></textarea>
         </mat-form-field>
 
         <br>

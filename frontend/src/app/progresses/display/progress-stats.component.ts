@@ -1,6 +1,6 @@
 import { Component, effect, inject } from '@angular/core';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { GoalsService } from '../../goals/goals.service';
 import { ProgressService } from '../progresses.service';
 import { MatButton } from '@angular/material/button';
@@ -15,6 +15,7 @@ import { ProgressPeriod } from '../progress-period.enum';
   imports: [
     DisplayGoalWithLinkComponent,
     NgClass,
+    NgTemplateOutlet,
     MatButton,
     DateHeaderWithTimestepComponent,
     MatButtonToggleModule,
@@ -48,60 +49,52 @@ import { ProgressPeriod } from '../progress-period.enum';
             />
 
             <div class="container">
-              @for (habit of goal.habits; track $index){ @let progress =
-              habit.latestProgress;
-
-              <div
-                class="habit-div"
-                [ngClass]="{ 'completed-habit': progress.completed }"
-              >
-                <button mat-button class="progress-display">
-                  <strong>{{
-                    statsService.$progressStatsMap().get(habit._id)
-                      ?.completed ?? 0
-                  }}</strong>
-                  <!-- move that in method # -->
-                  /{{ habit.frequency }}
-                </button>
-
-                {{ habit.name }}
-              </div>
-
+              @for (habit of goal.habits; track habit._id) {
+                @let progress = habit.latestProgress;
+                <div class="habit-div" [ngClass]="{ 'completed-habit': progress.completed }">
+                  <ng-container *ngTemplateOutlet="ring; context: { done: getDone(habit._id), total: habit.frequency ?? 7 }"></ng-container>
+                  {{ habit.name }}
+                </div>
               }
             </div>
           </div>
           <br />
-          } @let reflectionStats = reflectionsService.$reflectionStats();
+          }
           <div
             class="habit-div"
-            [ngClass]="{
-              'completed-habit': reflectionsService.$reflection()?.completed
-            }"
+            [ngClass]="{ 'completed-habit': reflectionsService.$reflection()?.completed }"
           >
-            <button mat-raised-button>
-              <button mat-button class="progress-display">
-                <strong>{{
-                  reflectionStats?.completed ?? 0
-                }}</strong>
-                <!-- move that in method # -->
-                / 7
-              </button>
-
-              <strong>Daily Reflection</strong>
-            </button>
+            <ng-container *ngTemplateOutlet="ring; context: { done: getReflDone(), total: 7 }"></ng-container>
+            <strong>Daily Reflection</strong>
           </div>
+
+          <ng-template #ring let-done="done" let-total="total">
+            <svg class="progress-ring" viewBox="0 0 36 36" width="34" height="34">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#eee" stroke-width="3"/>
+              <circle
+                cx="18" cy="18" r="14" fill="none"
+                [attr.stroke]="arcColor(done, total)"
+                stroke-width="3"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="C"
+                [attr.stroke-dashoffset]="dashOffset(done, total)"
+                transform="rotate(-90 18 18)"
+              />
+              <text x="18" y="18" text-anchor="middle" dominant-baseline="central"
+                font-size="7.5" font-family="Roboto,sans-serif" font-weight="500"
+                [attr.fill]="done === 0 ? '#bbb' : arcColor(done, total)">
+                {{done}}/{{total}}
+              </text>
+            </svg>
+          </ng-template>
         </div>
       </div>
     </div>
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
-  
-    .progress-display {
-    padding: 2px 4x; /* Minimal padding for content */
-    margin: 0;
-    line-height: 1; /* Remove extra line height spacing */
-    height: auto; /* Ensure no extra height */
+    .progress-ring {
+      flex-shrink: 0;
     }
 
     .center-viewport {
@@ -125,6 +118,22 @@ export class ProgressStatsComponent {
   statsService = inject(StatsService);
 
   period: ProgressPeriod = ProgressPeriod.Week;
+
+  readonly C = 2 * Math.PI * 14; // circumference for r=14
+
+  getDone(habitId: string): number { return this.statsService.$progressStatsMap().get(habitId)?.completed ?? 0; }
+  getReflDone(): number { return this.reflectionsService.$reflectionStats()?.completed ?? 0; }
+
+  dashOffset(done: number, total: number): number {
+    const pct = total > 0 ? done / total : 0;
+    return this.C * (1 - pct);
+  }
+
+  arcColor(done: number, total: number): string {
+    if (done === 0 || total === 0) return '#ccc';
+    const hue = Math.round((done / total) * 120); // 0=red-ish → 120=green
+    return `hsl(${hue}, 52%, 50%)`;
+  }
 
   setPeriod(period: ProgressPeriod) {
     this.period = period;

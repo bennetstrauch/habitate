@@ -3,7 +3,6 @@ import {
   computed,
   inject,
   signal,
-  ViewChild,
   viewChild,
 } from '@angular/core';
 import {
@@ -20,6 +19,7 @@ import { GoalsService } from '../goals.service';
 import { Router, RouterLink } from '@angular/router';
 import { Goal, GoalBase } from '@backend/goals/goals.types';
 import { MatCardModule } from '@angular/material/card';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 // #### make clear that a goal is not a concrete behavior, thats a habit
 @Component({
@@ -33,6 +33,7 @@ import { MatCardModule } from '@angular/material/card';
     MatButtonModule,
     MatCardModule,
     RouterLink,
+    TextFieldModule,
   ],
   template: `
     <mat-stepper class="card" linear #stepper>
@@ -73,11 +74,14 @@ import { MatCardModule } from '@angular/material/card';
 
         <mat-form-field>
           <mat-label>Goal</mat-label>
-          <input
+          <textarea
             matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="3"
             [formControl]="goalForm.step1.controls.name"
             placeholder="your heartfelt goal"
-          />
+          ></textarea>
         </mat-form-field>
 
         <div>
@@ -141,11 +145,14 @@ import { MatCardModule } from '@angular/material/card';
         <form [formGroup]="goalForm.step2">
           <mat-form-field>
             <mat-label>Description</mat-label>
-            <input
+            <textarea
               matInput
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="5"
               formControlName="description"
               placeholder="Enter description"
-            />
+            ></textarea>
           </mat-form-field>
           <div>
             <button mat-button matStepperPrevious>Back</button>
@@ -170,9 +177,10 @@ import { MatCardModule } from '@angular/material/card';
             mat-raised-button
             type="submit"
             matStepperNext
+            [disabled]="$submitting()"
             (click)="addGoal()"
           >
-            Add this Goal
+            {{ $submitting() ? 'Adding…' : 'Add this Goal' }}
           </button>
 
           <br />
@@ -242,6 +250,7 @@ export class AddGoalComponent {
 
   $newGoalId = signal<string | null>(null);
   $addHabitEnabled = computed(() => !!this.$newGoalId());
+  $submitting = signal(false);
 
   addGoal() {
     const newGoal: GoalBase = {
@@ -249,7 +258,9 @@ export class AddGoalComponent {
       description: this.goalForm.step2.value.description ?? '',
     };
 
+    this.$submitting.set(true);
     this.goalsService.post_goal(newGoal).subscribe((response) => {
+      this.$submitting.set(false);
       console.log(response);
 
       this.$newGoalId.set(response.data._id);

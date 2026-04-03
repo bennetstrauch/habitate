@@ -116,10 +116,10 @@ import { animate, style, transition, trigger } from '@angular/animations';
             mat-raised-button
             color="primary"
             type="button"
-            [disabled]="!userDetailsForm.valid"
+            [disabled]="!userDetailsForm.valid || $checking()"
             (click)="checkEmailAndContinue()"
           >
-            Continue
+            {{ $checking() ? 'Checking…' : 'Continue' }}
           </button>
         </div>
       </form>
@@ -141,6 +141,7 @@ export class RegisterStepOneComponent {
   @Input() stepper!: MatStepper;
 
   $emailExistsError = signal(false);
+  $checking = signal(false);
   usersService = inject(UsersService);
 
   ngOnInit() {
@@ -151,17 +152,14 @@ export class RegisterStepOneComponent {
   }
 
   checkEmailAndContinue = () => {
-    console.log('formvalid: ', this.userDetailsForm.valid);
-
     const email = this.userDetailsForm.get('email')?.value;
-
+    this.$checking.set(true);
     this.usersService.checkEmail(email).subscribe((response) => {
+      this.$checking.set(false);
       if (response.data) {
-        this.$emailExistsError.set(true); // Show error message
-        console.log('Email already exists. Please choose another one.');
+        this.$emailExistsError.set(true);
       } else {
         this.$emailExistsError.set(false);
-        console.log('Proceeding to next step...');
         this.stepper.next();
       }
     });

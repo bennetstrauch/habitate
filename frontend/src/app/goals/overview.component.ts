@@ -212,6 +212,10 @@ import { CommentsService, Comment } from '../comments/comments.service';
   font-size: 1.5rem;
   transform: rotate(-10deg);
   white-space: pre-wrap;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .comments-left {

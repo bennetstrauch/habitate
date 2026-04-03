@@ -1,7 +1,4 @@
-import {
-  Component,
-  inject,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
@@ -106,7 +103,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
           <app-register-step6 />
           <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button (click)="register()">Submit Registration</button>
+            <button mat-button [disabled]="$registering()" (click)="register()">
+              {{ $registering() ? 'Registering…' : 'Submit Registration' }}
+            </button>
           </div>
         </mat-step>
       </mat-stepper>
@@ -139,6 +138,7 @@ export class RegisterComponent {
   #snackBar = inject(MatSnackBar);
 
   firstEmailReceived = false;
+  $registering = signal(false);
 
   userDetailsForm = inject(FormBuilder).nonNullable.group({
     name: ['', validators.name],
@@ -186,6 +186,7 @@ export class RegisterComponent {
 
   async register() {
     if (this.userDetailsForm.valid) {
+      this.$registering.set(true);
       const enablePush = this.userDetailsForm.get('enablePush')?.value || false;
       const pushSubscriptions = await this.#reflectionReminderService.handlePushSubscription(enablePush, []);
       const reflectionReminderTime = this.#reflectionReminderService.getReflectionReminderTime(this.userDetailsForm);
@@ -208,6 +209,7 @@ export class RegisterComponent {
 
       this.#usersService.register(userDetails).subscribe({
         next: (response) => {
+          this.$registering.set(false);
           if (response.success) {
             alert('Account created successfully. Welcome on board!');
             this.#router.navigate(['', 'login']);
@@ -216,6 +218,7 @@ export class RegisterComponent {
           }
         },
         error: () => {
+          this.$registering.set(false);
           alert('Registration failed. Please try again.');
         },
       });
