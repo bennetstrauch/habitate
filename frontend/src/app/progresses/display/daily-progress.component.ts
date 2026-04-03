@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DateHeaderWithTimestepComponent } from './date-header-with-timestep.component';
 import { GoalsService } from '../../goals/goals.service';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
@@ -17,6 +17,8 @@ import { TourService } from '../../users/tour.service';
 import { UpliftersService } from '../../uplifters/uplifters.service';
 import { SuggestionsService } from '../../suggestions/suggestions.service';
 import { SuggestionCardComponent } from '../../suggestions/suggestion-card.component';
+import { CommentsService } from '../../comments/comments.service';
+import { toLocalDateString } from '../../utils/utils';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
@@ -47,6 +49,7 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     <app-date-header-with-timestep
       [$currentTimeStep]="progressService.$dailyProgressTimeStep"
       [$dateOrDateRangeToShow]="progressService.$dateToShow()"
+      [$hasUnseenBefore]="$hasUnseenBefore()"
     ></app-date-header-with-timestep>
 
     @if (mobileIntention()) {
@@ -319,6 +322,12 @@ export class DailyProgressComponent {
   readonly mobileIntention = input<string>('');
 
   tourService = inject(TourService);
+  commentsService = inject(CommentsService);
+
+  $hasUnseenBefore = computed(() => {
+    const currentDate = toLocalDateString(this.progressService.$dailyProgressDate());
+    return this.commentsService.$datesWithUnseenComments().some(d => d < currentDate);
+  });
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);

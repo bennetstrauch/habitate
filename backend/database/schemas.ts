@@ -120,7 +120,8 @@ const commentSchema = new Schema({
   habit_name: { type: String, required: true },
   date: { type: Date, required: true },
   text: { type: String, required: true, maxlength: 120 },
-});
+  seen: { type: Boolean, default: false },
+}, { timestamps: true });
 
 export const CommentModel = model<Comment>("Comment", commentSchema);
 

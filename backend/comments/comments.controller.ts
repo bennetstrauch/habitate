@@ -66,7 +66,7 @@ export const getComments: RequestHandler<
     const comments = await CommentModel.find({
       to_user_id: idToObjectId(req.userId),
       date: { $gte: startOfDay, $lte: endOfDay },
-    }).sort({ createdAt: 1 });
+    }).sort({ _id: -1 });
 
     res.json({ success: true, data: comments as unknown as Comment[] });
   } catch (err) {
@@ -89,6 +89,42 @@ export const deleteComment: RequestHandler<
 
     await CommentModel.deleteOne({ _id: req.params.id });
     res.json({ success: true, data: null });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const markCommentsSeen: RequestHandler<
+  unknown,
+  StandardResponse<null>,
+  { ids: string[] }
+> = async (req, res, next) => {
+  try {
+    if (!req.userId) throw new ErrorWithStatus("Unauthorized", 401);
+    const { ids } = req.body;
+    await CommentModel.updateMany(
+      { _id: { $in: ids.map(idToObjectId) }, to_user_id: idToObjectId(req.userId) },
+      { $set: { seen: true } }
+    );
+    res.json({ success: true, data: null });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUnseenDates: RequestHandler<
+  unknown,
+  StandardResponse<string[]>
+> = async (req, res, next) => {
+  try {
+    if (!req.userId) throw new ErrorWithStatus("Unauthorized", 401);
+    const sevenDaysAgo = moment.utc().subtract(7, "days").startOf("day").toDate();
+    const unseenComments = await CommentModel.find(
+      { to_user_id: idToObjectId(req.userId), seen: { $ne: true }, date: { $gte: sevenDaysAgo } },
+      { date: 1 }
+    );
+    const dates = [...new Set(unseenComments.map((c) => moment.utc(c.date).format("YYYY-MM-DD")))];
+    res.json({ success: true, data: dates });
   } catch (err) {
     next(err);
   }

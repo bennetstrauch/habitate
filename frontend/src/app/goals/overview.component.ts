@@ -52,7 +52,12 @@ import { CommentsService, Comment } from '../comments/comments.service';
           <div class="comments-left">
             @for (comment of $visibleComments(); track comment._id) {
               <div class="comment-card" [attr.data-comment-id]="comment._id" [style.color]="todayAccentColor">
-                <div class="comment-from">{{ comment.from_user_name }}</div>
+                <div class="comment-from">
+                {{ comment.from_user_name }}
+                @if (!comment.seen) {
+                  <mat-icon class="comment-new-icon">chat_bubble</mat-icon>
+                }
+              </div>
                 <div class="comment-text" (click)="toggleComment(comment._id)">
                   @if (expandedCommentId() === comment._id) {
                     {{ comment.text }}
@@ -74,14 +79,14 @@ import { CommentsService, Comment } from '../comments/comments.service';
       </div>
 
       @if (progressService.$displayDailyProgress()) {
-      <app-daily-progress [mobileIntention]="reflectionsService.$reflection()?.intention ?? ''"></app-daily-progress>
-      } 
-      
+      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''"></app-daily-progress>
+      }
+
       @if (progressService.$displayStats()) {
       <app-progress-stats></app-progress-stats>
       }
 
-      <div #right id="right-side">{{reflectionsService.$reflection()?.intention}}</div>
+      <div #right id="right-side">{{reflectionsService.$displayedIntention()}}</div>
 
       <svg class="arrows-overlay" aria-hidden="true">
         @for (path of $arrowPaths(); track $index) {
@@ -233,6 +238,19 @@ import { CommentsService, Comment } from '../comments/comments.service';
   opacity: 0.6;
   font-family: inherit;
   margin-bottom: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.comment-new-icon {
+  font-size: 9px !important;
+  width: 9px !important;
+  height: 9px !important;
+  opacity: 0.8;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .comment-text {

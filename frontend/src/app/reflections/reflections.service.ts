@@ -19,6 +19,8 @@ export class ReflectionsService {
   upliftersService = inject(UpliftersService);
 
   $reflection = signal<Reflection | null>(null);
+  $previousDayIntention = signal<string | null>(null);
+  $displayedIntention = computed(() => this.$reflection()?.intention ?? this.$previousDayIntention() ?? undefined);
 
   $reflectionStats = signal<StatBase | null>(null);
   // ## effect on change of timestep, but we need separted timesteps for stats and dailyprogress
@@ -32,10 +34,22 @@ export class ReflectionsService {
       ? this.upliftersService.$activeProfileId()
       : undefined;
 
+    this.$previousDayIntention.set(null);
     this.get_reflection(dateString, forUserId).subscribe((response) => {
       if (response.success) {
         this.$reflection.set(response.data);
         console.log('Reflection:', response.data);
+        // If this day has no intention yet, fetch the previous day's to carry it forward
+        if (!response.data?.intention) {
+          const date = new Date(this.progressService.$dailyProgressDate());
+          date.setDate(date.getDate() - 1);
+          const prevDateString = toLocalDateString(date);
+          this.get_reflection(prevDateString, forUserId).subscribe((prev) => {
+            if (prev.success && prev.data?.intention) {
+              this.$previousDayIntention.set(prev.data.intention);
+            }
+          });
+        }
       }
     });
   });
@@ -64,13 +78,13 @@ export class ReflectionsService {
 
 
   
-  setIntention = (userIntention : string) => {
+  setIntention = (userIntention: string) => {
     if (!this.$reflection()) {
       console.error('No reflection available to set intention');
       return;
     }
-
     this.$reflection()!.intention = userIntention;
+    this.$previousDayIntention.set(null);
   }
 
 

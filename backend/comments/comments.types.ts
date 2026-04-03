@@ -7,6 +7,7 @@ export type Comment = {
   habit_name: string;
   date: Date;
   text: string;
+  seen: boolean;
 };
 
 export const MAX_COMMENT_LENGTH = 120;

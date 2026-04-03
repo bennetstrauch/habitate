@@ -8,13 +8,18 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
   imports: [MatIconModule, MatButtonToggleModule],
   template: `
     <div class="flex-row">
-      <button
-        class="change-day"
-        [disabled]="$currentTimeStep() <= minStep()"
-        (click)="$currentTimeStep.set($currentTimeStep() - 1)"
-      >
-        <mat-icon>navigate_before</mat-icon>
-      </button>
+      <div class="nav-btn-wrapper">
+        <button
+          class="change-day"
+          [disabled]="$currentTimeStep() <= minStep()"
+          (click)="$currentTimeStep.set($currentTimeStep() - 1)"
+        >
+          <mat-icon>navigate_before</mat-icon>
+        </button>
+        @if ($hasUnseenBefore()) {
+          <mat-icon class="unseen-badge">chat_bubble</mat-icon>
+        }
+      </div>
 
       <div class="card head-card">
         <span [innerHTML]="$dateOrDateRangeToShow()">
@@ -28,34 +33,30 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
       >
         <mat-icon>navigate_next</mat-icon>
       </button>
-
-      
     </div>
   `,
   styles: `
-
   .change-day {
-      background-color: transparent; /* Removes the background color */
-      color: blue;       /* Sets the text color to grey */
-      // font-weight: bold;
+      background-color: transparent;
+      color: blue;
       border: none;
       cursor: pointer;
       opacity: 0.8;
     }
 
     .change-day[disabled] {
-    opacity: 0.2; /* 90% transparent */
-    cursor: not-allowed; /* change cursor to indicate it's not clickable */
+    opacity: 0.2;
+    cursor: not-allowed;
     pointer-events: none;
   }
 
    .flex-row {
-    // border: 1px solid black;
     display: flex;
     margin-top: 1px;
     margin-bottom: 1px;
     padding: 0px;
     justify-content: center;
+    align-items: center;
   }
 
   .head-card {
@@ -64,22 +65,34 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     justify-content: center;
     margin-top: 0px;
     margin-bottom: 0px;
-  
   }
 
+  .nav-btn-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
 
+  .unseen-badge {
+    position: absolute;
+    top: 2px;
+    right: -2px;
+    font-size: 10px !important;
+    width: 10px !important;
+    height: 10px !important;
+    color: #e57373;
+    pointer-events: none;
+    line-height: 1;
+  }
   `,
 })
 export class DateHeaderWithTimestepComponent {
-  // ##refactor timestep maybe, + add min and max values
-
   progressService = inject(ProgressService);
 
   @Input({ required: true }) $currentTimeStep!: Signal<number> & { set: (value: number) => void };
   $dateOrDateRangeToShow = input.required();
+  readonly $hasUnseenBefore = input<boolean>(false);
 
-
-  // ##cange back to -2
   readonly minStep = input<number>(-7);
   readonly maxStep = input<number>(0);
 }
