@@ -8,7 +8,14 @@
       "Bash(node -e ':*)",
       "Bash(npm install:*)",
       "Bash(node -e \"try{require\\('sharp'\\);console.log\\('sharp ok'\\)}catch\\(e\\){console.log\\('no:',e.message\\)}\")",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm show:*)",
+      "Bash(python3 -c \"import sys,json; cfg=json.load\\(sys.stdin\\); print\\(json.dumps\\(cfg['projects']['frontend']['architect']['build']['options'].get\\('assets',[]\\), indent=2\\)\\)\")",
+      "Bash(node:*)",
+      "Bash(python3 -c \"from PIL import Image; print\\('Pillow ok'\\)\")",
+      "Bash(python3 -c \"import PIL; print\\('PIL ok'\\)\")",
+      "Bash(magick --version)",
+      "Bash(convert --version)"
     ]
   }
 }

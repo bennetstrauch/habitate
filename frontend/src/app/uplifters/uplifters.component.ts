@@ -7,11 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { GoalsService } from '../goals/goals.service';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-uplifters',
-  imports: [MatButtonModule, MatIconModule, MatCardModule, MatInputModule, MatFormFieldModule, FormsModule, NgIf],
+  imports: [MatButtonModule, MatIconModule, MatCardModule, MatInputModule, MatFormFieldModule, FormsModule],
   template: `
     <div class="container">
       <h2>Uplifters</h2>
