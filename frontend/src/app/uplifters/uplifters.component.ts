@@ -7,10 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { GoalsService } from '../goals/goals.service';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-uplifters',
-  imports: [MatButtonModule, MatIconModule, MatCardModule, MatInputModule, MatFormFieldModule, FormsModule],
+  imports: [MatButtonModule, MatIconModule, MatCardModule, MatInputModule, MatFormFieldModule, FormsModule, NgIf],
   template: `
     <div class="container">
       <h2>Uplifters</h2>
@@ -63,9 +64,17 @@ import { GoalsService } from '../goals/goals.service';
             @for (c of upliftersService.$connections(); track c._id) {
               <div class="connection-row">
                 <span>{{ c.name }}</span>
-                <button mat-icon-button color="warn" (click)="remove(c._id)" title="Remove">
-                  <mat-icon>person_remove</mat-icon>
-                </button>
+                @if ($confirmRemoveId() === c._id) {
+                  <span class="confirm-remove">
+                    Remove?
+                    <button mat-button color="warn" (click)="confirmRemove(c._id)">Yes</button>
+                    <button mat-button (click)="$confirmRemoveId.set(null)">No</button>
+                  </span>
+                } @else {
+                  <button mat-icon-button color="warn" (click)="$confirmRemoveId.set(c._id)" title="Remove">
+                    <mat-icon>person_remove</mat-icon>
+                  </button>
+                }
               </div>
             }
           }
@@ -99,6 +108,7 @@ import { GoalsService } from '../goals/goals.service';
     .empty { color: lightgray; margin: 0; }
     .error { color: #c62828; margin: 4px 0 0; }
     .success { color: #2e7d32; margin: 4px 0 0; }
+    .confirm-remove { display: flex; align-items: center; gap: 2px; font-size: 0.85rem; color: #c62828; }
   `
 })
 export class UpliftersComponent implements OnInit {
@@ -107,6 +117,7 @@ export class UpliftersComponent implements OnInit {
 
   $inviteCode = signal('');
   $isConnecting = signal(false);
+  $confirmRemoveId = signal<string | null>(null);
   connectCode = '';
   connectError = '';
   connectSuccess = '';
@@ -151,9 +162,8 @@ export class UpliftersComponent implements OnInit {
     });
   }
 
-  remove(friendId: string) {
-    const name = this.upliftersService.$connections().find(c => c._id === friendId)?.name ?? 'this person';
-    if (!window.confirm(`Remove ${name} as an Uplifter?`)) return;
+  confirmRemove(friendId: string) {
+    this.$confirmRemoveId.set(null);
     if (this.upliftersService.$activeProfileId() === friendId) {
       this.upliftersService.$activeProfileId.set('');
       this.#goalsService.update_goals();

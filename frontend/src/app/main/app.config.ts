@@ -7,6 +7,7 @@ import { addTokenInterceptor } from '../interceptors/add-token.interceptor';
 import { StateService } from '../state.service';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { checkTokenResponseInterceptor } from '../interceptors/check-token-response.interceptor';
+import { errorTimeoutInterceptor } from '../interceptors/error-timeout.interceptor';
 import { JoyrideModule } from 'ngx-joyride';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -18,7 +19,7 @@ export const appConfig: ApplicationConfig = {
 
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor])), 
+    provideHttpClient(withInterceptors([addTokenInterceptor, checkTokenResponseInterceptor, errorTimeoutInterceptor])),
     provideAnimationsAsync(),
     importProvidersFrom(JoyrideModule.forRoot()), 
     provideServiceWorker('sw.js', {

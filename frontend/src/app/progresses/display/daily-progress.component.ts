@@ -358,6 +358,7 @@ export class DailyProgressComponent {
       this.$showSuggestForm.set(false);
       this.$suggestionText.set('');
       this.$suggestionGoalId.set(null);
+      this.$sendingSuggestion.set(false);
       this.suggestionsService.$goalPickerForId.set(null);
 
       if (isViewingUplifter) {
@@ -416,13 +417,16 @@ export class DailyProgressComponent {
     this.$sendingSuggestion.set(true);
     this.suggestionsService
       .post(toUserId, date, text, this.$suggestionGoalId())
-      .subscribe((r) => {
-        this.$sendingSuggestion.set(false);
-        if (r.success) {
-          this.$showSuggestForm.set(false);
-          this.$suggestionText.set('');
-          this.$suggestionGoalId.set(null);
-        }
+      .subscribe({
+        next: (r) => {
+          this.$sendingSuggestion.set(false);
+          if (r.success) {
+            this.$showSuggestForm.set(false);
+            this.$suggestionText.set('');
+            this.$suggestionGoalId.set(null);
+          }
+        },
+        error: () => this.$sendingSuggestion.set(false),
       });
   }
 
