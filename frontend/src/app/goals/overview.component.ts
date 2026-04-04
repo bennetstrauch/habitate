@@ -338,6 +338,26 @@ export class OverviewComponent {
   readonly upliftersService = inject(UpliftersService);
   readonly commentsService = inject(CommentsService);
 
+  #refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    // Auto-refresh every 60 s while viewing an uplifter's board.
+    // Re-runs (and resets the interval) whenever the active profile changes.
+    effect(() => {
+      const isViewing = this.upliftersService.$isViewingUplifter();
+      this.upliftersService.$activeProfileId(); // track profile switches
+
+      if (this.#refreshInterval) {
+        clearInterval(this.#refreshInterval);
+        this.#refreshInterval = null;
+      }
+
+      if (isViewing) {
+        this.#refreshInterval = setInterval(() => this.goalsService.update_goals(), 60_000);
+      }
+    });
+  }
+
   expandedCommentId = signal<string | null>(null);
   showAllComments = signal(false);
   $maxVisibleComments = signal(100);
@@ -456,9 +476,8 @@ setupResizeObserver(): void {
   }
 
   ngOnDestroy(): void {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
+    this.resizeObserver?.disconnect();
+    if (this.#refreshInterval) clearInterval(this.#refreshInterval);
   }
 
 

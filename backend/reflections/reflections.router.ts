@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { getReflectionForDate, getReflectionStats, putReflection } from "./reflections.controller";
+import { getReflectionForDate, getReflectionStats, getReflectionsForRange, putReflection } from "./reflections.controller";
 
 const router = Router();
 
 router.get("/", getReflectionForDate);
+router.get("/stats", getReflectionStats);
+router.get("/range", getReflectionsForRange);
 router.put("/:reflection_id", putReflection);
-
-router.get("/stats", getReflectionStats)
 
 export const reflectionsRouter = router;

@@ -97,7 +97,7 @@ export class SuggestionCardComponent {
       const ref = this.#snackBar.open(`${phrase} Activity accepted.`, 'Change goal', {
         duration: 6000,
       });
-      ref.onAction().subscribe(() => this.suggestionsService.$showGoalPicker.set(true));
+      ref.onAction().subscribe(() => this.suggestionsService.$goalPickerForId.set(s._id));
     });
   }
 

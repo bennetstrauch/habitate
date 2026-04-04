@@ -6,11 +6,13 @@
 
 ## Code Philosophy
 
+> **IMPORTANT: Every change must be elegant, clean, and simple. This is non-negotiable.**
+
 - **Simple** — prefer the obvious solution over the clever one
 - **Elegant** — clean structure, clear naming, minimal noise
 - **Non-redundant** — no duplication; shared logic lives in one place
 
-Apply these to every change. When in doubt, do less.
+Apply these to every change. When in doubt, do less. Resist the urge to over-engineer.
 
 ## Stack
 

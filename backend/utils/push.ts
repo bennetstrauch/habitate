@@ -21,7 +21,8 @@ export async function sendPushToUser(userId: string, title: string, body: string
     try {
       await webpush.sendNotification(
         subscription,
-        JSON.stringify({ title, body, icon: '/assets/icons/icon-192x192.png', url })
+        JSON.stringify({ title, body, icon: '/assets/icons/icon-192x192.png', url }),
+        { TTL: 86400 } // hold for 24 h so offline devices receive it on reconnect
       );
     } catch (error: any) {
       if (error.statusCode === 404 || error.statusCode === 410) {

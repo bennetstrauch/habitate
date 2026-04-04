@@ -86,7 +86,7 @@ export const getSuggestions: RequestHandler<
     const suggestions = await ActivitySuggestionModel.find({
       to_user_id: idToObjectId(req.userId),
       date: { $gte: startOfDay, $lte: endOfDay },
-    }).sort({ createdAt: 1 });
+    }).sort({ createdAt: -1 });
 
     res.json({ success: true, data: suggestions as unknown as ActivitySuggestion[] });
   } catch (err) {

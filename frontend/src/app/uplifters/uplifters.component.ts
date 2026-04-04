@@ -44,7 +44,7 @@ import { GoalsService } from '../goals/goals.service';
               <mat-label>Invite code</mat-label>
               <input matInput [(ngModel)]="connectCode" placeholder="ABC123" (keydown.enter)="connect()" />
             </mat-form-field>
-            <button mat-raised-button color="primary" (click)="connect()" [disabled]="!connectCode">
+            <button mat-raised-button color="primary" (click)="connect()" [disabled]="!connectCode || $isConnecting()">
               Connect
             </button>
           </div>
@@ -106,6 +106,7 @@ export class UpliftersComponent implements OnInit {
   #goalsService = inject(GoalsService);
 
   $inviteCode = signal('');
+  $isConnecting = signal(false);
   connectCode = '';
   connectError = '';
   connectSuccess = '';
@@ -131,21 +132,28 @@ export class UpliftersComponent implements OnInit {
   }
 
   connect() {
-    if (!this.connectCode) return;
+    if (!this.connectCode || this.$isConnecting()) return;
     this.connectError = '';
     this.connectSuccess = '';
+    this.$isConnecting.set(true);
     this.upliftersService.connect(this.connectCode).subscribe({
       next: r => {
+        this.$isConnecting.set(false);
         if (r.success) {
           this.connectSuccess = r.data.name;
           this.connectCode = '';
         }
       },
-      error: err => { this.connectError = err.error?.message ?? 'Error connecting'; }
+      error: err => {
+        this.$isConnecting.set(false);
+        this.connectError = err.error?.message ?? 'Error connecting';
+      }
     });
   }
 
   remove(friendId: string) {
+    const name = this.upliftersService.$connections().find(c => c._id === friendId)?.name ?? 'this person';
+    if (!window.confirm(`Remove ${name} as an Uplifter?`)) return;
     if (this.upliftersService.$activeProfileId() === friendId) {
       this.upliftersService.$activeProfileId.set('');
       this.#goalsService.update_goals();

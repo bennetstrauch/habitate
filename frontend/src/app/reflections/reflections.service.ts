@@ -23,6 +23,7 @@ export class ReflectionsService {
   $displayedIntention = computed(() => this.$reflection()?.intention ?? this.$previousDayIntention() ?? undefined);
 
   $reflectionStats = signal<StatBase | null>(null);
+  $weeklyReflections = signal<Reflection[]>([]);
   // ## effect on change of timestep, but we need separted timesteps for stats and dailyprogress
 
   // for daily progress — re-runs when date OR active profile changes
@@ -59,6 +60,7 @@ export class ReflectionsService {
 
   triggerLoadReflectionStats = effect(() => {
     this.loadReflectionStats();
+    this.loadWeeklyReflections();
   });
 
 
@@ -73,6 +75,17 @@ export class ReflectionsService {
         this.$reflectionStats.set(response.data);
         console.log('Reflection Stats:', response.data);
       }
+    });
+  }
+
+  loadWeeklyReflections = () => {
+    const { startDate, endDate } = this.statsService.$progressDateRange();
+    const forUserId = this.upliftersService.$isViewingUplifter()
+      ? this.upliftersService.$activeProfileId()
+      : undefined;
+
+    this.get_reflections_for_range(startDate, endDate, forUserId).subscribe((response) => {
+      if (response.success) this.$weeklyReflections.set(response.data);
     });
   }
 
@@ -107,6 +120,18 @@ export class ReflectionsService {
     );
   }
 
+
+  get_reflections_for_range(startDate: Date, endDate: Date, forUserId?: string) {
+    let params = new HttpParams()
+      .set('startDate', startDate.toISOString())
+      .set('endDate', endDate.toISOString());
+    if (forUserId) params = params.set('forUserId', forUserId);
+
+    return this.#http.get<StandardResponse<Reflection[]>>(
+      environment.SERVER_URL + '/reflections/range',
+      { params }
+    );
+  }
 
   get_reflection_stats(startDate: Date, endDate: Date, forUserId?: string) {
     let params = new HttpParams()

@@ -239,6 +239,37 @@ export const getReflectionStats: getReflectionStatsReqHandler = async (
   }
 };
 
+type GetReflectionsForRangeReqHandler = RequestHandler<
+  unknown,
+  StandardResponse<Reflection[]>,
+  unknown,
+  { startDate: string; endDate: string; forUserId?: string }
+>;
+
+export const getReflectionsForRange: GetReflectionsForRangeReqHandler = async (req, res, next) => {
+  try {
+    if (!req.userId) throw new ErrorWithStatus("Unauthorized", 401);
+
+    const { startDate, endDate, forUserId } = req.query;
+
+    const targetUserId = forUserId
+      ? await requireFriendship(req.userId, forUserId)
+      : req.userId;
+
+    const reflections = await ReflectionModel.find(
+      {
+        user_id: idToObjectId(targetUserId),
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      },
+      { intention: 1, date: 1, completed: 1 }
+    ).sort({ date: 1 });
+
+    res.json({ success: true, data: reflections as unknown as Reflection[] });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getReflectionStatsForDateRange = async (
   user_id: string,
   startDate: Date,

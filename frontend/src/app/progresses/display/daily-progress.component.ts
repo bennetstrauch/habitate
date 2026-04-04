@@ -58,11 +58,10 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
 
     <div class="card">
 
-      @let accepted = suggestionsService.$acceptedSuggestion();
       @let viewedAccepted = suggestionsService.$viewedAcceptedSuggestion();
 
       <!-- ── Own view: goal picker overlay (shown via toast action) ── -->
-      @if (!upliftersService.$isViewingUplifter() && accepted && suggestionsService.$showGoalPicker()) {
+      @if (!upliftersService.$isViewingUplifter() && suggestionsService.$goalPickerForId()) {
         <div class="goal-picker-row">
           <mat-form-field appearance="outline" class="goal-picker">
             <mat-label>Move activity to goal</mat-label>
@@ -73,24 +72,28 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
               }
             </mat-select>
           </mat-form-field>
-          <button mat-icon-button (click)="suggestionsService.$showGoalPicker.set(false)" aria-label="Close">
+          <button mat-icon-button (click)="suggestionsService.$goalPickerForId.set(null)" aria-label="Close">
             <mat-icon>close</mat-icon>
           </button>
         </div>
       }
 
-      <!-- ── Own view: accepted suggestion (no goal) — above goals ── -->
-      @if (!upliftersService.$isViewingUplifter() && accepted && !accepted.goal_id) {
-        <div
-          class="habit-div suggestion-habit"
-          [ngClass]="{ 'completed-habit': accepted.completed }"
-          (click)="toggleSuggestionCompleted()"
-          style="cursor: pointer"
-        >
-          <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
-          <mat-icon class="sparkle">auto_awesome</mat-icon>
-          {{ accepted.text }}
-        </div>
+      <!-- ── Own view: accepted suggestions without a goal — above goals ── -->
+      @if (!upliftersService.$isViewingUplifter()) {
+        @for (accepted of suggestionsService.$acceptedSuggestions(); track accepted._id) {
+          @if (!accepted.goal_id) {
+            <div
+              class="habit-div suggestion-habit"
+              [ngClass]="{ 'completed-habit': accepted.completed }"
+              (click)="toggleSuggestionCompleted(accepted)"
+              style="cursor: pointer"
+            >
+              <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+              <mat-icon class="sparkle">auto_awesome</mat-icon>
+              {{ accepted.text }}
+            </div>
+          }
+        }
       }
 
       <!-- ── Uplifter view: viewed user's accepted suggestion (no goal) ── -->
@@ -133,18 +136,22 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
 
           <div class="container">
 
-            <!-- ── Own view: accepted suggestion matched to this goal ── -->
-            @if (!upliftersService.$isViewingUplifter() && accepted?.goal_id === goal._id) {
-              <div
-                class="habit-div suggestion-habit"
-                [ngClass]="{ 'completed-habit': accepted!.completed }"
-                (click)="toggleSuggestionCompleted()"
-                style="cursor: pointer"
-              >
-                <mat-icon>{{ accepted!.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
-                <mat-icon class="sparkle">auto_awesome</mat-icon>
-                {{ accepted!.text }}
-              </div>
+            <!-- ── Own view: accepted suggestions matched to this goal ── -->
+            @if (!upliftersService.$isViewingUplifter()) {
+              @for (accepted of suggestionsService.$acceptedSuggestions(); track accepted._id) {
+                @if (accepted.goal_id === goal._id) {
+                  <div
+                    class="habit-div suggestion-habit"
+                    [ngClass]="{ 'completed-habit': accepted.completed }"
+                    (click)="toggleSuggestionCompleted(accepted)"
+                    style="cursor: pointer"
+                  >
+                    <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+                    <mat-icon class="sparkle">auto_awesome</mat-icon>
+                    {{ accepted.text }}
+                  </div>
+                }
+              }
             }
 
             <!-- ── Uplifter view: viewed user's accepted suggestion matched to this goal ── -->
@@ -351,13 +358,14 @@ export class DailyProgressComponent {
       this.$showSuggestForm.set(false);
       this.$suggestionText.set('');
       this.$suggestionGoalId.set(null);
-      this.suggestionsService.$showGoalPicker.set(false);
+      this.suggestionsService.$goalPickerForId.set(null);
 
       if (isViewingUplifter) {
         const toUserId = this.upliftersService.$activeProfileId();
         this.$suggestAdjective.set(
           SUGGEST_ADJECTIVES[Math.floor(Math.random() * SUGGEST_ADJECTIVES.length)]
         );
+        this.suggestionsService.$acceptedSuggestions.set([]);
         this.suggestionsService.checkSentToUser(toUserId, date);
         this.suggestionsService.loadAcceptedForUser(toUserId, date);
       } else {
@@ -382,12 +390,12 @@ export class DailyProgressComponent {
     });
   }
 
-  toggleSuggestionCompleted() {
-    const accepted = this.suggestionsService.$acceptedSuggestion();
-    if (!accepted) return;
+  toggleSuggestionCompleted(accepted: import('@backend/suggestions/suggestions.types').ActivitySuggestion) {
     const newCompleted = !accepted.completed;
     // optimistic update
-    this.suggestionsService.$acceptedSuggestion.set({ ...accepted, completed: newCompleted });
+    this.suggestionsService.$acceptedSuggestions.update(
+      (list) => list.map((s) => s._id === accepted._id ? { ...s, completed: newCompleted } : s)
+    );
     this.suggestionsService.toggleCompleted(accepted._id, newCompleted).subscribe();
   }
 
@@ -419,10 +427,10 @@ export class DailyProgressComponent {
   }
 
   changeGoal(goalId: string | null) {
-    const accepted = this.suggestionsService.$acceptedSuggestion();
-    if (!accepted) return;
-    this.suggestionsService.changeGoal(accepted._id, goalId).subscribe(() => {
-      this.suggestionsService.$showGoalPicker.set(false);
+    const id = this.suggestionsService.$goalPickerForId();
+    if (!id) return;
+    this.suggestionsService.changeGoal(id, goalId).subscribe(() => {
+      this.suggestionsService.$goalPickerForId.set(null);
     });
   }
 

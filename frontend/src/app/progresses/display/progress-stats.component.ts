@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { GoalsService } from '../../goals/goals.service';
@@ -28,17 +28,7 @@ import { ProgressPeriod } from '../progress-period.enum';
     ></app-date-header-with-timestep>
 
     <div class="center-viewport">
-      <div class="flex-row">
-        <!-- ### impl -->
-        <!-- <mat-button-toggle-group
-          vertical
-          style="margin-right: 2rem;"
-          [value]="period"
-          (change)="period = $event.value"
-        >
-          <mat-button-toggle value="week">Week</mat-button-toggle>
-          <mat-button-toggle value="month">Month</mat-button-toggle>
-        </mat-button-toggle-group> -->
+      <div class="stats-columns">
 
         <div class="card">
           @for (goal of goalsService.$goals(); track $index) {
@@ -88,27 +78,98 @@ import { ProgressPeriod } from '../progress-period.enum';
             </svg>
           </ng-template>
         </div>
+
+        <!-- ── Intentions panel ── -->
+        @let intentions = intentionsWithDate();
+        @if (intentions.length > 0) {
+          <div class="intentions-panel">
+            <p class="intentions-label">Intentions this week</p>
+            @for (item of visibleIntentions(); track item.date) {
+              <div class="intention-row">
+                <span class="intention-date">{{ item.dateLabel }}</span>
+                <span class="intention-text">{{ item.intention }}</span>
+              </div>
+            }
+            @if (!$intentionsExpanded() && intentions.length > INTENTIONS_PREVIEW) {
+              <button mat-button class="show-more-btn" (click)="$intentionsExpanded.set(true)">
+                {{ intentions.length - INTENTIONS_PREVIEW }} more
+              </button>
+            }
+            @if ($intentionsExpanded() && intentions.length > INTENTIONS_PREVIEW) {
+              <button mat-button class="show-more-btn" (click)="$intentionsExpanded.set(false)">
+                Show less
+              </button>
+            }
+          </div>
+        }
+
       </div>
     </div>
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
-    .progress-ring {
-      flex-shrink: 0;
-    }
+    .progress-ring { flex-shrink: 0; }
 
     .center-viewport {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
+    .stats-columns {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .intentions-panel {
+      min-width: 180px;
+      max-width: 260px;
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .intentions-label {
+      margin: 0 0 2px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .intention-row {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .intention-date {
+      font-size: 0.72rem;
+      color: #bbb;
+    }
+
+    .intention-text {
+      font-family: 'Caveat', cursive;
+      font-size: 1.05rem;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    .show-more-btn {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      align-self: flex-start;
+      padding: 0;
+      min-width: unset;
+    }
   `,
 })
 export class ProgressStatsComponent {
@@ -118,6 +179,23 @@ export class ProgressStatsComponent {
   statsService = inject(StatsService);
 
   period: ProgressPeriod = ProgressPeriod.Week;
+  readonly INTENTIONS_PREVIEW = 3;
+  $intentionsExpanded = signal(false);
+
+  intentionsWithDate = computed(() =>
+    this.reflectionsService.$weeklyReflections()
+      .filter(r => !!r.intention)
+      .map(r => ({
+        date: r.date,
+        dateLabel: new Date(r.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+        intention: r.intention!,
+      }))
+  );
+
+  visibleIntentions = computed(() => {
+    const all = this.intentionsWithDate();
+    return this.$intentionsExpanded() ? all : all.slice(0, this.INTENTIONS_PREVIEW);
+  });
 
   readonly C = 2 * Math.PI * 14; // circumference for r=14
 

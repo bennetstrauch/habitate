@@ -10,10 +10,11 @@ export class SuggestionsService {
   #http = inject(HttpClient);
 
   $pendingSuggestions = signal<ActivitySuggestion[]>([]);
-  $acceptedSuggestion = signal<ActivitySuggestion | null>(null);
+  $acceptedSuggestions = signal<ActivitySuggestion[]>([]);
   $viewedAcceptedSuggestion = signal<ActivitySuggestion | null>(null);
   $hasSent = signal(false);
-  $showGoalPicker = signal(false);
+  /** ID of the accepted suggestion whose goal is being reassigned, or null */
+  $goalPickerForId = signal<string | null>(null);
 
   loadReceivedForDate(date: string) {
     this.#http
@@ -24,7 +25,7 @@ export class SuggestionsService {
       .subscribe((r) => {
         if (!r.success) return;
         this.$pendingSuggestions.set(r.data.filter((s) => s.status === 'pending'));
-        this.$acceptedSuggestion.set(r.data.find((s) => s.status === 'accepted') ?? null);
+        this.$acceptedSuggestions.set(r.data.filter((s) => s.status === 'accepted'));
       });
   }
 
@@ -57,7 +58,7 @@ export class SuggestionsService {
       .pipe(
         tap((r) => {
           if (!r.success) return;
-          this.$acceptedSuggestion.set(r.data);
+          this.$acceptedSuggestions.update((list) => [...list, r.data]);
           this.$pendingSuggestions.update((list) => list.filter((s) => s._id !== id));
         })
       );
@@ -92,7 +93,9 @@ export class SuggestionsService {
         { completed }
       )
       .pipe(tap((r) => {
-        if (r.success) this.$acceptedSuggestion.set(r.data);
+        if (r.success) this.$acceptedSuggestions.update(
+          (list) => list.map((s) => s._id === id ? r.data : s)
+        );
       }));
   }
 
@@ -103,7 +106,9 @@ export class SuggestionsService {
         { goal_id }
       )
       .pipe(tap((r) => {
-        if (r.success) this.$acceptedSuggestion.set(r.data);
+        if (r.success) this.$acceptedSuggestions.update(
+          (list) => list.map((s) => s._id === id ? r.data : s)
+        );
       }));
   }
 }
