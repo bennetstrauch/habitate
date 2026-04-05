@@ -18,6 +18,7 @@ import { UpliftersService } from '../../uplifters/uplifters.service';
 import { SuggestionsService } from '../../suggestions/suggestions.service';
 import { SuggestionCardComponent } from '../../suggestions/suggestion-card.component';
 import { CommentsService } from '../../comments/comments.service';
+import { SuggestionRepliesService } from '../../suggestion-replies/suggestion-replies.service';
 import { toLocalDateString } from '../../utils/utils';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
@@ -92,6 +93,21 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
               <mat-icon class="sparkle">auto_awesome</mat-icon>
               {{ accepted.text }}
             </div>
+            @if ($replyForSuggestionId() === accepted._id) {
+              <div class="suggestion-reply">
+                <textarea
+                  class="reply-textarea"
+                  maxlength="120"
+                  [placeholder]="'Tell ' + accepted.from_user_name + ' how it went\u2026'"
+                  [ngModel]="$replyText()"
+                  (ngModelChange)="$replyText.set($event)"
+                ></textarea>
+                <div class="reply-actions">
+                  <button mat-button (click)="sendSuggestionReply(accepted)">Send</button>
+                  <button class="reply-dismiss" (click)="dismissReply()">×</button>
+                </div>
+              </div>
+            }
           }
         }
       }
@@ -150,6 +166,21 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
                     <mat-icon class="sparkle">auto_awesome</mat-icon>
                     {{ accepted.text }}
                   </div>
+                  @if ($replyForSuggestionId() === accepted._id) {
+                    <div class="suggestion-reply">
+                      <textarea
+                        class="reply-textarea"
+                        maxlength="120"
+                        [placeholder]="'Tell ' + accepted.from_user_name + ' how it went\u2026'"
+                        [ngModel]="$replyText()"
+                        (ngModelChange)="$replyText.set($event)"
+                      ></textarea>
+                      <div class="reply-actions">
+                        <button mat-button (click)="sendSuggestionReply(accepted)">Send</button>
+                        <button class="reply-dismiss" (click)="dismissReply()">×</button>
+                      </div>
+                    </div>
+                  }
                 }
               }
             }
@@ -324,6 +355,45 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     .char-count { font-size: 0.78rem; color: #aaa; }
     .goal-picker-suggest { width: 180px; font-size: 0.85rem; }
     .suggest-form-actions { display: flex; gap: 8px; align-items: center; }
+
+    .suggestion-reply {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 4px 0 8px 28px;
+      animation: reply-fade-in 0.3s ease;
+    }
+    @keyframes reply-fade-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reply-textarea {
+      width: 100%;
+      min-height: 52px;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: none;
+      box-sizing: border-box;
+    }
+    .reply-textarea:focus { outline: none; border-color: #81c784; }
+    .reply-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .reply-dismiss {
+      background: none;
+      border: none;
+      color: #bbb;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .reply-dismiss:hover { color: #e57373; }
   `,
 })
 export class DailyProgressComponent {
@@ -331,6 +401,7 @@ export class DailyProgressComponent {
 
   tourService = inject(TourService);
   commentsService = inject(CommentsService);
+  suggestionRepliesService = inject(SuggestionRepliesService);
 
   $hasUnseenBefore = computed(() => {
     const currentDate = toLocalDateString(this.progressService.$dailyProgressDate());
@@ -347,6 +418,9 @@ export class DailyProgressComponent {
   $showSuggestForm = signal(false);
   $suggestionText = signal('');
   $suggestionGoalId = signal<string | null>(null);
+  $replyForSuggestionId = signal<string | null>(null);
+  $replyText = signal('');
+  #replyTimer: ReturnType<typeof setTimeout> | null = null;
   $suggestAdjective = signal(SUGGEST_ADJECTIVES[0]);
   $sendingSuggestion = signal(false);
 
@@ -393,11 +467,32 @@ export class DailyProgressComponent {
 
   toggleSuggestionCompleted(accepted: import('@backend/suggestions/suggestions.types').ActivitySuggestion) {
     const newCompleted = !accepted.completed;
-    // optimistic update
     this.suggestionsService.$acceptedSuggestions.update(
       (list) => list.map((s) => s._id === accepted._id ? { ...s, completed: newCompleted } : s)
     );
     this.suggestionsService.toggleCompleted(accepted._id, newCompleted).subscribe();
+
+    if (newCompleted) {
+      this.$replyForSuggestionId.set(accepted._id);
+      this.$replyText.set('');
+      if (this.#replyTimer) clearTimeout(this.#replyTimer);
+      this.#replyTimer = setTimeout(() => this.dismissReply(), 20000);
+    } else {
+      this.dismissReply();
+    }
+  }
+
+  sendSuggestionReply(accepted: import('@backend/suggestions/suggestions.types').ActivitySuggestion) {
+    const text = this.$replyText().trim();
+    if (!text) { this.dismissReply(); return; }
+    this.suggestionRepliesService.postReply(accepted._id, text)
+      .subscribe(r => { if (r.success) this.dismissReply(); });
+  }
+
+  dismissReply() {
+    if (this.#replyTimer) { clearTimeout(this.#replyTimer); this.#replyTimer = null; }
+    this.$replyForSuggestionId.set(null);
+    this.$replyText.set('');
   }
 
   startDailyReflection() {
@@ -439,19 +534,6 @@ export class DailyProgressComponent {
   }
 
   ngOnInit() {
-    // Check tour status on component initialization
-    this.tourService.checkTourStatus().subscribe({
-      next: (response) => {
-        console.log('Tour status:', response.data);
-        if (!response.data && this.goalsService.$goals().length > 0) {
-          // Start tour if not completed
-          this.tourService.startTour();
-        }
-      },
-      error: (err) => {
-        console.error('Failed to check tour status:', err);
-        // Optionally start tour on error to avoid blocking user
-      },
-    });
+    this.tourService.checkAndStartTour(this.goalsService.$goals().length > 0);
   }
 }

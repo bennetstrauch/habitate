@@ -111,6 +111,7 @@ export const HabitProgressModel = model<HabitProgress>(
 
 import { Comment } from "../comments/comments.types";
 import { ActivitySuggestion } from "../suggestions/suggestions.types";
+import { SuggestionReply } from "../suggestion-replies/suggestion-replies.types";
 
 const commentSchema = new Schema({
   from_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
@@ -170,4 +171,22 @@ activitySuggestionSchema.index(
 export const ActivitySuggestionModel = model<ActivitySuggestion>(
   "ActivitySuggestion",
   activitySuggestionSchema
+);
+
+const suggestionReplySchema = new Schema(
+  {
+    suggestion_id: { type: Schema.Types.ObjectId, ref: "ActivitySuggestion", required: true },
+    from_user_id:  { type: Schema.Types.ObjectId, ref: "user", required: true },
+    from_user_name: { type: String, required: true },
+    to_user_id:    { type: Schema.Types.ObjectId, ref: "user", required: true },
+    suggestion_text: { type: String, required: true },
+    text: { type: String, required: true, maxlength: 120 },
+    seen: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export const SuggestionReplyModel = model<SuggestionReply>(
+  "SuggestionReply",
+  suggestionReplySchema
 );

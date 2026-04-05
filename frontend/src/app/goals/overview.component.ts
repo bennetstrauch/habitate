@@ -28,7 +28,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
     <div class="flex-row" #flexRow>
       <div #left id="left-side">
         @if (upliftersService.$connections().length > 0) {
-          <div class="profile-nav">
+          <div class="profile-nav" [class.spotlight-dim]="$spotlightActive()">
             <button
               class="profile-btn"
               [class.active]="!upliftersService.$isViewingUplifter()"
@@ -79,16 +79,16 @@ import { CommentsService, Comment } from '../comments/comments.service';
       </div>
 
       @if (progressService.$displayDailyProgress()) {
-      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''"></app-daily-progress>
+      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''" [class.spotlight-dim]="$spotlightActive()"></app-daily-progress>
       }
 
       @if (progressService.$displayStats()) {
-      <app-progress-stats></app-progress-stats>
+      <app-progress-stats [class.spotlight-dim]="$spotlightActive()"></app-progress-stats>
       }
 
-      <div #right id="right-side">{{reflectionsService.$displayedIntention()}}</div>
+      <div #right id="right-side" [class.spotlight-dim]="$spotlightActive()">{{reflectionsService.$displayedIntention()}}</div>
 
-      <svg class="arrows-overlay" aria-hidden="true">
+      <svg class="arrows-overlay" aria-hidden="true" [class.spotlight-dim]="$spotlightActive()">
         @for (path of $arrowPaths(); track $index) {
           <path [attr.d]="path.curve" fill="none" [attr.stroke]="todayAccentColor" stroke-width="1.5" stroke-opacity="0.55" stroke-linecap="round" />
           <circle [attr.cx]="path.endX" [attr.cy]="path.endY" r="2.5" [attr.fill]="todayAccentColor" opacity="0.65" />
@@ -289,6 +289,13 @@ import { CommentsService, Comment } from '../comments/comments.service';
 }
 .show-all-btn:hover { opacity: 1; }
 
+.profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
+  transition: filter 0.8s ease;
+}
+.spotlight-dim {
+  filter: brightness(0.45);
+}
+
 @media (max-width: 600px) {
   .flex-row { flex-direction: column; }
   app-daily-progress,
@@ -339,24 +346,8 @@ export class OverviewComponent {
   readonly commentsService = inject(CommentsService);
 
   #refreshInterval: ReturnType<typeof setInterval> | null = null;
-
-  constructor() {
-    // Auto-refresh every 60 s while viewing an uplifter's board.
-    // Re-runs (and resets the interval) whenever the active profile changes.
-    effect(() => {
-      const isViewing = this.upliftersService.$isViewingUplifter();
-      this.upliftersService.$activeProfileId(); // track profile switches
-
-      if (this.#refreshInterval) {
-        clearInterval(this.#refreshInterval);
-        this.#refreshInterval = null;
-      }
-
-      if (isViewing) {
-        this.#refreshInterval = setInterval(() => this.goalsService.update_goals(), 60_000);
-      }
-    });
-  }
+  $spotlightActive = signal(false);
+  #spotlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   expandedCommentId = signal<string | null>(null);
   showAllComments = signal(false);
@@ -478,6 +469,7 @@ setupResizeObserver(): void {
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
     if (this.#refreshInterval) clearInterval(this.#refreshInterval);
+    if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
   }
 
 
@@ -519,11 +511,24 @@ setupResizeObserver(): void {
   }
 
   constructor() {
+    // Auto-refresh every 60 s while viewing an uplifter's board.
+    effect(() => {
+      const isViewing = this.upliftersService.$isViewingUplifter();
+      this.upliftersService.$activeProfileId();
+
+      if (this.#refreshInterval) {
+        clearInterval(this.#refreshInterval);
+        this.#refreshInterval = null;
+      }
+
+      if (isViewing) {
+        this.#refreshInterval = setInterval(() => this.goalsService.update_goals(), 60_000);
+      }
+    });
+
     if (this.goalsService.$goals().length === 0 && !this.upliftersService.$isViewingUplifter()) {
       this.#router.navigate(['', 'goals', 'add']);
     }
-
-    console.log(this.goalsService.$goals(), 'goals');
 
     effect(() => {
       this.commentsService.$comments();
@@ -531,6 +536,16 @@ setupResizeObserver(): void {
       this.progressService.$dailyProgressDate();
       this.upliftersService.$isViewingUplifter();
       setTimeout(() => this.computeArrows(), 80);
+    });
+
+    // Spotlight: dim surrounding content when unseen comments are present
+    effect(() => {
+      const hasUnseen = this.commentsService.$comments().some(c => !c.seen);
+      if (hasUnseen) {
+        this.$spotlightActive.set(true);
+        if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
+        this.#spotlightTimer = setTimeout(() => this.$spotlightActive.set(false), 5000);
+      }
     });
   }
 }

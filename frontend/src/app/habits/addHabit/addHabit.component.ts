@@ -1,6 +1,8 @@
 import { Component, inject, input, signal, viewChild } from '@angular/core';
 import { GoalsService } from '../../goals/goals.service';
 import { Router, RouterLink } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UpliftersService } from '../../uplifters/uplifters.service';
 import {
   FormBuilder,
   FormControl,
@@ -203,6 +205,8 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 export class AddHabitComponent {
   #goalsService = inject(GoalsService);
   #router = inject(Router);
+  #snackBar = inject(MatSnackBar);
+  #upliftersService = inject(UpliftersService);
 
   _id = input.required<string>();
   $submitting = signal(false);
@@ -230,16 +234,21 @@ export class AddHabitComponent {
       frequency: this.habitForm.step3.value.frequency!,
     };
 
+    const isFirstHabit = this.#goalsService.$habitIds().length === 0;
+
     this.$submitting.set(true);
     this.#goalsService.add_habit(this._id(), newHabit).subscribe((response) => {
       this.$submitting.set(false);
-      console.log(response);
       this.#goalsService.update_goals();
 
-      if(this.#goalsService.$habitIds().length > 1){
-      this.#router.navigate(['', 'goals', this._id(), 'update']);
+      if (isFirstHabit && this.#upliftersService.$connections().length === 0) {
+        const ref = this.#snackBar.open('✦ Invite a friend to support you as your Uplifter', 'Add Uplifter', { duration: 8000 });
+        ref.onAction().subscribe(() => this.#router.navigate(['', 'uplifters']));
       }
-      else{
+
+      if(this.#goalsService.$habitIds().length > 1){
+        this.#router.navigate(['', 'goals', this._id(), 'update']);
+      } else {
         this.#router.navigate(['', 'goals', 'overview']);
       }
     });

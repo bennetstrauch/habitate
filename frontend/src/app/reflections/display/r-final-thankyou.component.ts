@@ -37,6 +37,11 @@ import { UpliftFriendComponent } from '../../comments/uplift-friend.component';
               ✦ Uplift a Friend
             </button>
           }
+          @if (upliftersService.$connections().length === 0) {
+            <button mat-button (click)="completeReflection(['', 'uplifters'])" style="font-size: 0.82rem; opacity: 0.6">
+              ✦ Invite a friend as your Uplifter
+            </button>
+          }
           <button mat-button (click)="completeReflection()">
             Finish Reflection
           </button>
@@ -120,7 +125,7 @@ export class RFinalThankyouComponent {
     });
   }
 
-  completeReflection() {
+  completeReflection(redirectTo: string[] = ['', 'goals', 'overview']) {
     if (this.reflectionsService.$reflection()) {
       this.reflectionsService.$reflection()!.completed = true;
 
@@ -131,7 +136,7 @@ export class RFinalThankyouComponent {
             console.log('Reflection updated: ', response.data);
           }
 
-          this.#router.navigate(['', 'goals', 'overview']);
+          this.#router.navigate(redirectTo);
           this.reflectionsService.loadReflectionStats();
         });
     }
