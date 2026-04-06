@@ -17,11 +17,13 @@ export class CommentsService {
   $datesWithUnseenComments = signal<string[]>([]);
 
   private _seenTimer: ReturnType<typeof setTimeout> | null = null;
+  private _iconTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
       const date = toLocalDateString(this.#progressService.$dailyProgressDate());
       if (this._seenTimer) clearTimeout(this._seenTimer);
+      if (this._iconTimer) clearTimeout(this._iconTimer);
       this.loadComments(date);
     });
 
@@ -37,7 +39,10 @@ export class CommentsService {
           this.$comments.set(r.data);
           const unseenIds = r.data.filter(c => !c.seen).map(c => c._id);
           if (unseenIds.length > 0) {
-            this._seenTimer = setTimeout(() => this.markSeen(unseenIds, date), 20000);
+            this._seenTimer = setTimeout(() => this.markSeen(unseenIds), 3000);
+            this._iconTimer = setTimeout(() => {
+              this.$datesWithUnseenComments.update(dates => dates.filter(d => d !== date));
+            }, 20000);
           }
         }
       });

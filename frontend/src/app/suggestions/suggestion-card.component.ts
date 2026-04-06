@@ -26,6 +26,11 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
             <button mat-icon-button color="primary" (click)="accept(pending[0])" aria-label="Accept">
               <mat-icon>check</mat-icon>
             </button>
+            @if (isAfterNoon()) {
+              <button mat-icon-button color="accent" (click)="acceptForTomorrow(pending[0]._id)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
+                <mat-icon>event_available</mat-icon>
+              </button>
+            }
             <button mat-icon-button (click)="dismiss(pending[0]._id)" aria-label="Dismiss">
               <mat-icon>close</mat-icon>
             </button>
@@ -46,6 +51,11 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
                   <button mat-icon-button color="primary" (click)="accept(s)" aria-label="Accept">
                     <mat-icon>check</mat-icon>
                   </button>
+                  @if (isAfterNoon()) {
+                    <button mat-icon-button color="accent" (click)="acceptForTomorrow(s._id)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
+                      <mat-icon>event_available</mat-icon>
+                    </button>
+                  }
                   <button mat-icon-button (click)="dismiss(s._id)" aria-label="Dismiss">
                     <mat-icon>close</mat-icon>
                   </button>
@@ -87,6 +97,17 @@ export class SuggestionCardComponent {
 
   adjective(id: string): string {
     return ADJECTIVES[id.charCodeAt(id.length - 1) % ADJECTIVES.length];
+  }
+
+  isAfterNoon(): boolean {
+    return new Date().getHours() >= 12;
+  }
+
+  acceptForTomorrow(id: string) {
+    this.suggestionsService.acceptForTomorrow(id).subscribe((r) => {
+      if (!r.success) return;
+      this.#snackBar.open('Accepted for tomorrow!', undefined, { duration: 4000 });
+    });
   }
 
   accept(s: ActivitySuggestion) {

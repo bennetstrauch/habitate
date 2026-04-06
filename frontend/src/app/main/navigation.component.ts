@@ -28,7 +28,11 @@ import { UpliftersService } from '../uplifters/uplifters.service';
       } @if (stateService.isLoggedIn()) {
 
       <button mat-button [matMenuTriggerFor]="menu">
-        <mat-icon>menu</mat-icon>
+        <mat-icon
+          joyrideStep="appTips"
+          title="Tip: Install the app"
+          text="Add Habitate to your home screen! On iPhone: tap Share → 'Add to Home Screen'. On Android: tap the browser menu → 'Add to Home Screen'. Then go to My Profile and enable your Reflection Reminder — push notifications only work with the app installed."
+        >menu</mat-icon>
       </button>
 
       <button

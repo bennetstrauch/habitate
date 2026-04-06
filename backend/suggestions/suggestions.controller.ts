@@ -72,11 +72,18 @@ export const getSuggestions: RequestHandler<
     const startOfDay = moment.utc(date, "YYYY-MM-DD").startOf("day").toDate();
     const endOfDay = moment.utc(date, "YYYY-MM-DD").endOf("day").toDate();
 
+    const dateFilter = {
+      $or: [
+        { display_date: { $gte: startOfDay, $lte: endOfDay } },
+        { display_date: null, date: { $gte: startOfDay, $lte: endOfDay } },
+      ],
+    };
+
     if (forUserId) {
       await requireFriendship(req.userId, forUserId);
       const suggestions = await ActivitySuggestionModel.find({
         to_user_id: idToObjectId(forUserId),
-        date: { $gte: startOfDay, $lte: endOfDay },
+        ...dateFilter,
         status: "accepted",
       });
       res.json({ success: true, data: suggestions as unknown as ActivitySuggestion[] });
@@ -85,7 +92,7 @@ export const getSuggestions: RequestHandler<
 
     const suggestions = await ActivitySuggestionModel.find({
       to_user_id: idToObjectId(req.userId),
-      date: { $gte: startOfDay, $lte: endOfDay },
+      ...dateFilter,
     }).sort({ createdAt: -1 });
 
     res.json({ success: true, data: suggestions as unknown as ActivitySuggestion[] });
@@ -97,7 +104,7 @@ export const getSuggestions: RequestHandler<
 export const putSuggestion: RequestHandler<
   { id: string },
   StandardResponse<ActivitySuggestion>,
-  { status?: string; completed?: boolean; goal_id?: string | null }
+  { status?: string; completed?: boolean; goal_id?: string | null; display_date?: string | null }
 > = async (req, res, next) => {
   try {
     if (!req.userId) throw new ErrorWithStatus("Unauthorized", 401);
@@ -107,11 +114,15 @@ export const putSuggestion: RequestHandler<
     if (suggestion.to_user_id.toString() !== req.userId)
       throw new ErrorWithStatus("Not authorized", 403);
 
-    const { status, completed, goal_id } = req.body;
+    const { status, completed, goal_id, display_date } = req.body;
     if (status) (suggestion as any).status = status;
     if (completed !== undefined) (suggestion as any).completed = completed;
     if (goal_id !== undefined)
       (suggestion as any).goal_id = goal_id ? idToObjectId(goal_id) : null;
+    if (display_date !== undefined)
+      (suggestion as any).display_date = display_date
+        ? moment.utc(display_date, "YYYY-MM-DD").startOf("day").toDate()
+        : null;
 
     await suggestion.save();
     res.json({ success: true, data: suggestion as unknown as ActivitySuggestion });

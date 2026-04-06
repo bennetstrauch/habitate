@@ -39,7 +39,7 @@ export class TourService {
   startTour() {
     this.joyrideService
       .startTour({
-        steps: ['editGoal', 'markHabit', 'toggleView'],
+        steps: ['editGoal', 'markHabit', 'toggleView', 'appTips'],
         themeColor: '#3f51b5',
         showPrevButton: true,
         stepDefaultPosition: 'top',

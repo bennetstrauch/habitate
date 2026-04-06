@@ -151,6 +151,7 @@ const activitySuggestionSchema = new Schema(
     from_user_name: { type: String, required: true },
     to_user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
     date: { type: Date, required: true },
+    display_date: { type: Date, default: null },
     text: { type: String, required: true, maxlength: 90 },
     status: {
       type: String,

@@ -8,6 +8,7 @@ export type ActivitySuggestion = {
   from_user_name: string;
   to_user_id: string;
   date: string;
+  display_date?: string;
   text: string;
   status: SuggestionStatus;
   completed: boolean;

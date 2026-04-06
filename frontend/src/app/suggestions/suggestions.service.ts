@@ -4,6 +4,7 @@ import { tap } from 'rxjs/operators';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { ActivitySuggestion } from '@backend/suggestions/suggestions.types';
 import { environment } from 'frontend/src/environments/environment';
+import { toLocalDateString } from '../utils/utils';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
@@ -60,6 +61,22 @@ export class SuggestionsService {
           if (!r.success) return;
           this.$acceptedSuggestions.update((list) => [...list, r.data]);
           this.$pendingSuggestions.update((list) => list.filter((s) => s._id !== id));
+        })
+      );
+  }
+
+  acceptForTomorrow(id: string) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const displayDate = toLocalDateString(tomorrow);
+    return this.#http
+      .put<StandardResponse<ActivitySuggestion>>(
+        environment.SERVER_URL + '/suggestions/' + id,
+        { status: 'accepted', display_date: displayDate }
+      )
+      .pipe(
+        tap((r) => {
+          if (r.success) this.$pendingSuggestions.update((list) => list.filter((s) => s._id !== id));
         })
       );
   }
