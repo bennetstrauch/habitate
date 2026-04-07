@@ -28,7 +28,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
     <div class="flex-row" #flexRow>
       <div #left id="left-side">
         @if (upliftersService.$connections().length > 0) {
-          <div class="profile-nav" [class.spotlight-dim]="$spotlightActive()">
+          <div class="profile-nav" [class.spotlight-dim]="$dimProfileNav()" [class.tour-highlight]="$upliftersTourStep() === 'switcher'">
             <button
               class="profile-btn"
               [class.active]="!upliftersService.$isViewingUplifter()"
@@ -79,16 +79,16 @@ import { CommentsService, Comment } from '../comments/comments.service';
       </div>
 
       @if (progressService.$displayDailyProgress()) {
-      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''" [class.spotlight-dim]="$spotlightActive()"></app-daily-progress>
+      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''" [class.spotlight-dim]="$dimContent()" [class.tour-highlight]="$upliftersTourStep() === 'activity'"></app-daily-progress>
       }
 
       @if (progressService.$displayStats()) {
-      <app-progress-stats [class.spotlight-dim]="$spotlightActive()"></app-progress-stats>
+      <app-progress-stats [class.spotlight-dim]="$dimContent()"></app-progress-stats>
       }
 
-      <div #right id="right-side" [class.spotlight-dim]="$spotlightActive()">{{reflectionsService.$displayedIntention()}}</div>
+      <div #right id="right-side" [class.spotlight-dim]="$dimOther()">{{reflectionsService.$displayedIntention()}}</div>
 
-      <svg class="arrows-overlay" aria-hidden="true" [class.spotlight-dim]="$spotlightActive()">
+      <svg class="arrows-overlay" aria-hidden="true" [class.spotlight-dim]="$dimOther()">
         @for (path of $arrowPaths(); track $index) {
           <path [attr.d]="path.curve" fill="none" [attr.stroke]="todayAccentColor" stroke-width="1.5" stroke-opacity="0.55" stroke-linecap="round" />
           <circle [attr.cx]="path.endX" [attr.cy]="path.endY" r="2.5" [attr.fill]="todayAccentColor" opacity="0.65" />
@@ -290,10 +290,14 @@ import { CommentsService, Comment } from '../comments/comments.service';
 .show-all-btn:hover { opacity: 1; }
 
 .profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
-  transition: filter 0.8s ease;
+  transition: filter 0.8s ease, box-shadow 0.4s ease;
 }
 .spotlight-dim {
   filter: brightness(0.45);
+}
+.tour-highlight {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 0 20px rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
 }
 
 @media (max-width: 600px) {
@@ -348,6 +352,12 @@ export class OverviewComponent {
   #refreshInterval: ReturnType<typeof setInterval> | null = null;
   $spotlightActive = signal(false);
   #spotlightTimer: ReturnType<typeof setTimeout> | null = null;
+  $upliftersTourStep = signal<'switcher' | 'activity' | null>(null);
+  #upliftersTourTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $dimProfileNav = computed(() => this.$spotlightActive() || this.$upliftersTourStep() === 'activity');
+  $dimContent    = computed(() => this.$spotlightActive() || this.$upliftersTourStep() === 'switcher');
+  $dimOther      = computed(() => this.$spotlightActive() || this.$upliftersTourStep() !== null);
 
   expandedCommentId = signal<string | null>(null);
   showAllComments = signal(false);
@@ -470,6 +480,7 @@ setupResizeObserver(): void {
     this.resizeObserver?.disconnect();
     if (this.#refreshInterval) clearInterval(this.#refreshInterval);
     if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
+    if (this.#upliftersTourTimer) clearTimeout(this.#upliftersTourTimer);
   }
 
 
@@ -488,6 +499,14 @@ setupResizeObserver(): void {
   todayAccentColor = this.dayAccentColorMap[new Date().getDay()] ?? '#222';
 
   switchProfile(userId: string) {
+    if (this.$upliftersTourStep() === 'switcher' && userId !== '') {
+      this.$upliftersTourStep.set('activity');
+      if (this.#upliftersTourTimer) clearTimeout(this.#upliftersTourTimer);
+      this.#upliftersTourTimer = setTimeout(() => {
+        this.$upliftersTourStep.set(null);
+        this.upliftersService.markUpliftersTourSeen();
+      }, 4000);
+    }
     this.upliftersService.$activeProfileId.set(userId);
     this.goalsService.update_goals();
   }
@@ -545,6 +564,14 @@ setupResizeObserver(): void {
         this.$spotlightActive.set(true);
         if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
         this.#spotlightTimer = setTimeout(() => this.$spotlightActive.set(false), 5000);
+      }
+    });
+
+    // Uplifters tour: highlight switcher bar the first time connections appear
+    effect(() => {
+      const connections = this.upliftersService.$connections();
+      if (connections.length > 0 && !this.upliftersService.$upliftersTourSeen()) {
+        this.$upliftersTourStep.set('switcher');
       }
     });
   }

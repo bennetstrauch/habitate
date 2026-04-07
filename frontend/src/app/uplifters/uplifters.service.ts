@@ -78,4 +78,11 @@ export class UpliftersService {
         })
       );
   }
+
+  $upliftersTourSeen = signal(localStorage.getItem('HABITATE_UPLIFTERS_TOUR_SEEN') === 'true');
+
+  markUpliftersTourSeen() {
+    localStorage.setItem('HABITATE_UPLIFTERS_TOUR_SEEN', 'true');
+    this.$upliftersTourSeen.set(true);
+  }
 }
