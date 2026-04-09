@@ -66,10 +66,8 @@ export class ProgressService {
     const dateString = toLocalDateString(date); // en-CA returns in YYYY-MM-DD format
 
     this.get_progresses_for_day(dateString).subscribe((response) => {
-      if (response.success) {
-        const progresses = response.data;
-
-        this.mapProgressesToHabits(progresses, dateString);
+      if (response.success && dateString === toLocalDateString(this.$dailyProgressDate())) {
+        this.mapProgressesToHabits(response.data, dateString);
       }
     });
   }
