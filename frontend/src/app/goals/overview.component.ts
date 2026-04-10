@@ -25,6 +25,10 @@ import { CommentsService, Comment } from '../comments/comments.service';
   ],
   template: `
 
+    @if ($spotlightActive()) {
+      <div class="spotlight-overlay"></div>
+    }
+
     <div class="flex-row" #flexRow>
       <div #left id="left-side">
         @if (upliftersService.$connections().length > 0) {
@@ -49,7 +53,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
         }
 
         @if (commentsService.$comments().length > 0 && !upliftersService.$isViewingUplifter()) {
-          <div class="comments-left">
+          <div class="comments-left" [class.spotlight-raised]="$spotlightActive()">
             @for (comment of $visibleComments(); track comment._id) {
               <div class="comment-card" [attr.data-comment-id]="comment._id" [style.color]="todayAccentColor">
                 <div class="comment-from">
@@ -289,6 +293,23 @@ import { CommentsService, Comment } from '../comments/comments.service';
 }
 .show-all-btn:hover { opacity: 1; }
 
+.spotlight-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  pointer-events: none;
+  animation: fadeIn 0.8s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.spotlight-raised {
+  position: relative;
+  z-index: 101;
+}
+
 .profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
   transition: filter 0.8s ease, box-shadow 0.4s ease;
 }
@@ -355,9 +376,9 @@ export class OverviewComponent {
   $upliftersTourStep = signal<'switcher' | 'activity' | null>(null);
   #upliftersTourTimer: ReturnType<typeof setTimeout> | null = null;
 
-  $dimProfileNav = computed(() => this.$spotlightActive() || this.$upliftersTourStep() === 'activity');
-  $dimContent    = computed(() => this.$spotlightActive() || this.$upliftersTourStep() === 'switcher');
-  $dimOther      = computed(() => this.$spotlightActive() || this.$upliftersTourStep() !== null);
+  $dimProfileNav = computed(() => this.$upliftersTourStep() === 'activity');
+  $dimContent    = computed(() => this.$upliftersTourStep() === 'switcher');
+  $dimOther      = computed(() => this.$upliftersTourStep() !== null);
 
   expandedCommentId = signal<string | null>(null);
   showAllComments = signal(false);
