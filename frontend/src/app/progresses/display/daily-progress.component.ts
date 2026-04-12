@@ -442,7 +442,6 @@ export class DailyProgressComponent {
         );
         this.suggestionsService.$acceptedSuggestions.set([]);
         this.suggestionsService.checkSentToUser(toUserId, date);
-        this.suggestionsService.loadAcceptedForUser(toUserId, date);
       } else {
         this.suggestionsService.$viewedAcceptedSuggestion.set(null);
         this.suggestionsService.loadReceivedForDate(date);

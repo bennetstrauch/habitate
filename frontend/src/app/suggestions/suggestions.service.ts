@@ -1,14 +1,20 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, of, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { ActivitySuggestion } from '@backend/suggestions/suggestions.types';
 import { environment } from 'frontend/src/environments/environment';
 import { toLocalDateString } from '../utils/utils';
+import { UpliftersService } from '../uplifters/uplifters.service';
+import { ProgressService } from '../progresses/progresses.service';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
   #http = inject(HttpClient);
+  #upliftersService = inject(UpliftersService);
+  #progressService = inject(ProgressService);
 
   $pendingSuggestions = signal<ActivitySuggestion[]>([]);
   $acceptedSuggestions = signal<ActivitySuggestion[]>([]);
@@ -16,6 +22,35 @@ export class SuggestionsService {
   $hasSent = signal(false);
   /** ID of the accepted suggestion whose goal is being reassigned, or null */
   $goalPickerForId = signal<string | null>(null);
+
+  constructor() {
+    // Auto-loads the viewed person's accepted suggestion; cancels stale requests via switchMap
+    const $ctx = computed(() => {
+      if (!this.#upliftersService.$isViewingUplifter()) return null;
+      return {
+        forUserId: this.#upliftersService.$activeProfileId(),
+        date: toLocalDateString(this.#progressService.$dailyProgressDate()),
+      };
+    });
+
+    toObservable($ctx).pipe(
+      distinctUntilChanged((a, b) => {
+        if (a === null && b === null) return true;
+        if (a === null || b === null) return false;
+        return a.forUserId === b.forUserId && a.date === b.date;
+      }),
+      switchMap(ctx => {
+        if (!ctx) return of(null);
+        return this.#http.get<StandardResponse<ActivitySuggestion[]>>(
+          environment.SERVER_URL + '/suggestions',
+          { params: { date: ctx.date, forUserId: ctx.forUserId } }
+        );
+      }),
+      takeUntilDestroyed()
+    ).subscribe(r => {
+      this.$viewedAcceptedSuggestion.set(r?.success ? (r.data[0] ?? null) : null);
+    });
+  }
 
   loadReceivedForDate(date: string) {
     this.#http
@@ -65,10 +100,18 @@ export class SuggestionsService {
       );
   }
 
-  acceptForTomorrow(id: string) {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const displayDate = toLocalDateString(tomorrow);
+  acceptForTomorrow(id: string, suggestionDate: string) {
+    const today = new Date();
+    const todayStr = toLocalDateString(today);
+    const suggestionDay = toLocalDateString(new Date(suggestionDate));
+    let displayDate: string;
+    if (todayStr > suggestionDay) {
+      displayDate = todayStr;
+    } else {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      displayDate = toLocalDateString(tomorrow);
+    }
     return this.#http
       .put<StandardResponse<ActivitySuggestion>>(
         environment.SERVER_URL + '/suggestions/' + id,
@@ -90,17 +133,6 @@ export class SuggestionsService {
       .pipe(tap((r) => {
         if (r.success) this.$pendingSuggestions.update((list) => list.filter((s) => s._id !== id));
       }));
-  }
-
-  loadAcceptedForUser(forUserId: string, date: string) {
-    this.#http
-      .get<StandardResponse<ActivitySuggestion[]>>(
-        environment.SERVER_URL + '/suggestions',
-        { params: { date, forUserId } }
-      )
-      .subscribe((r) => {
-        if (r.success) this.$viewedAcceptedSuggestion.set(r.data[0] ?? null);
-      });
   }
 
   toggleCompleted(id: string, completed: boolean) {

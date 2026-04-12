@@ -27,7 +27,7 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
               <mat-icon>check</mat-icon>
             </button>
             @if (isAfterNoon()) {
-              <button mat-icon-button color="accent" (click)="acceptForTomorrow(pending[0]._id)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
+              <button mat-icon-button color="accent" (click)="acceptForTomorrow(pending[0]._id, pending[0].date)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
                 <mat-icon>event_available</mat-icon>
               </button>
             }
@@ -52,7 +52,7 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
                     <mat-icon>check</mat-icon>
                   </button>
                   @if (isAfterNoon()) {
-                    <button mat-icon-button color="accent" (click)="acceptForTomorrow(s._id)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
+                    <button mat-icon-button color="accent" (click)="acceptForTomorrow(s._id, s.date)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
                       <mat-icon>event_available</mat-icon>
                     </button>
                   }
@@ -103,8 +103,8 @@ export class SuggestionCardComponent {
     return new Date().getHours() >= 12;
   }
 
-  acceptForTomorrow(id: string) {
-    this.suggestionsService.acceptForTomorrow(id).subscribe((r) => {
+  acceptForTomorrow(id: string, date: string) {
+    this.suggestionsService.acceptForTomorrow(id, date).subscribe((r) => {
       if (!r.success) return;
       this.#snackBar.open('Accepted for tomorrow!', undefined, { duration: 4000 });
     });
