@@ -9,6 +9,7 @@ import { HabitProgress } from '@backend/progresses/progress.types';
 import { RouterLink } from '@angular/router';
 import { ReflectionsService } from '../../reflections/reflections.service';
 import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WeeklyReflectionComponent } from '../../reflections/display/weekly-reflection.component';
 import { StatsService } from '../stats.service';
 import { DailyReflectionService } from '../../reflections/daily-reflection.service';
@@ -36,6 +37,7 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     RouterLink,
     MatButton,
     MatIconButton,
+    MatProgressSpinnerModule,
     WeeklyReflectionComponent,
     DateHeaderWithTimestepComponent,
     JoyrideModule,
@@ -130,6 +132,13 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
         <app-suggestion-card />
       }
 
+      @if (!progressService.$progressLoaded()) {
+        <div style="display:flex;justify-content:center;padding:24px 0">
+          <mat-spinner diameter="32" />
+        </div>
+      }
+
+      @if (progressService.$progressLoaded()) {
       @for (goal of goalsService.$goals(); track $index) {
         <div class="goal-div">
           <app-display-goal-with-link
@@ -221,6 +230,7 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
         </div>
         <br />
       }
+      } <!-- end @if progressLoaded -->
 
       <!-- ── Own view: reflection ── -->
       @if (reflectionsService.$reflection()?.completed) {
@@ -428,6 +438,7 @@ export class DailyProgressComponent {
     effect(() => {
       const date = this.progressService.$dailyProgressDate().toISOString().split('T')[0];
       const isViewingUplifter = this.upliftersService.$isViewingUplifter();
+      const toUserId = this.upliftersService.$activeProfileId();
 
       this.$showSuggestForm.set(false);
       this.$suggestionText.set('');
@@ -436,7 +447,6 @@ export class DailyProgressComponent {
       this.suggestionsService.$goalPickerForId.set(null);
 
       if (isViewingUplifter) {
-        const toUserId = this.upliftersService.$activeProfileId();
         this.$suggestAdjective.set(
           SUGGEST_ADJECTIVES[Math.floor(Math.random() * SUGGEST_ADJECTIVES.length)]
         );

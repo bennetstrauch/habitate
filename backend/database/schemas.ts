@@ -20,6 +20,8 @@ const PushSubscriptionSchema = new Schema<PushSubscription>(
 const ReflectionDetailsSchema = new Schema<ReflectionDetails>(
   {
     reflectionReminderTime: { type: String, required: false },
+    secondReminderTime: { type: String, required: false },
+    secondReminderEnableEmail: { type: Boolean, required: false, default: false },
     enableEmail: { type: Boolean, required: true, default: false },
     enablePush: { type: Boolean, required: true, default: false },
     pushSubscriptions: {
@@ -63,12 +65,6 @@ const habitSchema = new Schema({
   // #make it required later on, default maybee 7?
   frequency: { type: Number, default: 7 },
 
-  latestProgress: {
-    type: Schema.Types.ObjectId,
-    ref: "HabitProgress", // Reference to the HabitProgress model
-    default: null,
-    required: true,
-  },
 });
 
 // #type

@@ -579,6 +579,7 @@ setupResizeObserver(): void {
     });
 
     // Spotlight: dim surrounding content when unseen comments are present
+    // ## only if on that page unseen comments are present
     effect(() => {
       const hasUnseen = this.commentsService.$comments().some(c => !c.seen);
       if (hasUnseen) {

@@ -94,7 +94,7 @@ export class DailyReflectionService {
         'goal-' + goalIndex + '-habit-' + habitIndex,
         habit
       );
-      if (habit.latestProgress.completed) {
+      if (habit.latestProgress?.completed) {
         this.stepComponentMap.set(
           'goal-' + goalIndex + '-habit-' + habitIndex,
           RHabitCompletedComponent
@@ -156,7 +156,7 @@ export class DailyReflectionService {
     const incompleteHabits = this.$habitsWithGoal().filter(
       (habitWithGoal) =>
         habitWithGoal.habit.frequency == 7 &&
-        !habitWithGoal.habit.latestProgress.completed
+        !habitWithGoal.habit.latestProgress?.completed
     );
 
     if (incompleteHabits.length === 0) {
@@ -171,7 +171,7 @@ export class DailyReflectionService {
 
   getRandomCompletedHabitsWithGoal(): HabitWithGoal[] {
     const completedHabits = this.$habitsWithGoal().filter(
-      (habitGoalPair) => habitGoalPair.habit.latestProgress.completed
+      (habitGoalPair) => habitGoalPair.habit.latestProgress?.completed
     );
 
     console.log('incompleteHabit', this.incompleteHabit);

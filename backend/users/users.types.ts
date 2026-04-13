@@ -2,6 +2,8 @@ import { PushSubscription } from "web-push";
 
 export interface ReflectionDetails {
   reflectionReminderTime?: string;
+  secondReminderTime?: string;
+  secondReminderEnableEmail?: boolean;
   latestReflectionDate?: Date;
 
   enablePush: boolean;

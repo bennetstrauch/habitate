@@ -1,29 +1,20 @@
 import {
   Component,
-  OnInit,
   computed,
   inject,
-  input,
-  signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { GoalsService } from '../goals/goals.service';
 import { ProgressService } from '../progresses/progresses.service';
 import { ActivatedRoute } from '@angular/router';
 import { ReflectionsService } from './reflections.service';
-import { Reflection } from '@backend/reflections/reflections.types';
-import { getRandomPhrase } from '../utils/utils';
 import { StateService } from '../state.service';
-import { Goal, Habit } from '@backend/goals/goals.types';
-import { R1WelcomeComponent } from './display/r1-welcome.component';
-import { R2SettleDownComponent } from './display/r2-settle-down.component';
-import { R3ReflectOnGoodComponent } from './display/r3-reflect-on-good.component';
-import { NgComponentOutlet, NgIf } from '@angular/common';
+import { NgComponentOutlet } from '@angular/common';
 import { DailyReflectionService } from './daily-reflection.service';
-import { RGoalComponent } from './display/r-goal.component';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-reflection',
@@ -32,22 +23,46 @@ import { RGoalComponent } from './display/r-goal.component';
     MatButtonModule,
     MatCheckboxModule,
     NgComponentOutlet,
-    NgIf,
+  ],
+  animations: [
+    trigger('stepFade', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('320ms ease-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        style({ position: 'absolute', top: '0', left: '0', width: '100%', opacity: 1 }),
+        animate('280ms ease-in', style({ opacity: 0 })),
+      ]),
+    ]),
   ],
   template: `
-    <ng-container *ngIf="$currentComponent() as component">
-      <ng-container *ngComponentOutlet="component"></ng-container>
-    </ng-container>
+    @for (step of [$currentStep()]; track step) {
+      <div @stepFade class="step-host">
+        <ng-container *ngComponentOutlet="$currentComponent()"></ng-container>
+      </div>
+    }
   `,
   styles: `
-    
-    ::ng-deep .mat-horizontal-stepper-header-container {
-        display: none !important;
-        // removes icons from stepper
+    :host {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
     }
 
+    .step-host {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
 
-`,
+    ::ng-deep .mat-horizontal-stepper-header-container {
+      display: none !important;
+    }
+  `,
 })
 export class ReflectionComponent {
   readonly #router = inject(Router);
@@ -57,11 +72,12 @@ export class ReflectionComponent {
   readonly progressService = inject(ProgressService);
   readonly stateService = inject(StateService);
 
+  $currentStep = this.dailyReflectionService.$currentStep;
+
   $currentComponent = computed(() => {
-    console.log('currentStep: ', this.dailyReflectionService.$currentStep());
     return this.dailyReflectionService.stepComponentMap.get(
       this.dailyReflectionService.$currentStep()
-    );
+    ) ?? null;
   });
 
   constructor(private route: ActivatedRoute) {}

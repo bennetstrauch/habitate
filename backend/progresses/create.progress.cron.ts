@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import moment from "moment-timezone";
-import { GoalModel, HabitProgressModel, ReflectionModel, UserModel } from "../database/schemas";
+import { GoalModel, HabitProgressModel, UserModel } from "../database/schemas";
 import { Goal } from "../goals/goals.types";
 import { HabitProgress } from "./progress.types";
 import { getNewProgressForDate } from "./newProgress";
@@ -80,30 +80,12 @@ export async function createDailyHabitProgressForGoals(
   goals: Goal[],
   date: Date
 ) {
-  const newProgresses: HabitProgress[] = [];
+  const newProgresses = goals
+    .flatMap(g => g.habits)
+    .map(h => getNewProgressForDate(h._id, date));
 
-  //# ask chatgpt for cleaner code
-  for (const goal of goals) {
-    for (const habit of goal.habits) {
-      const newProgress = getNewProgressForDate(habit._id, date);
-
-      habit.latestProgress = newProgress; // ## could getDate once for all if opt. needed
-      newProgresses.push(newProgress);
-    }
-  }
-
-  if (newProgresses.length !== 0) {
+  if (newProgresses.length > 0) {
     await HabitProgressModel.insertMany(newProgresses);
-
-    // ## if performance is an issue, not awaiting will be faster
-    const result = await GoalModel.bulkWrite(
-      goals.map((goal) => ({
-        updateOne: {
-          filter: { _id: goal._id },
-          update: { $set: { habits: goal.habits } },
-        },
-      }))
-    );
   }
 
   return goals;

@@ -175,6 +175,7 @@ export class UpliftFriendComponent implements OnInit {
 
   selectFriend(friend: Uplifter) {
     this.selectedFriend.set(friend);
+    this.friendGoals.set([]);
     this.step.set('progress');
     this.loadFriendGoals(friend._id);
   }

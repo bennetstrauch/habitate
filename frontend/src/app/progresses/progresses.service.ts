@@ -31,6 +31,7 @@ export class ProgressService {
 
   $displayStats = signal<boolean>(false);
   $displayDailyProgress = computed(() => !this.$displayStats());
+  $progressLoaded = signal(false);
 
   // ########### rename dailyTimeStep
   $dailyProgressTimeStep = signal(0);
@@ -63,7 +64,8 @@ export class ProgressService {
 
   //#refactor
   handleProgressMappingToHabits(date: Date) {
-    const dateString = toLocalDateString(date); // en-CA returns in YYYY-MM-DD format
+    const dateString = toLocalDateString(date);
+    this.$progressLoaded.set(false);
 
     this.get_progresses_for_day(dateString).subscribe((response) => {
       if (response.success && dateString === toLocalDateString(this.$dailyProgressDate())) {
@@ -96,14 +98,13 @@ export class ProgressService {
             .$goals()
             .flatMap(goal => goal.habits)
             .find(h => h._id === newProgress.habit_id);
-          if (habit) {
-            habit.latestProgress = newProgress;
-          }
+          if (habit) habit.latestProgress = newProgress;
         });
-      } else {
-        alert("Error creating batch progress entries.");
       }
+      this.$progressLoaded.set(true);
     });
+  } else {
+    this.$progressLoaded.set(true);
   }
 }
 

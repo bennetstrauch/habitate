@@ -316,6 +316,10 @@ export class EditUserDetailsComponent implements OnInit {
     hour: ['08'],
     minute: ['15'],
     period: ['PM'],
+    hour2: [null as string | null],
+    minute2: ['00'],
+    period2: ['PM'],
+    enableEmail2: [false],
   });
 
   firstEmailReceived = true;
@@ -356,6 +360,27 @@ export class EditUserDetailsComponent implements OnInit {
           }
         }
 
+    let hour2: string | null = null, minute2 = '00', period2 = 'PM';
+    if (user.reflectionDetails.secondReminderTime) {
+      const t = user.reflectionDetails.secondReminderTime;
+      let h2: string, m2: string;
+      [h2, m2] = t.split(':');
+      if (parseInt(h2) > 12) {
+        hour2 = (parseInt(h2) - 12).toString().padStart(2, '0');
+        period2 = 'PM';
+      } else if (parseInt(h2) === 12) {
+        hour2 = '12';
+        period2 = 'PM';
+      } else if (parseInt(h2) === 0) {
+        hour2 = '12';
+        period2 = 'AM';
+      } else {
+        hour2 = parseInt(h2).toString().padStart(2, '0');
+        period2 = 'AM';
+      }
+      minute2 = m2;
+    }
+
     this.editUserForm.patchValue({
           name: user.name,
           email: user.email,
@@ -366,6 +391,10 @@ export class EditUserDetailsComponent implements OnInit {
           hour,
           minute,
           period,
+          hour2,
+          minute2,
+          period2,
+          enableEmail2: user.reflectionDetails.secondReminderEnableEmail ?? false,
         });
         this.initialFormValue = this.editUserForm.getRawValue();
 
@@ -571,8 +600,9 @@ export class EditUserDetailsComponent implements OnInit {
 
       const enableEmail = this.editUserForm.get('enableEmail')?.value || false;
       const name = this.editUserForm.get('name')?.value || undefined;
-
       const email = this.editUserForm.get('email')?.value || undefined;
+      const secondReminderTime = this.reflectionReminderService.getSecondReminderTime(this.editUserForm);
+      const secondReminderEnableEmail = this.editUserForm.get('enableEmail2')?.value || false;
 
       const updatedUser: Partial<User> = {
         name: name,
@@ -587,7 +617,8 @@ export class EditUserDetailsComponent implements OnInit {
           enableEmail: enableEmail,
           reflectionReminderTime,
           pushSubscriptions,
-          
+          secondReminderTime,
+          secondReminderEnableEmail,
         },
       };
 

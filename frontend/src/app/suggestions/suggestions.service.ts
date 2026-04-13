@@ -66,6 +66,7 @@ export class SuggestionsService {
   }
 
   checkSentToUser(to_user_id: string, date: string) {
+    this.$hasSent.set(false);
     this.#http
       .get<StandardResponse<ActivitySuggestion | null>>(
         environment.SERVER_URL + '/suggestions/sent',

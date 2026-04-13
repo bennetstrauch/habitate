@@ -4,17 +4,17 @@ import { ErrorWithStatus } from "../utils/error.class";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { getDateOnlyForTimeZone } from "../utils/functionsAndVariables";
-import { createDailyHabitProgressForGoals } from "../progresses/create.progress.cron";
-import { GoalModel, UserModel } from "../database/schemas";
+import { getDateOnlyForTimeZone, getDateForTimezone } from "../utils/functionsAndVariables";
+import { GoalModel, HabitProgressModel, UserModel } from "../database/schemas";
 import { requireFriendship } from "../utils/friendship";
+import { getNewProgressForDate } from "../progresses/newProgress";
+import moment from "moment-timezone";
 
 type GetGoalsReqHandler = RequestHandler<
   { createNewProgressesForToday?: boolean },
   StandardResponse<Goal[]>
 >;
 
-// #refactor
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   const { timezone = "UTC", forUserId } = req.query as { timezone?: string; forUserId?: string };
 
@@ -23,20 +23,17 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
       ? await requireFriendship(req.userId, forUserId)
       : req.userId;
 
-    const userGoals: Goal[] = await getGoalsDB(targetUserId);
-
-    res.json({ success: true, data: userGoals });
-
-    if (!forUserId) {
-      const updateTimezoneResult = await UserModel.updateOne(
+    if (forUserId) {
+      const friend = await UserModel.findById(targetUserId, { timezone: 1 }).lean();
+      const todayForFriend = getDateForTimezone(friend?.timezone ?? "UTC");
+      const userGoals = await getGoalsWithTodayProgress(targetUserId, todayForFriend);
+      res.json({ success: true, data: userGoals });
+    } else {
+      const userGoals = await getGoalsDB(targetUserId);
+      res.json({ success: true, data: userGoals });
+      await UserModel.updateOne(
         { _id: req.userId, timezone: { $ne: timezone } },
-        { $set: { timezone: timezone } }
-      );
-      console.log(
-        "usersNewTimezone",
-        timezone,
-        "updatedCount:",
-        updateTimezoneResult.modifiedCount
+        { $set: { timezone } }
       );
     }
   } catch (err) {
@@ -44,22 +41,47 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   }
 };
 
-export const getGoalsDB = async (userId: string | undefined) => {
-  // # how to check if createProgress needs to be triggered? frontend is responsible
-  // # , update: boolean)
-
-  const results: Goal[] = await GoalModel.find(
+export const getGoalsDB = async (userId: string | undefined): Promise<Goal[]> => {
+  return GoalModel.find(
     { createdByUserWithId: userId },
     { embedded_name: 0, __v: 0 }
-  ).populate({
-    path: "habits.latestProgress",
-    select: "-__v",
-  });
-
-  // # get progresses here and attach to goal? -might take longer?
-
-  return results;
+  );
 };
+
+async function getGoalsWithTodayProgress(userId: string, date: Date): Promise<Goal[]> {
+  const goals = await GoalModel.find(
+    { createdByUserWithId: userId },
+    { embedded_name: 0, __v: 0 }
+  ).lean() as unknown as Goal[];
+
+  const allHabits = goals.flatMap(g => g.habits);
+  if (allHabits.length === 0) return goals;
+
+  const startOfDay = moment(date).startOf("day").toDate();
+  const endOfDay = moment(date).endOf("day").toDate();
+
+  const existing = await HabitProgressModel.find({
+    habit_id: { $in: allHabits.map(h => h._id) },
+    date: { $gte: startOfDay, $lte: endOfDay },
+  }).lean();
+
+  const progressByHabitId = new Map(existing.map(p => [p.habit_id.toString(), p]));
+
+  const missingHabits = allHabits.filter(h => !progressByHabitId.has((h._id as any).toString()));
+  if (missingHabits.length > 0) {
+    const newProgresses = missingHabits.map(h => getNewProgressForDate(h._id as any, date));
+    const created = await HabitProgressModel.insertMany(newProgresses);
+    created.forEach(p => progressByHabitId.set(p.habit_id.toString(), p));
+  }
+
+  for (const goal of goals) {
+    for (const habit of goal.habits) {
+      habit.latestProgress = progressByHabitId.get((habit._id as any).toString()) as any;
+    }
+  }
+
+  return goals;
+}
 
 type GetGoalReqHandler = RequestHandler<
   { goal_id: string },

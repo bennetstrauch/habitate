@@ -12,7 +12,7 @@ export interface HabitBase extends EntityBase {
 
 export interface Habit extends HabitBase {
   _id: string;
-  latestProgress: HabitProgress;
+  latestProgress?: HabitProgress;
 }
 
 export interface GoalBase extends EntityBase {}

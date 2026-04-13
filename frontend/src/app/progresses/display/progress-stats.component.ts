@@ -41,7 +41,7 @@ import { ProgressPeriod } from '../progress-period.enum';
             <div class="container">
               @for (habit of goal.habits; track habit._id) {
                 @let progress = habit.latestProgress;
-                <div class="habit-div" [ngClass]="{ 'completed-habit': progress.completed }">
+                <div class="habit-div" [ngClass]="{ 'completed-habit': progress?.completed }">
                   <ng-container *ngTemplateOutlet="ring; context: { done: getDone(habit._id), total: habit.frequency ?? 7 }"></ng-container>
                   {{ habit.name }}
                 </div>

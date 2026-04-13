@@ -5,10 +5,7 @@ import { ErrorWithStatus } from "../utils/error.class";
 import { handleAddHabitHelp } from "./ai/aiHelp";
 import { findOneGoalHelper } from "./goals.controller";
 import { GoalModel, HabitProgressModel } from "../database/schemas";
-import {
-  createAndSaveProgressForDate,
-  getNewProgressForDate,
-} from "../progresses/newProgress";
+import { createAndSaveProgressForDate } from "../progresses/newProgress";
 import { generateObjectIdAsString } from "../utils/generateObjectId";
 import { dateOnlyStringToUTCDate } from "../utils/date.utils.shared";
 
@@ -46,11 +43,7 @@ export const addHabit: RequestHandler<
     console.log("habit", habit, "date", date);
     habit._id = generateObjectIdAsString();
 
-    const progress = await createAndSaveProgressForDate(
-      habit._id,
-      dateOnlyStringToUTCDate(date)
-    );
-    habit.latestProgress = progress;
+    await createAndSaveProgressForDate(habit._id, dateOnlyStringToUTCDate(date));
 
     const result = await GoalModel.updateOne(
       { _id: goal_id, createdByUserWithId: req.userId },

@@ -123,18 +123,30 @@ export class ReflectionReminderService {
     const enableEmail = form.get('enableEmail')?.value || false;
 
     if (enablePush || enableEmail) {
-      const hour = parseInt(form.get('hour')?.value || '08');
-      const minute = form.get('minute')?.value;
-      const period = form.get('period')?.value;
-      const adjustedHour =
-        period === 'PM' && hour < 12
-          ? hour + 12
-          : period === 'AM' && hour === 12
-          ? 0
-          : hour;
-      return `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
+      return this.timeFromFormFields(
+        form.get('hour')?.value || '08',
+        form.get('minute')?.value,
+        form.get('period')?.value
+      );
     }
     return undefined;
+  }
+
+  getSecondReminderTime(form: FormGroup): string | undefined {
+    const hour2 = form.get('hour2')?.value;
+    if (!hour2) return undefined;
+    return this.timeFromFormFields(
+      hour2,
+      form.get('minute2')?.value,
+      form.get('period2')?.value
+    );
+  }
+
+  private timeFromFormFields(hour: string, minute: string, period: string): string {
+    const h = parseInt(hour);
+    const adjustedHour =
+      period === 'PM' && h < 12 ? h + 12 : period === 'AM' && h === 12 ? 0 : h;
+    return `${adjustedHour.toString().padStart(2, '0')}:${minute}`;
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
