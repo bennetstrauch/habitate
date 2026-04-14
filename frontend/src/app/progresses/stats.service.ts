@@ -22,7 +22,6 @@ export class StatsService {
     effect(() => {
    
           if (this.goalsService.$habitIds().length > 0 ) {
-            console.log('loading progress stats');
             // ## change to take in startdate and endate instead of offset...
             this.loadProgressStats(this.$statsTimeStep());
           }
@@ -65,7 +64,6 @@ export class StatsService {
             { total: progressStat.total, completed: progressStat.completed },
           ])
         );
-        console.log('statsMap: ', statsMap, 'response.data: ', response.data);
         this.$progressStatsMap.set(statsMap); // Update the signal
         // this.$progressDateRange.set({
         //   startDate: response.data.startDate.split('T')[0],

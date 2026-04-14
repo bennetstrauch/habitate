@@ -19,10 +19,8 @@ export class GoalsService {
 
   $goals = signal<Goal[]>([]);
 
-  $habitIds = computed(() =>{
-    console.log('habitIds computed', 'goals:', this.$goals());
-    return this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
-  }
+  $habitIds = computed(() =>
+    this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   );
 
 
@@ -35,7 +33,6 @@ export class GoalsService {
     this.get_goals().subscribe((response) => {
       if (response.success) {
         this.$goals.set(response.data);
-        console.log('goals updated: ', response.data);
       }
     });
   }
@@ -58,7 +55,6 @@ export class GoalsService {
 
     this.remove_habit(goal_id, habit_id)
       .subscribe((response) => {
-        console.log(' delete response: ', response);
         if (response.success) {
           // this.updateHabits()
           this.update_goals();

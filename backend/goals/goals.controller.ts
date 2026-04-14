@@ -19,17 +19,14 @@ export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
   const { timezone = "UTC", forUserId } = req.query as { timezone?: string; forUserId?: string };
 
   try {
-    const targetUserId = forUserId
-      ? await requireFriendship(req.userId, forUserId)
-      : req.userId;
-
     if (forUserId) {
-      const friend = await UserModel.findById(targetUserId, { timezone: 1 }).lean();
+      const friendId = await requireFriendship(req.userId, forUserId);
+      const friend = await UserModel.findById(friendId, { timezone: 1 }).lean();
       const todayForFriend = getDateForTimezone(friend?.timezone ?? "UTC");
-      const userGoals = await getGoalsWithTodayProgress(targetUserId, todayForFriend);
+      const userGoals = await getGoalsWithTodayProgress(friendId, todayForFriend);
       res.json({ success: true, data: userGoals });
     } else {
-      const userGoals = await getGoalsDB(targetUserId);
+      const userGoals = await getGoalsDB(req.userId);
       res.json({ success: true, data: userGoals });
       await UserModel.updateOne(
         { _id: req.userId, timezone: { $ne: timezone } },
@@ -126,7 +123,6 @@ export const postGoal: RequestHandler<
     embedded_name = await generateEmbedding(embeddingInput);
 
     ranking = (await findSimilarGoals(embedded_name)) + 1;
-    console.log("ranking", ranking);
 
   }
   catch (err) {

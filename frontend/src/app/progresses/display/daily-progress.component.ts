@@ -5,7 +5,6 @@ import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link
 import { NgClass } from '@angular/common';
 import { ProgressService } from '../progresses.service';
 import { MatIcon } from '@angular/material/icon';
-import { HabitProgress } from '@backend/progresses/progress.types';
 import { RouterLink } from '@angular/router';
 import { ReflectionsService } from '../../reflections/reflections.service';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -208,19 +207,19 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
             }
 
             @for (habit of goal.habits; track $index) {
-              @let progress = habit.latestProgress;
+              @let progress = progressService.$progressMap().get(habit._id);
               <div
                 class="habit-div"
                 [attr.data-habit-id]="habit._id"
-                [ngClass]="{ 'completed-habit': progress.completed }"
-                (click)="!upliftersService.$isViewingUplifter() && toggleCompleted(progress, habit._id)"
+                [ngClass]="{ 'completed-habit': progress?.completed }"
+                (click)="!upliftersService.$isViewingUplifter() && toggleCompleted(habit._id)"
                 [style.cursor]="upliftersService.$isViewingUplifter() ? 'default' : 'pointer'"
                 joyrideStep="markHabit"
                 title="Mark as Done"
                 text="Click on habit to change completed status"
               >
                 <mat-icon>
-                  {{ progress.completed ? 'task_alt' : 'radio_button_unchecked' }}
+                  {{ progress?.completed ? 'task_alt' : 'radio_button_unchecked' }}
                 </mat-icon>
                 {{ habit.name }}
               </div>
@@ -459,18 +458,17 @@ export class DailyProgressComponent {
     });
   }
 
-  toggleCompleted(progress: HabitProgress, habitId: string) {
-    progress.completed = !progress.completed;
+  toggleCompleted(habitId: string) {
+    const current = this.progressService.$progressMap().get(habitId);
+    if (!current) return;
 
-    this.progressService.put_progress(progress).subscribe((response) => {
-      if (response.success) {
-        console.log('progress updated: ', response.data);
-      }
+    const updated = { ...current, completed: !current.completed };
+    this.progressService.$progressMap.update(m => new Map(m).set(habitId, updated));
+
+    this.progressService.put_progress(updated).subscribe(() => {
       // ### what if fails, retry or show error?
-
-      // update the Stats-Signal Completed value accordingly
       this.statsService.$progressStatsMap().get(habitId)!.completed +=
-        progress.completed ? 1 : -1;
+        updated.completed ? 1 : -1;
     });
   }
 

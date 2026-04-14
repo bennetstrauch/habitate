@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Goal, Habit } from '@backend/goals/goals.types';
 import { GoalsService } from '../goals/goals.service';
+import { ProgressService } from '../progresses/progresses.service';
 import { getRandomElement } from '../utils/utils';
 import { R1WelcomeComponent } from './display/r1-welcome.component';
 import { R2SettleDownComponent } from './display/r2-settle-down.component';
@@ -20,6 +21,7 @@ import { ReflectionsService } from './reflections.service';
 export class DailyReflectionService {
   readonly reflectionsService = inject(ReflectionsService);
   readonly goalsService = inject(GoalsService);
+  readonly progressService = inject(ProgressService);
   $currentStep = signal('start');
 
   // compute habits, and add to map with key same as currentStepIdentifiert (goal-1, etc.)
@@ -57,7 +59,6 @@ export class DailyReflectionService {
     this.stepsMappedToHabitOrGoal.clear();
 
     this.incompleteHabit = this.getRandomIncompleteDailyHabit();
-    console.log('incompleteHabit', this.incompleteHabit);
 
     let goalIndex = 0;
     let habitIndex = 0;
@@ -65,15 +66,12 @@ export class DailyReflectionService {
     const completedHabits = this.getRandomCompletedHabitsWithGoal();
 
     let habits = [...completedHabits];
-    console.log('habits to reflect on: ', habits);
 
     if (this.incompleteHabit) {
       habits.push(this.incompleteHabit!);
       // shuffle:
       habits.sort(() => Math.random() - 0.5);
     }
-
-    console.log('habits to reflect on', habits);
 
     habits.forEach((habitWithGoal) => {
       const goal = habitWithGoal.goal;
@@ -94,7 +92,7 @@ export class DailyReflectionService {
         'goal-' + goalIndex + '-habit-' + habitIndex,
         habit
       );
-      if (habit.latestProgress?.completed) {
+      if (this.progressService.$progressMap().get(habit._id)?.completed) {
         this.stepComponentMap.set(
           'goal-' + goalIndex + '-habit-' + habitIndex,
           RHabitCompletedComponent
@@ -107,9 +105,6 @@ export class DailyReflectionService {
       }
     });
 
-    console.log('stepMap', this.stepComponentMap);
-    console.log('steps', this.stepsMappedToHabitOrGoal);
-    console.log('selectedHabitsForGoal', this.selectedHabitsForGoal);
   }
 
   
@@ -156,7 +151,7 @@ export class DailyReflectionService {
     const incompleteHabits = this.$habitsWithGoal().filter(
       (habitWithGoal) =>
         habitWithGoal.habit.frequency == 7 &&
-        !habitWithGoal.habit.latestProgress?.completed
+        !this.progressService.$progressMap().get(habitWithGoal.habit._id)?.completed
     );
 
     if (incompleteHabits.length === 0) {
@@ -171,10 +166,8 @@ export class DailyReflectionService {
 
   getRandomCompletedHabitsWithGoal(): HabitWithGoal[] {
     const completedHabits = this.$habitsWithGoal().filter(
-      (habitGoalPair) => habitGoalPair.habit.latestProgress?.completed
+      (habitGoalPair) => this.progressService.$progressMap().get(habitGoalPair.habit._id)?.completed
     );
-
-    console.log('incompleteHabit', this.incompleteHabit);
 
     const numberToPick = this.incompleteHabit ? 1 : 2;
     return getNumberOfRandomElements(completedHabits, numberToPick);

@@ -4,7 +4,6 @@ import {
   inject,
   Injectable,
   signal,
-  untracked,
 } from '@angular/core';
 import { HabitProgress } from '@backend/progresses/progress.types';
 import { StandardResponse } from '@backend/types/standardResponse';
@@ -17,7 +16,6 @@ import {
   toLocalDateString,
 } from '../utils/utils';
 import { Router } from '@angular/router';
-import { Habit } from '@backend/goals/goals.types';
 import { UpliftersService } from '../uplifters/uplifters.service';
 
 @Injectable({
@@ -32,6 +30,7 @@ export class ProgressService {
   $displayStats = signal<boolean>(false);
   $displayDailyProgress = computed(() => !this.$displayStats());
   $progressLoaded = signal(false);
+  $progressMap = signal<Map<string, HabitProgress>>(new Map());
 
   // ########### rename dailyTimeStep
   $dailyProgressTimeStep = signal(0);
@@ -74,64 +73,28 @@ export class ProgressService {
     });
   }
 
-  // ## review + goals.flatmap needed? no i not have all habits somewhere?
   mapProgressesToHabits(progresses: HabitProgress[], dateString: string) {
-  const noProgressHabitIds: string[] = [];
+    const map = new Map(progresses.map(p => [p.habit_id, p]));
 
-  this.goalsService.$goals().forEach((goal) => {
-    goal.habits.forEach((habit) => {
-      const progress = progresses.find(p => p.habit_id === habit._id);
+    const noProgressHabitIds = this.goalsService.$goals()
+      .flatMap(g => g.habits)
+      .filter(h => !map.has(h._id))
+      .map(h => h._id);
 
-      if (progress) {
-        habit.latestProgress = progress;
-      } else {
-        noProgressHabitIds.push(habit._id);
-      }
-    });
-  });
-
-  if (noProgressHabitIds.length > 0 && !this.upliftersService.$isViewingUplifter()) {
-    this.create_progresses_batch(dateString, noProgressHabitIds).subscribe((response) => {
-      if (response.success) {
-        response.data.forEach((newProgress) => {
-          const habit = this.goalsService
-            .$goals()
-            .flatMap(goal => goal.habits)
-            .find(h => h._id === newProgress.habit_id);
-          if (habit) habit.latestProgress = newProgress;
-        });
-      }
+    if (noProgressHabitIds.length > 0 && !this.upliftersService.$isViewingUplifter()) {
+      this.create_progresses_batch(dateString, noProgressHabitIds).subscribe((response) => {
+        if (response.success) {
+          response.data.forEach(p => map.set(p.habit_id, p));
+        }
+        this.$progressMap.set(new Map(map));
+        this.$progressLoaded.set(true);
+      });
+    } else {
+      this.$progressMap.set(map);
       this.$progressLoaded.set(true);
-    });
-  } else {
-    this.$progressLoaded.set(true);
+    }
   }
-}
 
-
-  createNewProgressAndMapToHabit(habit: Habit, dateString: string) {
-    console.log(
-      'Creating new progress for habit: ',
-      habit._id,
-      ' and date: ',
-      dateString
-    );
-
-    this.create_progress(dateString, habit._id).subscribe((response) => {
-      if (response.success) {
-        habit.latestProgress = response.data;
-      } else {
-        alert(
-          'ERROR: SORRY! - Progress for that day could not be saved in database. Please try again later. We switched to today.'
-        );
-        console.error('No progress created. Error: ', response.data);
-
-        this.#router.navigate(['', 'goals']).then(() => {
-          window.location.reload();
-        });
-      }
-    });
-  }
   // _______ http calls __________________________________________
 
   // ## not used so far.
@@ -158,16 +121,15 @@ export class ProgressService {
     return this.#http.post<StandardResponse<HabitProgress>>(
       environment.SERVER_URL + '/progresses',
       { date, habit_id }
-      // # latest progress, see in reflecions
     );
   }
 
   create_progresses_batch(date: string, habit_ids: string[]) {
-  return this.#http.post<StandardResponse<HabitProgress[]>>(
-    environment.SERVER_URL + '/progresses/batch',
-    { date, habit_ids }
-  );
-}
+    return this.#http.post<StandardResponse<HabitProgress[]>>(
+      environment.SERVER_URL + '/progresses/batch',
+      { date, habit_ids }
+    );
+  }
 
   put_progress(progress: HabitProgress) {
     return this.#http.put<StandardResponse<number>>(
