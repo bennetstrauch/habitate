@@ -37,7 +37,8 @@ export const getDaily: RequestHandler<
     ).lean() as unknown as Goal[];
 
     if (goals.length === 0) {
-      return res.json({ success: true, data: { goals: [], progresses: [] } });
+      res.json({ success: true, data: { goals: [], progresses: [] } });
+      return;
     }
 
     const allHabits = goals.flatMap(g => g.habits);
