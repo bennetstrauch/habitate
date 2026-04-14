@@ -4,35 +4,24 @@ import { ErrorWithStatus } from "../utils/error.class";
 import { StandardResponse } from "../types/standardResponse";
 import { generateEmbedding } from "./ai/embedding";
 import { findSimilarGoals } from "../database/queries";
-import { getDateOnlyForTimeZone, getDateForTimezone } from "../utils/functionsAndVariables";
-import { GoalModel, HabitProgressModel, UserModel } from "../database/schemas";
-import { requireFriendship } from "../utils/friendship";
-import { getNewProgressForDate } from "../progresses/newProgress";
-import moment from "moment-timezone";
+import { GoalModel, UserModel } from "../database/schemas";
 
 type GetGoalsReqHandler = RequestHandler<
-  { createNewProgressesForToday?: boolean },
+  unknown,
   StandardResponse<Goal[]>
 >;
 
 export const getGoals: GetGoalsReqHandler = async (req, res, next) => {
-  const { timezone = "UTC", forUserId } = req.query as { timezone?: string; forUserId?: string };
+  const { timezone = "UTC" } = req.query as { timezone?: string };
 
   try {
-    if (forUserId) {
-      const friendId = await requireFriendship(req.userId, forUserId);
-      const friend = await UserModel.findById(friendId, { timezone: 1 }).lean();
-      const todayForFriend = getDateForTimezone(friend?.timezone ?? "UTC");
-      const userGoals = await getGoalsWithTodayProgress(friendId, todayForFriend);
-      res.json({ success: true, data: userGoals });
-    } else {
-      const userGoals = await getGoalsDB(req.userId);
-      res.json({ success: true, data: userGoals });
-      await UserModel.updateOne(
-        { _id: req.userId, timezone: { $ne: timezone } },
-        { $set: { timezone } }
-      );
-    }
+    const userGoals = await getGoalsDB(req.userId);
+    res.json({ success: true, data: userGoals });
+
+    await UserModel.updateOne(
+      { _id: req.userId, timezone: { $ne: timezone } },
+      { $set: { timezone } }
+    );
   } catch (err) {
     next(err);
   }
@@ -44,41 +33,6 @@ export const getGoalsDB = async (userId: string | undefined): Promise<Goal[]> =>
     { embedded_name: 0, __v: 0 }
   );
 };
-
-async function getGoalsWithTodayProgress(userId: string, date: Date): Promise<Goal[]> {
-  const goals = await GoalModel.find(
-    { createdByUserWithId: userId },
-    { embedded_name: 0, __v: 0 }
-  ).lean() as unknown as Goal[];
-
-  const allHabits = goals.flatMap(g => g.habits);
-  if (allHabits.length === 0) return goals;
-
-  const startOfDay = moment(date).startOf("day").toDate();
-  const endOfDay = moment(date).endOf("day").toDate();
-
-  const existing = await HabitProgressModel.find({
-    habit_id: { $in: allHabits.map(h => h._id) },
-    date: { $gte: startOfDay, $lte: endOfDay },
-  }).lean();
-
-  const progressByHabitId = new Map(existing.map(p => [p.habit_id.toString(), p]));
-
-  const missingHabits = allHabits.filter(h => !progressByHabitId.has((h._id as any).toString()));
-  if (missingHabits.length > 0) {
-    const newProgresses = missingHabits.map(h => getNewProgressForDate(h._id as any, date));
-    const created = await HabitProgressModel.insertMany(newProgresses);
-    created.forEach(p => progressByHabitId.set(p.habit_id.toString(), p));
-  }
-
-  for (const goal of goals) {
-    for (const habit of goal.habits) {
-      habit.latestProgress = progressByHabitId.get((habit._id as any).toString()) as any;
-    }
-  }
-
-  return goals;
-}
 
 type GetGoalReqHandler = RequestHandler<
   { goal_id: string },
@@ -108,35 +62,31 @@ export const postGoal: RequestHandler<
 > = async (req, res, next) => {
   try {
     const goalBase = req.body;
-  
-      if (!goalBase.name) {
-        throw new ErrorWithStatus("Goal name is required", 400);
-      }
 
-      let embedded_name = undefined;
-      let ranking = -1; // default ranking##
+    if (!goalBase.name) {
+      throw new ErrorWithStatus("Goal name is required", 400);
+    }
 
-      try {
-    const embeddingInput = goalBase.description?.trim()
-      ? `${goalBase.name}: ${goalBase.description}`
-      : goalBase.name;
-    embedded_name = await generateEmbedding(embeddingInput);
+    let embedded_name = undefined;
+    let ranking = -1;
 
-    ranking = (await findSimilarGoals(embedded_name)) + 1;
-
-  }
-  catch (err) {
-    console.error("Error generating embedding:", err);
-    throw new ErrorWithStatus("Failed to generate embedding", 500);
-  }
+    try {
+      const embeddingInput = goalBase.description?.trim()
+        ? `${goalBase.name}: ${goalBase.description}`
+        : goalBase.name;
+      embedded_name = await generateEmbedding(embeddingInput);
+      ranking = (await findSimilarGoals(embedded_name)) + 1;
+    } catch (err) {
+      console.error("Error generating embedding:", err);
+      throw new ErrorWithStatus("Failed to generate embedding", 500);
+    }
 
     const result = await GoalModel.create({
       ...goalBase,
       embedded_name,
       createdByUserWithId: req.userId,
       ranking,
-    })
-  
+    });
 
     const goalObject = result.toObject();
     delete goalObject.embedded_name;
@@ -185,7 +135,6 @@ export const deleteGoal: RequestHandler<
   }
 };
 
-// ## use in all getGoal / getHabit methods
 export const findOneGoalHelper = async (goal_id: string, userId?: string) => {
   const query: { _id: string; createdByUserWithId?: string } = { _id: goal_id };
 

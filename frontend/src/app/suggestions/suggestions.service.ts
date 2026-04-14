@@ -18,7 +18,7 @@ export class SuggestionsService {
 
   $pendingSuggestions = signal<ActivitySuggestion[]>([]);
   $acceptedSuggestions = signal<ActivitySuggestion[]>([]);
-  $viewedAcceptedSuggestion = signal<ActivitySuggestion | null>(null);
+  $viewedAcceptedSuggestions = signal<ActivitySuggestion[]>([]);
   $hasSent = signal(false);
   /** ID of the accepted suggestion whose goal is being reassigned, or null */
   $goalPickerForId = signal<string | null>(null);
@@ -48,7 +48,7 @@ export class SuggestionsService {
       }),
       takeUntilDestroyed()
     ).subscribe(r => {
-      this.$viewedAcceptedSuggestion.set(r?.success ? (r.data[0] ?? null) : null);
+      this.$viewedAcceptedSuggestions.set(r?.success ? r.data : []);
     });
   }
 

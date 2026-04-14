@@ -5,7 +5,8 @@ import { ProgressService } from '../progresses/progresses.service';
 import { GoalsService } from '../goals/goals.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { StandardResponse } from '@backend/types/standardResponse';
-import { Goal } from '@backend/goals/goals.types';
+import { DailyViewData, Goal } from '@backend/goals/goals.types';
+import { HabitProgress } from '@backend/progresses/progress.types';
 import { environment } from 'frontend/src/environments/environment';
 import { toLocalDateString } from '../utils/utils';
 import { MatButtonModule } from '@angular/material/button';
@@ -54,10 +55,10 @@ type Step = 'select' | 'progress' | 'comment' | 'done';
             @for (habit of goal.habits; track habit._id) {
               <button
                 class="habit-btn"
-                [class.completed]="habit.latestProgress?.completed"
+                [class.completed]="friendProgressMap().get(habit._id)?.completed"
                 (click)="selectHabit(habit._id, habit.name)"
               >
-                <mat-icon>{{ habit.latestProgress?.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+                <mat-icon>{{ friendProgressMap().get(habit._id)?.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
                 {{ habit.name }}
               </button>
             }
@@ -155,6 +156,7 @@ export class UpliftFriendComponent implements OnInit {
   step = signal<Step>('select');
   selectedFriend = signal<Uplifter | null>(null);
   friendGoals = signal<Goal[]>([]);
+  friendProgressMap = signal<Map<string, HabitProgress>>(new Map());
   selectedHabitId = signal('');
   selectedHabitName = signal('');
   commentText = '';
@@ -176,6 +178,7 @@ export class UpliftFriendComponent implements OnInit {
   selectFriend(friend: Uplifter) {
     this.selectedFriend.set(friend);
     this.friendGoals.set([]);
+    this.friendProgressMap.set(new Map());
     this.step.set('progress');
     this.loadFriendGoals(friend._id);
   }
@@ -183,8 +186,13 @@ export class UpliftFriendComponent implements OnInit {
   loadFriendGoals(userId: string) {
     const params = new HttpParams().set('forUserId', userId);
     this.#http
-      .get<StandardResponse<Goal[]>>(environment.SERVER_URL + '/goals', { params })
-      .subscribe(r => { if (r.success) this.friendGoals.set(r.data); });
+      .get<StandardResponse<DailyViewData>>(environment.SERVER_URL + '/daily', { params })
+      .subscribe(r => {
+        if (r.success) {
+          this.friendGoals.set(r.data.goals);
+          this.friendProgressMap.set(new Map(r.data.progresses.map(p => [p.habit_id, p])));
+        }
+      });
   }
 
   selectHabit(habitId: string, habitName: string) {
@@ -220,6 +228,7 @@ export class UpliftFriendComponent implements OnInit {
   reset() {
     this.selectedFriend.set(null);
     this.friendGoals.set([]);
+    this.friendProgressMap.set(new Map());
     this.commentText = '';
     this.step.set('select');
   }

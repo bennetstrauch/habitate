@@ -529,7 +529,8 @@ setupResizeObserver(): void {
       }, 4000);
     }
     this.upliftersService.$activeProfileId.set(userId);
-    this.goalsService.update_goals();
+    this.progressService.$dailyProgressTimeStep.set(0);
+    this.progressService.loadDailyView().subscribe();
   }
 
   toggleComment(id: string) {
@@ -562,7 +563,11 @@ setupResizeObserver(): void {
       }
 
       if (isViewing) {
-        this.#refreshInterval = setInterval(() => this.goalsService.update_goals(), 60_000);
+        this.#refreshInterval = setInterval(() => {
+          if (this.progressService.$dailyProgressTimeStep() === 0) {
+            this.progressService.loadDailyView().subscribe();
+          }
+        }, 60_000);
       }
     });
 

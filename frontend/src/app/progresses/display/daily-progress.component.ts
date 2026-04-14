@@ -60,8 +60,6 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
 
     <div class="card">
 
-      @let viewedAccepted = suggestionsService.$viewedAcceptedSuggestion();
-
       <!-- ── Own view: goal picker overlay (shown via toast action) ── -->
       @if (!upliftersService.$isViewingUplifter() && suggestionsService.$goalPickerForId()) {
         <div class="goal-picker-row">
@@ -113,17 +111,21 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
         }
       }
 
-      <!-- ── Uplifter view: viewed user's accepted suggestion (no goal) ── -->
-      @if (upliftersService.$isViewingUplifter() && viewedAccepted && !viewedAccepted.goal_id) {
-        <div
-          class="habit-div suggestion-habit"
-          [ngClass]="{ 'completed-habit': viewedAccepted.completed }"
-          style="cursor: default"
-        >
-          <mat-icon>{{ viewedAccepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
-          <mat-icon class="sparkle">auto_awesome</mat-icon>
-          {{ viewedAccepted.text }}
-        </div>
+      <!-- ── Uplifter view: viewed user's accepted suggestions (no goal) ── -->
+      @if (upliftersService.$isViewingUplifter()) {
+        @for (accepted of suggestionsService.$viewedAcceptedSuggestions(); track accepted._id) {
+          @if (!accepted.goal_id) {
+            <div
+              class="habit-div suggestion-habit"
+              [ngClass]="{ 'completed-habit': accepted.completed }"
+              style="cursor: default"
+            >
+              <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+              <mat-icon class="sparkle">auto_awesome</mat-icon>
+              {{ accepted.text }}
+            </div>
+          }
+        }
       }
 
       <!-- ── Own view: pending suggestions card ── -->
@@ -193,17 +195,21 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
               }
             }
 
-            <!-- ── Uplifter view: viewed user's accepted suggestion matched to this goal ── -->
-            @if (upliftersService.$isViewingUplifter() && viewedAccepted?.goal_id === goal._id) {
-              <div
-                class="habit-div suggestion-habit"
-                [ngClass]="{ 'completed-habit': viewedAccepted!.completed }"
-                style="cursor: default"
-              >
-                <mat-icon>{{ viewedAccepted!.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
-                <mat-icon class="sparkle">auto_awesome</mat-icon>
-                {{ viewedAccepted!.text }}
-              </div>
+            <!-- ── Uplifter view: viewed user's accepted suggestions matched to this goal ── -->
+            @if (upliftersService.$isViewingUplifter()) {
+              @for (accepted of suggestionsService.$viewedAcceptedSuggestions(); track accepted._id) {
+                @if (accepted.goal_id === goal._id) {
+                  <div
+                    class="habit-div suggestion-habit"
+                    [ngClass]="{ 'completed-habit': accepted.completed }"
+                    style="cursor: default"
+                  >
+                    <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+                    <mat-icon class="sparkle">auto_awesome</mat-icon>
+                    {{ accepted.text }}
+                  </div>
+                }
+              }
             }
 
             @for (habit of goal.habits; track $index) {
@@ -452,7 +458,7 @@ export class DailyProgressComponent {
         this.suggestionsService.$acceptedSuggestions.set([]);
         this.suggestionsService.checkSentToUser(toUserId, date);
       } else {
-        this.suggestionsService.$viewedAcceptedSuggestion.set(null);
+        this.suggestionsService.$viewedAcceptedSuggestions.set([]);
         this.suggestionsService.loadReceivedForDate(date);
       }
     });

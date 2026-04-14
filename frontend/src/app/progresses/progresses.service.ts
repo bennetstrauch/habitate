@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { HabitProgress } from '@backend/progresses/progress.types';
+import { DailyViewData } from '@backend/goals/goals.types';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
@@ -17,6 +18,7 @@ import {
 } from '../utils/utils';
 import { Router } from '@angular/router';
 import { UpliftersService } from '../uplifters/uplifters.service';
+import { map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -32,14 +34,20 @@ export class ProgressService {
   $progressLoaded = signal(false);
   $progressMap = signal<Map<string, HabitProgress>>(new Map());
 
-  // ########### rename dailyTimeStep
   $dailyProgressTimeStep = signal(0);
-  // ## reset timestep?
+
+  // Set to true before loadDailyView sets $goals, so the effect skips the
+  // redundant GET /progresses — progress is already in $progressMap.
+  #skipProgressLoad = false;
 
   handleTimeStepChange = effect(() => {
-    if (this.goalsService.$habitIds().length > 0) {
-      this.handleProgressMappingToHabits(this.$dailyProgressDate());
-    }
+    const habitIds = this.goalsService.$habitIds();
+    const date = this.$dailyProgressDate(); // must be read before any early return
+
+    if (habitIds.length === 0) return;
+    if (this.#skipProgressLoad) { this.#skipProgressLoad = false; return; }
+
+    this.handleProgressMappingToHabits(date);
   });
 
   $dailyProgressDate = computed(() => this.calculateDateWithTimestep());
@@ -48,10 +56,8 @@ export class ProgressService {
     formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate())
   );
 
-  // ________________________############might break
   handleDateChange = () => {
     this.handleProgressMappingToHabits(this.$dailyProgressDate());
-
     return formatDateToDisplayAsWeekMonthDay(this.$dailyProgressDate());
   };
 
@@ -61,7 +67,36 @@ export class ProgressService {
     return date;
   };
 
-  //#refactor
+  // Called by the resolver and switchProfile. Fetches goals + today's
+  // progress in one request, seeds both signals.
+  loadDailyView() {
+    const forUserId = this.upliftersService.$isViewingUplifter()
+      ? this.upliftersService.$activeProfileId()
+      : undefined;
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let params = new HttpParams().set('timezone', timezone);
+    if (forUserId) params = params.set('forUserId', forUserId);
+
+    this.$progressLoaded.set(false);
+
+    return this.#http
+      .get<StandardResponse<DailyViewData>>(environment.SERVER_URL + '/daily', { params })
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            this.#skipProgressLoad = true;
+            this.goalsService.$goals.set(response.data.goals);
+            this.$progressMap.set(
+              new Map(response.data.progresses.map(p => [p.habit_id, p]))
+            );
+            this.$progressLoaded.set(true);
+          }
+        }),
+        map(response => response.data)
+      );
+  }
+
   handleProgressMappingToHabits(date: Date) {
     const dateString = toLocalDateString(date);
     this.$progressLoaded.set(false);
@@ -96,13 +131,6 @@ export class ProgressService {
   }
 
   // _______ http calls __________________________________________
-
-  // ## not used so far.
-  get_progress(progress_id: string) {
-    return this.#http.get<StandardResponse<HabitProgress[]>>(
-      environment.SERVER_URL + 'progresses' + '/' + progress_id
-    );
-  }
 
   get_progresses_for_day(dateStringWithoutTime: string) {
     const habit_ids = this.goalsService.$habitIds().join(',');

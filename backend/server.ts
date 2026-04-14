@@ -5,6 +5,7 @@ import { userRouter } from "./users/users.router";
 import { errorHandler, routerNotFoundHandler } from "./utils/handlers";
 import { connectToDB } from "./database/connection";
 import { goalsRouter } from "./goals/goals.router";
+import { dailyRouter } from "./daily/daily.router";
 import { checkToken } from "./users/users.middleware";
 import { progressRouter } from "./progresses/progresses.router";
 import { healthCheck } from "./utils/healthcheck";
@@ -29,6 +30,7 @@ app.use(urlencoded());
 
 app.use("/users", userRouter);
 app.use("/goals", checkToken, goalsRouter);
+app.use("/daily", checkToken, dailyRouter);
 app.use("/progresses", checkToken, progressRouter);
 app.use("/reflections", checkToken, reflectionsRouter);
 app.use("/comments", checkToken, commentsRouter);

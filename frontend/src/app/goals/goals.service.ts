@@ -1,20 +1,17 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { StandardResponse } from '@backend/types/standardResponse';
 import { Goal, GoalBase, Habit, HabitBase } from '@backend/goals/goals.types';
 import { environment } from 'frontend/src/environments/environment';
 import { Router } from '@angular/router';
 import { getTodaysDateOnlyAsString } from '@backend/utils/date.utils.shared';
-import { UpliftersService } from '../uplifters/uplifters.service';
-
+import { computed } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GoalsService {
   #router = inject(Router);
-  #upliftersService = inject(UpliftersService);
-
   #http = inject(HttpClient);
 
   $goals = signal<Goal[]>([]);
@@ -23,12 +20,10 @@ export class GoalsService {
     this.$goals().flatMap((goal) => goal.habits.map((habit) => habit._id))
   );
 
-
-  // #does it trigger reload of component? if yes, or even anyway: seperate service!
-
-  // ## replace with utils
   getTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+  // Used after structural changes (add/edit/delete goal or habit).
+  // Does not load progress — the effect in ProgressService handles that.
   update_goals() {
     this.get_goals().subscribe((response) => {
       if (response.success) {
@@ -53,28 +48,17 @@ export class GoalsService {
     const confirmDelete = window.confirm('Delete this Habit?');
     if (!confirmDelete) return;
 
-    this.remove_habit(goal_id, habit_id)
-      .subscribe((response) => {
-        if (response.success) {
-          // this.updateHabits()
-          this.update_goals();
-        }
-      });
+    this.remove_habit(goal_id, habit_id).subscribe((response) => {
+      if (response.success) {
+        this.update_goals();
+      }
+    });
   };
-
 
   // ____________ HTTP REQUESTS ____________
 
-
   get_goals() {
-    const userTimezone = this.getTimezone();
-    const activeProfileId = this.#upliftersService.$activeProfileId();
-
-    let params = new HttpParams().set('timezone', userTimezone);
-    if (this.#upliftersService.$isViewingUplifter()) {
-      params = params.set('forUserId', activeProfileId);
-    }
-
+    const params = new HttpParams().set('timezone', this.getTimezone());
     return this.#http.get<StandardResponse<Goal[]>>(
       environment.SERVER_URL + '/goals',
       { params }
@@ -95,15 +79,11 @@ export class GoalsService {
     );
   }
 
-  // ##put in habitService
-
   delete_goal(goal_id: string) {
     return this.#http.delete<StandardResponse<number>>(
       environment.SERVER_URL + '/goals' + '/' + goal_id
     );
   }
-
-  // get_habit()
 
   get_habits_for_goal(goal_id: string) {
     return this.#http.get<StandardResponse<Habit[]>>(
@@ -113,7 +93,6 @@ export class GoalsService {
 
   add_habit(goal_id: string, habit: HabitBase) {
     const date = getTodaysDateOnlyAsString();
-
     return this.#http.post<StandardResponse<number>>(
       environment.SERVER_URL + '/goals' + '/' + goal_id + '/' + 'habits',
       { habit, date }
@@ -122,14 +101,7 @@ export class GoalsService {
 
   remove_habit(goal_id: string, habit_id: string) {
     return this.#http.delete<StandardResponse<number>>(
-      environment.SERVER_URL +
-        '/goals' +
-        '/' +
-        goal_id +
-        '/' +
-        'habits' +
-        '/' +
-        habit_id
+      environment.SERVER_URL + '/goals/' + goal_id + '/habits/' + habit_id
     );
   }
 }

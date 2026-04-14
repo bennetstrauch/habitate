@@ -12,7 +12,6 @@ export interface HabitBase extends EntityBase {
 
 export interface Habit extends HabitBase {
   _id: string;
-  latestProgress?: HabitProgress;
 }
 
 export interface GoalBase extends EntityBase {}
@@ -25,4 +24,9 @@ export interface Goal extends EntityBase {
   habits: Habit[];
 
   ranking: number;
+}
+
+export interface DailyViewData {
+  goals: Goal[];
+  progresses: HabitProgress[];
 }
