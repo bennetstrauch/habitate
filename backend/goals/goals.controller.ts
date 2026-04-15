@@ -78,7 +78,6 @@ export const postGoal: RequestHandler<
       ranking = (await findSimilarGoals(embedded_name)) + 1;
     } catch (err) {
       console.error("Error generating embedding:", err);
-      throw new ErrorWithStatus("Failed to generate embedding", 500);
     }
 
     const result = await GoalModel.create({
