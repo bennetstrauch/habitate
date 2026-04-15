@@ -20,6 +20,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Goal, GoalBase } from '@backend/goals/goals.types';
 import { MatCardModule } from '@angular/material/card';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // #### make clear that a goal is not a concrete behavior, thats a habit
 @Component({
@@ -34,6 +35,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     MatCardModule,
     RouterLink,
     TextFieldModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <mat-stepper class="card" linear #stepper>
@@ -179,8 +181,14 @@ import { TextFieldModule } from '@angular/cdk/text-field';
             matStepperNext
             [disabled]="$submitting()"
             (click)="addGoal()"
+            style="display: inline-flex; align-items: center; gap: 8px;"
           >
-            {{ $submitting() ? 'Adding…' : 'Add this Goal' }}
+            @if ($submitting()) {
+              <mat-spinner diameter="18" />
+              Adding…
+            } @else {
+              Add this Goal
+            }
           </button>
 
           <br />
