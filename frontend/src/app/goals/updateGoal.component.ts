@@ -12,6 +12,9 @@ import { AddHabitButtonComponent } from '../habits/addHabit/add-habit-button.com
 import { AutoResizeInputDirective } from '../auto-resize-input.directive';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
+import { MatDialog } from '@angular/material/dialog';
+import { UnsavedChangesDialogComponent } from './unsaved-changes-dialog.component';
+import { map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-update',
@@ -210,6 +213,7 @@ import { DisplayGoalWithLinkComponent } from './display-habit-with-description';
 })
 export class UpdateGoalComponent {
   #router = inject(Router);
+  #dialog = inject(MatDialog);
   goalsService = inject(GoalsService);
   readonly _id = input.required<string>();
   $goal = computed(() => this.goalsService.find_goal(this._id()));
@@ -237,22 +241,38 @@ export class UpdateGoalComponent {
     this.goalForm.markAsPristine();
   }
 
-  updateGoal = () => {
-    const goal: Goal = {
+  #buildGoal(): Goal {
+    return {
       ...this.$goal()!,
       name: this.goalForm.controls.name.value!,
       description: this.goalForm.controls.description.value ?? '',
     };
+  }
 
-    this.goalsService.put_goal(goal).subscribe((response) => {
+  updateGoal = () => {
+    this.goalsService.put_goal(this.#buildGoal()).subscribe((response) => {
       console.log(' update response: ', response);
       if (response.success) {
         this.goalsService.update_goals();
-        alert('Goal updated successfully!');
         this.goalForm.markAsPristine();
+        alert('Goal updated successfully!');
       }
     });
   };
+
+  canDeactivate() {
+    if (this.goalForm.pristine) return true;
+
+    return this.#dialog.open(UnsavedChangesDialogComponent).afterClosed().pipe(
+      switchMap(result => {
+        if (result === 'discard') return of(true);
+        if (result === 'save') return this.goalsService.put_goal(this.#buildGoal()).pipe(
+          map(r => { if (r.success) this.goalsService.update_goals(); return true; })
+        );
+        return of(false);
+      })
+    );
+  }
 
   deleteGoal = () => {
     const confirmDelete = window.confirm('Delete this Goal?');
