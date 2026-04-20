@@ -12,7 +12,7 @@ export const getDaily: RequestHandler<
   unknown,
   StandardResponse<DailyViewData>
 > = async (req, res, next) => {
-  const { timezone = "UTC", forUserId } = req.query as { timezone?: string; forUserId?: string };
+  const { timezone = "UTC", forUserId, date } = req.query as { timezone?: string; forUserId?: string; date?: string };
 
   try {
     let targetUserId: string;
@@ -21,7 +21,10 @@ export const getDaily: RequestHandler<
     if (forUserId) {
       targetUserId = await requireFriendship(req.userId, forUserId);
       const friend = await UserModel.findById(targetUserId, { timezone: 1 }).lean();
-      todayDate = getDateForTimezone(friend?.timezone ?? "UTC");
+      const friendTimezone = friend?.timezone ?? "UTC";
+      todayDate = date
+        ? moment.tz(date, "YYYY-MM-DD", friendTimezone).startOf("day").toDate()
+        : getDateForTimezone(friendTimezone);
     } else {
       targetUserId = req.userId!;
       todayDate = getDateForTimezone(timezone);

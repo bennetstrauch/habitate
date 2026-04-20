@@ -184,7 +184,8 @@ export class UpliftFriendComponent implements OnInit {
   }
 
   loadFriendGoals(userId: string) {
-    const params = new HttpParams().set('forUserId', userId);
+    const date = toLocalDateString(this.#progressService.$dailyProgressDate());
+    const params = new HttpParams().set('forUserId', userId).set('date', date);
     this.#http
       .get<StandardResponse<DailyViewData>>(environment.SERVER_URL + '/daily', { params })
       .subscribe(r => {
