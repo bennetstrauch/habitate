@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivitySuggestion } from '@backend/suggestions/suggestions.types';
 import { SuggestionsService } from './suggestions.service';
@@ -10,7 +11,7 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
 @Component({
   selector: 'app-suggestion-card',
   standalone: true,
-  imports: [MatIconButton, MatButton, MatIcon],
+  imports: [MatIconButton, MatButton, MatIcon, MatBadgeModule],
   template: `
     @let pending = suggestionsService.$pendingSuggestions();
     @if (pending.length > 0) {
@@ -26,9 +27,18 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
             <button mat-icon-button color="primary" (click)="accept(pending[0])" aria-label="Accept">
               <mat-icon>check</mat-icon>
             </button>
-            @if (isAfterNoon()) {
-              <button mat-icon-button color="accent" (click)="acceptForTomorrow(pending[0]._id, pending[0].date)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
-                <mat-icon>event_available</mat-icon>
+            @if (showDateButton(pending[0].date)) {
+              <button mat-icon-button color="accent" (click)="acceptForDate(pending[0]._id, pending[0].date)"
+                [attr.aria-label]="isForTomorrow(pending[0].date) ? 'Add for tomorrow' : 'Add for today'"
+                [title]="isForTomorrow(pending[0].date) ? 'Add for tomorrow' : 'Add for today'">
+                @if (isForTomorrow(pending[0].date)) {
+                  <span class="icon-stack">
+                    <mat-icon>event_available</mat-icon>
+                    <mat-icon class="icon-arrow">arrow_forward</mat-icon>
+                  </span>
+                } @else {
+                  <mat-icon matBadge="Today" matBadgeColor="accent">calendar_today</mat-icon>
+                }
               </button>
             }
             <button mat-icon-button (click)="dismiss(pending[0]._id)" aria-label="Dismiss">
@@ -51,9 +61,18 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
                   <button mat-icon-button color="primary" (click)="accept(s)" aria-label="Accept">
                     <mat-icon>check</mat-icon>
                   </button>
-                  @if (isAfterNoon()) {
-                    <button mat-icon-button color="accent" (click)="acceptForTomorrow(s._id, s.date)" aria-label="Accept for tomorrow" title="Accept for tomorrow">
-                      <mat-icon>event_available</mat-icon>
+                  @if (showDateButton(s.date)) {
+                    <button mat-icon-button color="accent" (click)="acceptForDate(s._id, s.date)"
+                      [attr.aria-label]="isForTomorrow(s.date) ? 'Add for tomorrow' : 'Add for today'"
+                      [title]="isForTomorrow(s.date) ? 'Add for tomorrow' : 'Add for today'">
+                      @if (isForTomorrow(s.date)) {
+                        <span class="icon-stack">
+                          <mat-icon>event_available</mat-icon>
+                          <mat-icon class="icon-arrow">arrow_forward</mat-icon>
+                        </span>
+                      } @else {
+                        <mat-icon matBadge="Today" matBadgeColor="accent">calendar_today</mat-icon>
+                      }
                     </button>
                   }
                   <button mat-icon-button (click)="dismiss(s._id)" aria-label="Dismiss">
@@ -87,6 +106,8 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
     .suggestion-actions { display: flex; gap: 2px; margin-top: 2px; }
     .suggestion-divider { border-top: 1px solid #f0f0f0; margin: 10px 0; }
     .view-more-btn { font-size: 0.8rem; opacity: 0.65; margin-top: 4px; }
+    .icon-stack { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+    .icon-arrow { position: absolute; font-size: 13px !important; width: 13px !important; height: 13px !important; bottom: -3px; right: -5px; }
   `,
 })
 export class SuggestionCardComponent {
@@ -103,10 +124,25 @@ export class SuggestionCardComponent {
     return new Date().getHours() >= 12;
   }
 
-  acceptForTomorrow(id: string, date: string) {
+  isPreviousDay(date: string): boolean {
+    const t = new Date();
+    const todayStr = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    return date.substring(0, 10) < todayStr;
+  }
+
+  showDateButton(date: string): boolean {
+    return this.isAfterNoon() || this.isPreviousDay(date);
+  }
+
+  isForTomorrow(date: string): boolean {
+    return !this.isPreviousDay(date) && this.isAfterNoon();
+  }
+
+  acceptForDate(id: string, date: string) {
+    const forTomorrow = this.isForTomorrow(date);
     this.suggestionsService.acceptForTomorrow(id, date).subscribe((r) => {
       if (!r.success) return;
-      this.#snackBar.open('Accepted for tomorrow!', undefined, { duration: 4000 });
+      this.#snackBar.open(forTomorrow ? 'Accepted for tomorrow!' : 'Accepted for today!', undefined, { duration: 4000 });
     });
   }
 
