@@ -5,6 +5,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivitySuggestion } from '@backend/suggestions/suggestions.types';
 import { SuggestionsService } from './suggestions.service';
+import { getTodayGoalColor } from '../goals/goal-day-color';
 
 const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 'productive'];
 
@@ -37,7 +38,7 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
                     <mat-icon class="icon-arrow">arrow_forward</mat-icon>
                   </span>
                 } @else {
-                  <mat-icon matBadge="Today" matBadgeColor="accent">calendar_today</mat-icon>
+                  <mat-icon class="today-badge-icon" matBadge="Today" [style.--today-badge-bg]="goalColor">calendar_today</mat-icon>
                 }
               </button>
             }
@@ -71,7 +72,7 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
                           <mat-icon class="icon-arrow">arrow_forward</mat-icon>
                         </span>
                       } @else {
-                        <mat-icon matBadge="Today" matBadgeColor="accent">calendar_today</mat-icon>
+                        <mat-icon class="today-badge-icon" matBadge="Today" [style.--today-badge-bg]="goalColor">calendar_today</mat-icon>
                       }
                     </button>
                   }
@@ -103,11 +104,12 @@ const ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'blissful', 
     .suggestion-meta { font-size: 0.8rem; color: #999; }
     .suggestion-meta strong { color: #666; }
     .suggestion-text { font-size: 0.95rem; color: #333; }
-    .suggestion-actions { display: flex; gap: 2px; margin-top: 2px; }
+    .suggestion-actions { margin-top: 2px; text-align: center; }
     .suggestion-divider { border-top: 1px solid #f0f0f0; margin: 10px 0; }
     .view-more-btn { font-size: 0.8rem; opacity: 0.65; margin-top: 4px; }
     .icon-stack { position: relative; display: inline-flex; align-items: center; justify-content: center; }
     .icon-arrow { position: absolute; font-size: 13px !important; width: 13px !important; height: 13px !important; bottom: -3px; right: -5px; }
+    ::ng-deep .today-badge-icon .mat-badge-content { background-color: var(--today-badge-bg); }
   `,
 })
 export class SuggestionCardComponent {
@@ -115,6 +117,7 @@ export class SuggestionCardComponent {
   #snackBar = inject(MatSnackBar);
 
   $expanded = signal(false);
+  goalColor = getTodayGoalColor();
 
   adjective(id: string): string {
     return ADJECTIVES[id.charCodeAt(id.length - 1) % ADJECTIVES.length];

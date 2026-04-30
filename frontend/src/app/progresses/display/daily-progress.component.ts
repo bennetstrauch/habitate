@@ -435,7 +435,6 @@ export class DailyProgressComponent {
   $suggestionGoalId = signal<string | null>(null);
   $replyForSuggestionId = signal<string | null>(null);
   $replyText = signal('');
-  #replyTimer: ReturnType<typeof setTimeout> | null = null;
   $suggestAdjective = signal(SUGGEST_ADJECTIVES[0]);
   $sendingSuggestion = signal(false);
 
@@ -488,8 +487,6 @@ export class DailyProgressComponent {
     if (newCompleted) {
       this.$replyForSuggestionId.set(accepted._id);
       this.$replyText.set('');
-      if (this.#replyTimer) clearTimeout(this.#replyTimer);
-      this.#replyTimer = setTimeout(() => this.dismissReply(), 20000);
     } else {
       this.dismissReply();
     }
@@ -503,7 +500,6 @@ export class DailyProgressComponent {
   }
 
   dismissReply() {
-    if (this.#replyTimer) { clearTimeout(this.#replyTimer); this.#replyTimer = null; }
     this.$replyForSuggestionId.set(null);
     this.$replyText.set('');
   }

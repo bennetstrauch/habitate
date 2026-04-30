@@ -3,6 +3,7 @@ import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Rout
 import { NavigationComponent } from './navigation.component';
 import { NgStyle } from '@angular/common';
 import { SuggestionReplyModalComponent } from '../suggestion-replies/suggestion-reply-modal.component';
+import { getTodayBgColor } from '../goals/goal-day-color';
 
 @Component({
   selector: 'app-root',
@@ -57,7 +58,7 @@ import { SuggestionReplyModalComponent } from '../suggestion-replies/suggestion-
 })
 export class AppComponent {
   title = 'Habitate';
-  todayColor = dayColorMap[new Date().getDay()];
+  todayColor = getTodayBgColor();
 
   $routerLoading = signal(false);
 
@@ -73,11 +74,3 @@ export class AppComponent {
   }
 }
 
-export const dayColorMap: { [key: number]: string } = {
-  0: 'rgb(250, 229, 197)', // Sunday
-  2: 'rgb(250, 221, 221)', // Tuesday
-  3: '#C8E6C9',            // Wednesday
-  4: '#FFE0B2',            // Thursday
-  5: 'rgb(208, 245, 247)', // Friday
-  6: '#BBDEFB',            // Saturday
-};

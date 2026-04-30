@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { dayColorMap } from '../../main/app.component';
+import { getTodayBgColor } from '../../goals/goal-day-color';
 import { ReflectionReminderComponent } from '../../reflections/reflection-reminder/reflection-reminder.component';
 
 @Component({
@@ -51,5 +51,5 @@ import { ReflectionReminderComponent } from '../../reflections/reflection-remind
 export class Step4_2 {
   @Input({ required: true }) userDetailsForm!: FormGroup;
   showPushWarning = false;
-  todayColor = dayColorMap[new Date().getDay()];
+  todayColor = getTodayBgColor();
 }
