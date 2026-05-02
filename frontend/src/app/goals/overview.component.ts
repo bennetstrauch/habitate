@@ -9,8 +9,10 @@ import { ProgressService } from '../progresses/progresses.service';
 import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
+import { DateHeaderWithTimestepComponent } from '../progresses/display/date-header-with-timestep.component';
 import { UpliftersService } from '../uplifters/uplifters.service';
 import { CommentsService, Comment } from '../comments/comments.service';
+import { toLocalDateString } from '../utils/utils';
 
 // ## wrap every component in div or matcard with card class?
 // test
@@ -22,6 +24,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
     CommonModule,
     DailyProgressComponent,
     ProgressStatsComponent,
+    DateHeaderWithTimestepComponent,
   ],
   template: `
 
@@ -29,29 +32,37 @@ import { CommentsService, Comment } from '../comments/comments.service';
       <div class="spotlight-overlay"></div>
     }
 
+    @if (progressService.$displayDailyProgress()) {
+      <app-date-header-with-timestep
+        [$currentTimeStep]="progressService.$dailyProgressTimeStep"
+        [$dateOrDateRangeToShow]="progressService.$dateToShow()"
+        [$hasUnseenBefore]="$hasUnseenBefore()"
+      ></app-date-header-with-timestep>
+    }
+
     <div class="flex-row" #flexRow>
-      <div #left id="left-side">
-        @if (upliftersService.$connections().length > 0) {
-          <div class="profile-nav" [class.spotlight-dim]="$dimProfileNav()" [class.tour-highlight]="$upliftersTourStep() === 'switcher'">
+      @if (upliftersService.$connections().length > 0) {
+        <div class="profile-nav-wrapper" [class.spotlight-dim]="$dimProfileNav()">
+          <div class="profile-nav" [class.tour-highlight]="$upliftersTourStep() === 'switcher'">
             <button
               class="profile-btn"
               [class.active]="!upliftersService.$isViewingUplifter()"
-              [style.color]="!upliftersService.$isViewingUplifter() ? todayAccentColor : null"
-              [style.border-right-color]="!upliftersService.$isViewingUplifter() ? todayAccentColor : null"
+              [style.color]="todayAccentColor"
               (click)="switchProfile('')"
             >Me</button>
             @for (c of upliftersService.$connections(); track c._id) {
               <button
                 class="profile-btn"
                 [class.active]="upliftersService.$activeProfileId() === c._id"
-                [style.color]="upliftersService.$activeProfileId() === c._id ? todayAccentColor : null"
-                [style.border-right-color]="upliftersService.$activeProfileId() === c._id ? todayAccentColor : null"
+                [style.color]="todayAccentColor"
                 (click)="switchProfile(c._id)"
               >{{ c.name }}</button>
             }
           </div>
-        }
+        </div>
+      }
 
+      <div #left id="left-side">
         @if (commentsService.$comments().length > 0 && !upliftersService.$isViewingUplifter()) {
           <div class="comments-left" [class.spotlight-raised]="$spotlightActive()">
             @for (comment of $visibleComments(); track comment._id) {
@@ -195,20 +206,19 @@ import { CommentsService, Comment } from '../comments/comments.service';
   border-right: 2px solid transparent;
   cursor: pointer;
   font-size: 0.85rem;
-  color: #aaa;
   padding: 3px 8px;
   text-align: right;
-  transition: color 0.15s, border-color 0.15s;
+  transition: opacity 0.15s;
   white-space: nowrap;
+  opacity: 0.38;
 }
 
-.profile-btn:hover {
-  color: #555;
-}
+.profile-btn:hover { opacity: 0.65; }
 
 .profile-btn.active {
   font-weight: 600;
   border-right: 2px solid;
+  opacity: 1;
 }
 
 #right-side {
@@ -310,7 +320,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
   z-index: 101;
 }
 
-.profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
+.profile-nav-wrapper, .profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
   transition: filter 0.8s ease, box-shadow 0.4s ease;
 }
 .spotlight-dim {
@@ -323,6 +333,8 @@ import { CommentsService, Comment } from '../comments/comments.service';
 
 @media (max-width: 600px) {
   .flex-row { flex-direction: column; }
+
+  .profile-nav-wrapper { order: 0; width: 100%; } /* above everything */
   app-daily-progress,
   app-progress-stats { order: 1; width: 100%; }
   #left-side { order: 2; width: 100% !important; display: flex; flex-direction: column; }
@@ -330,7 +342,6 @@ import { CommentsService, Comment } from '../comments/comments.service';
   .arrows-overlay { display: none; }
 
   .comments-left {
-    order: 1;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
@@ -341,7 +352,6 @@ import { CommentsService, Comment } from '../comments/comments.service';
   .comment-card { transform: none; text-align: center; }
 
   .profile-nav {
-    order: 2;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -354,7 +364,7 @@ import { CommentsService, Comment } from '../comments/comments.service';
     padding: 4px 12px;
     text-align: center;
   }
-  .profile-btn.active { border-bottom: 2px solid; }
+  .profile-btn.active { border-right: none !important; border-bottom: 2px solid; }
 
   .show-all-btn { text-align: center; width: 100%; }
 }
@@ -379,6 +389,11 @@ export class OverviewComponent {
   $dimProfileNav = computed(() => this.$upliftersTourStep() === 'activity');
   $dimContent    = computed(() => this.$upliftersTourStep() === 'switcher');
   $dimOther      = computed(() => this.$upliftersTourStep() !== null);
+
+  $hasUnseenBefore = computed(() => {
+    const currentDate = toLocalDateString(this.progressService.$dailyProgressDate());
+    return this.commentsService.$datesWithUnseenComments().some(d => d < currentDate);
+  });
 
   expandedCommentId = signal<string | null>(null);
   showAllComments = signal(false);
@@ -515,7 +530,9 @@ setupResizeObserver(): void {
     0: 'rgb(160, 110, 20)',   // Sunday
     2: 'rgb(120, 45, 0)',     // Tuesday
     3: 'rgb(75, 100, 0)',     // Wednesday
+    4: 'rgb(180, 55, 0)',     // Thursday
     5: 'rgb(0, 110, 116)',    // Friday
+    6: 'rgb(10, 70, 150)',    // Saturday
   };
   todayAccentColor = this.dayAccentColorMap[new Date().getDay()] ?? '#222';
 

@@ -13,7 +13,9 @@ export const DAY_GOAL_COLORS: Record<number, string> = {
   0: 'rgb(255, 200, 117)', // Sunday    - gold
   2: 'rgb(179, 78, 1)',    // Tuesday   - deep orange-red
   3: 'rgb(123, 157, 0)',   // Wednesday - olive green
+  4: 'rgb(230, 81, 0)',    // Thursday  - deep orange
   5: 'rgb(5, 165, 173)',   // Friday    - teal
+  6: 'rgb(25, 118, 210)',  // Saturday  - blue
 };
 
 const DEFAULT_GOAL_COLOR = 'rgb(221, 133, 0)';

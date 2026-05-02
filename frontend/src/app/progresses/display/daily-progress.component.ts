@@ -1,5 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { DateHeaderWithTimestepComponent } from './date-header-with-timestep.component';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { GoalsService } from '../../goals/goals.service';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
 import { NgClass } from '@angular/common';
@@ -17,9 +16,9 @@ import { TourService } from '../../users/tour.service';
 import { UpliftersService } from '../../uplifters/uplifters.service';
 import { SuggestionsService } from '../../suggestions/suggestions.service';
 import { SuggestionCardComponent } from '../../suggestions/suggestion-card.component';
-import { CommentsService } from '../../comments/comments.service';
 import { SuggestionRepliesService } from '../../suggestion-replies/suggestion-replies.service';
 import { toLocalDateString } from '../../utils/utils';
+import { getTodayBgColor, getTodayGoalColor } from '../../goals/goal-day-color';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
@@ -38,7 +37,6 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     MatIconButton,
     MatProgressSpinnerModule,
     WeeklyReflectionComponent,
-    DateHeaderWithTimestepComponent,
     JoyrideModule,
     SuggestionCardComponent,
     MatFormField,
@@ -48,17 +46,11 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     FormsModule,
   ],
   template: `
-    <app-date-header-with-timestep
-      [$currentTimeStep]="progressService.$dailyProgressTimeStep"
-      [$dateOrDateRangeToShow]="progressService.$dateToShow()"
-      [$hasUnseenBefore]="$hasUnseenBefore()"
-    ></app-date-header-with-timestep>
-
     @if (mobileIntention()) {
       <div class="mobile-intention">{{ mobileIntention() }}</div>
     }
 
-    <div class="card">
+    <div class="daily-view">
 
       <!-- ── Own view: goal picker overlay (shown via toast action) ── -->
       @if (!upliftersService.$isViewingUplifter() && suggestionsService.$goalPickerForId()) {
@@ -88,9 +80,9 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
               (click)="toggleSuggestionCompleted(accepted)"
               style="cursor: pointer"
             >
-              <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+              <div class="habit-check" [class.completed]="accepted.completed"></div>
               <mat-icon class="sparkle">auto_awesome</mat-icon>
-              {{ accepted.text }}
+              <span class="habit-text">{{ accepted.text }}</span>
             </div>
             @if ($replyForSuggestionId() === accepted._id) {
               <div class="suggestion-reply">
@@ -120,9 +112,9 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
               [ngClass]="{ 'completed-habit': accepted.completed }"
               style="cursor: default"
             >
-              <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+              <div class="habit-check" [class.completed]="accepted.completed"></div>
               <mat-icon class="sparkle">auto_awesome</mat-icon>
-              {{ accepted.text }}
+              <span class="habit-text">{{ accepted.text }}</span>
             </div>
           }
         }
@@ -141,7 +133,7 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
 
       @if (progressService.$progressLoaded()) {
       @for (goal of goalsService.$goals(); track $index) {
-        <div class="goal-div">
+        <div class="goal-section">
           <app-display-goal-with-link
             joyrideStep="editGoal"
             title="Tap on goal name to edit goal and its habits"
@@ -172,9 +164,9 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
                     (click)="toggleSuggestionCompleted(accepted)"
                     style="cursor: pointer"
                   >
-                    <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+                    <div class="habit-check" [class.completed]="accepted.completed"></div>
                     <mat-icon class="sparkle">auto_awesome</mat-icon>
-                    {{ accepted.text }}
+                    <span class="habit-text">{{ accepted.text }}</span>
                   </div>
                   @if ($replyForSuggestionId() === accepted._id) {
                     <div class="suggestion-reply">
@@ -204,9 +196,9 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
                     [ngClass]="{ 'completed-habit': accepted.completed }"
                     style="cursor: default"
                   >
-                    <mat-icon>{{ accepted.completed ? 'task_alt' : 'radio_button_unchecked' }}</mat-icon>
+                    <div class="habit-check" [class.completed]="accepted.completed"></div>
                     <mat-icon class="sparkle">auto_awesome</mat-icon>
-                    {{ accepted.text }}
+                    <span class="habit-text">{{ accepted.text }}</span>
                   </div>
                 }
               }
@@ -224,32 +216,28 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
                 title="Mark as Done"
                 text="Click on habit to change completed status"
               >
-                <mat-icon>
-                  {{ progress?.completed ? 'task_alt' : 'radio_button_unchecked' }}
-                </mat-icon>
-                {{ habit.name }}
+                <div class="habit-check" [class.completed]="progress?.completed"></div>
+                <span class="habit-text">{{ habit.name }}</span>
               </div>
             }
 
           </div>
         </div>
-        <br />
       }
       } <!-- end @if progressLoaded -->
 
       <!-- ── Own view: reflection ── -->
-      @if (reflectionsService.$reflection()?.completed) {
-        <div class="completed-habit habit-div">
-          <button mat-raised-button>
-            <mat-icon>task_alt</mat-icon>
-            <strong>Reflection Completed :)</strong>
-          </button>
+      @if (reflectionsService.$reflection()?.completed && !upliftersService.$isViewingUplifter()) {
+        <div class="reflection-cta-bar reflection-done">
+          <mat-icon>task_alt</mat-icon>
+          <span>Reflection done</span>
         </div>
       }
 
       @if (!reflectionsService.$reflection()?.completed && !upliftersService.$isViewingUplifter()) {
         <button
-          mat-raised-button
+          class="reflection-cta-bar cta-action"
+          [style.--bar-color]="todayBarColor"
           (click)="startDailyReflection()"
           [routerLink]="[
             '',
@@ -262,52 +250,55 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
         </button>
       }
 
-      <!-- ── Uplifter view: suggest activity button + inline form (today only) ── -->
+      <!-- ── Uplifter view: suggest activity (today only) ── -->
       @if (upliftersService.$isViewingUplifter() && progressService.$dailyProgressTimeStep() === 0) {
+        @if (!suggestionsService.$hasSent() && $showSuggestForm()) {
+          <div class="suggest-form">
+            <textarea
+              class="suggest-textarea"
+              maxlength="90"
+              placeholder="Write something uplifting…"
+              [ngModel]="$suggestionText()"
+              (ngModelChange)="$suggestionText.set($event)"
+            ></textarea>
+            <div class="suggest-form-meta">
+              <span class="char-count">{{ $suggestionText().length }}/90</span>
+              <mat-form-field appearance="outline" class="goal-picker-suggest">
+                <mat-label>Goal (optional)</mat-label>
+                <mat-select
+                  [ngModel]="$suggestionGoalId()"
+                  (ngModelChange)="$suggestionGoalId.set($event)"
+                >
+                  <mat-option [value]="null">None</mat-option>
+                  @for (g of goalsService.$goals(); track g._id) {
+                    <mat-option [value]="g._id">{{ g.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="suggest-form-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="submitSuggestion()"
+                [disabled]="!$suggestionText().trim() || $sendingSuggestion()"
+              >
+                {{ $sendingSuggestion() ? 'Sending…' : 'Send' }}
+              </button>
+              <button mat-button (click)="$showSuggestForm.set(false)">Cancel</button>
+            </div>
+          </div>
+        }
         @if (suggestionsService.$hasSent()) {
-          <div class="suggest-sent-hint">Activity suggested ✓</div>
+          <div class="reflection-cta-bar suggest-done-bar">Activity suggested ✓</div>
         } @else {
-          <button mat-raised-button (click)="$showSuggestForm.set(!$showSuggestForm())">
+          <button
+            class="reflection-cta-bar cta-action"
+            [style.--bar-color]="todayBarColor"
+            (click)="$showSuggestForm.set(!$showSuggestForm())"
+          >
             Suggest {{ $suggestAdjective() }} activity
           </button>
-
-          @if ($showSuggestForm()) {
-            <div class="suggest-form">
-              <textarea
-                class="suggest-textarea"
-                maxlength="90"
-                placeholder="Write something uplifting…"
-                [ngModel]="$suggestionText()"
-                (ngModelChange)="$suggestionText.set($event)"
-              ></textarea>
-              <div class="suggest-form-meta">
-                <span class="char-count">{{ $suggestionText().length }}/90</span>
-                <mat-form-field appearance="outline" class="goal-picker-suggest">
-                  <mat-label>Goal (optional)</mat-label>
-                  <mat-select
-                    [ngModel]="$suggestionGoalId()"
-                    (ngModelChange)="$suggestionGoalId.set($event)"
-                  >
-                    <mat-option [value]="null">None</mat-option>
-                    @for (g of goalsService.$goals(); track g._id) {
-                      <mat-option [value]="g._id">{{ g.name }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </div>
-              <div class="suggest-form-actions">
-                <button
-                  mat-raised-button
-                  color="primary"
-                  (click)="submitSuggestion()"
-                  [disabled]="!$suggestionText().trim() || $sendingSuggestion()"
-                >
-                  {{ $sendingSuggestion() ? 'Sending…' : 'Send' }}
-                </button>
-                <button mat-button (click)="$showSuggestForm.set(false)">Cancel</button>
-              </div>
-            </div>
-          }
         }
       }
 
@@ -315,22 +306,88 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
   `,
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
+    .daily-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+      gap: 16px;
+      padding: 0 16px 32px;
+      box-sizing: border-box;
+    }
+
     .mobile-intention {
       display: none;
       font-family: 'Caveat', cursive;
       font-size: 1.3rem;
       text-align: center;
       color: #888;
-      padding: 2px 16px;
-      margin: 10px 0;
+      padding: 0 16px;
+      margin: 16px 0;
     }
+    .reflection-cta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.6);
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--bar-color, #666);
+      box-sizing: border-box;
+    }
+    .cta-action {
+      cursor: pointer;
+      color: var(--bar-color, #555);
+      transition: opacity 0.15s;
+    }
+    .cta-action::after {
+      content: ' →';
+      font-size: 1.25em;
+      font-weight: 400;
+      opacity: 0.5;
+      margin-left: 6px;
+    }
+    .cta-action:active { opacity: 0.7; }
+
     @media (max-width: 600px) {
       .mobile-intention { display: block; }
-      .card { margin-top: 10px; }
+      .daily-view { padding-bottom: 80px; }
+      .reflection-cta-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0;
+        padding: 18px 24px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        z-index: 50;
+      }
     }
 
-    .suggestion-habit { color: #5a8a5a; }
-    .suggestion-habit.completed-habit { color: darkgreen; }
+    .habit-div:hover { background: rgba(255, 255, 255, 0.35); }
+    .habit-div:active { transform: scale(0.985); }
+
+    .habit-div.completed-habit { opacity: 0.75; }
+    .habit-div.completed-habit .habit-text {
+      text-decoration: line-through;
+      text-decoration-thickness: 1.5px;
+      text-decoration-color: rgba(58, 125, 82, 0.4);
+    }
+
+    .suggestion-habit .habit-text { color: #5a8a5a; }
+    .suggestion-habit .habit-check { border-color: rgba(90, 138, 90, 0.35); }
     .sparkle { font-size: 14px; opacity: 0.6; flex-shrink: 0; }
 
     .goal-picker-row {
@@ -341,7 +398,8 @@ const SUGGEST_ADJECTIVES = ['uplifting', 'useful', 'encouraging', 'joyful', 'bli
     }
     .goal-picker { width: 220px; }
 
-    .suggest-sent-hint { font-size: 0.85rem; color: #aaa; padding: 8px 0; }
+    .reflection-done { color: var(--color-done, #3a7d52); cursor: default; }
+    .suggest-done-bar { color: #aaa; cursor: default; }
 
     .suggest-form {
       display: flex;
@@ -415,13 +473,7 @@ export class DailyProgressComponent {
   readonly mobileIntention = input<string>('');
 
   tourService = inject(TourService);
-  commentsService = inject(CommentsService);
   suggestionRepliesService = inject(SuggestionRepliesService);
-
-  $hasUnseenBefore = computed(() => {
-    const currentDate = toLocalDateString(this.progressService.$dailyProgressDate());
-    return this.commentsService.$datesWithUnseenComments().some(d => d < currentDate);
-  });
   goalsService = inject(GoalsService);
   progressService = inject(ProgressService);
   statsService = inject(StatsService);
@@ -429,6 +481,8 @@ export class DailyProgressComponent {
   dailyReflectionsService = inject(DailyReflectionService);
   upliftersService = inject(UpliftersService);
   suggestionsService = inject(SuggestionsService);
+
+  todayBarColor = getTodayGoalColor();
 
   $showSuggestForm = signal(false);
   $suggestionText = signal('');

@@ -18,7 +18,11 @@ import { getTodayGoalColor } from './goal-day-color';
   styles: `
     .goal-name {
       color: rgb(221, 133, 0);
-      display: inline;
+      display: block;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 8px;
     }
   `,
 })

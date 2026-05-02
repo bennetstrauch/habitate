@@ -51,5 +51,5 @@ import { ReflectionReminderComponent } from '../../reflections/reflection-remind
 export class Step4_2 {
   @Input({ required: true }) userDetailsForm!: FormGroup;
   showPushWarning = false;
-  todayColor = getTodayBgColor();
+  todayColor = getTodayBgColor() ?? '#f9f9f9';
 }

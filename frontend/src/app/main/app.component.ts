@@ -42,12 +42,12 @@ import { getTodayBgColor } from '../goals/goal-day-color';
       }
 
       .spinner {
-        width: 36px;
-        height: 36px;
-        border: 3px solid rgba(0, 0, 0, 0.12);
-        border-top-color: rgba(0, 0, 0, 0.38);
+        width: 32px;
+        height: 32px;
+        border: 2px solid rgba(0, 0, 0, 0.08);
+        border-top-color: rgba(0, 0, 0, 0.28);
         border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+        animation: spin 0.7s linear infinite;
       }
 
       @keyframes spin {

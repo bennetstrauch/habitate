@@ -30,9 +30,9 @@ import { ProgressPeriod } from '../progress-period.enum';
     <div class="center-viewport">
       <div class="stats-columns">
 
-        <div class="card">
+        <div class="stats-goals">
           @for (goal of goalsService.$goals(); track $index) {
-          <div class="goal-div">
+          <div class="goal-section">
             <app-display-goal-with-link
               [goalId]="goal._id"
               [goalName]="goal.name"
@@ -43,19 +43,21 @@ import { ProgressPeriod } from '../progress-period.enum';
                 @let progress = progressService.$progressMap().get(habit._id);
                 <div class="habit-div" [ngClass]="{ 'completed-habit': progress?.completed }">
                   <ng-container *ngTemplateOutlet="ring; context: { done: getDone(habit._id), total: habit.frequency ?? 7 }"></ng-container>
-                  {{ habit.name }}
+                  <span class="habit-text">{{ habit.name }}</span>
                 </div>
               }
             </div>
           </div>
-          <br />
           }
-          <div
-            class="habit-div"
-            [ngClass]="{ 'completed-habit': reflectionsService.$reflection()?.completed }"
-          >
-            <ng-container *ngTemplateOutlet="ring; context: { done: getReflDone(), total: 7 }"></ng-container>
-            <strong>Daily Reflection</strong>
+
+          <div class="goal-section reflection-section">
+            <div
+              class="habit-div"
+              [ngClass]="{ 'completed-habit': reflectionsService.$reflection()?.completed }"
+            >
+              <ng-container *ngTemplateOutlet="ring; context: { done: getReflDone(), total: 7 }"></ng-container>
+              <span class="habit-text"><strong>Daily Reflection</strong></span>
+            </div>
           </div>
 
           <ng-template #ring let-done="done" let-total="total">
@@ -71,7 +73,7 @@ import { ProgressPeriod } from '../progress-period.enum';
                 transform="rotate(-90 18 18)"
               />
               <text x="18" y="18" text-anchor="middle" dominant-baseline="central"
-                font-size="7.5" font-family="Roboto,sans-serif" font-weight="500"
+                font-size="7.5" font-family="'DM Sans',sans-serif" font-weight="500"
                 [attr.fill]="done === 0 ? '#bbb' : arcColor(done, total)">
                 {{done}}/{{total}}
               </text>
@@ -109,12 +111,16 @@ import { ProgressPeriod } from '../progress-period.enum';
   styleUrls: ['./styles-for-display-progress.scss'],
   styles: `
     .progress-ring { flex-shrink: 0; }
+    .completed-habit { color: var(--color-done, #3a7d52); }
 
     .center-viewport {
       display: flex;
       justify-content: center;
       width: 100%;
+      margin-top: 16px;
     }
+
+    .reflection-section .habit-div { justify-content: center; }
 
     .stats-columns {
       display: flex;
@@ -124,13 +130,23 @@ import { ProgressPeriod } from '../progress-period.enum';
       justify-content: center;
     }
 
+    .stats-goals {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 280px;
+    }
+
     .intentions-panel {
       min-width: 180px;
       max-width: 260px;
-      background: white;
-      border-radius: 12px;
-      padding: 14px 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      background: var(--card-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: var(--card-border);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
       gap: 10px;

@@ -3,6 +3,8 @@
   margin-bottom: 8px;
   display: flex;
   align-items: center;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .habit-container {

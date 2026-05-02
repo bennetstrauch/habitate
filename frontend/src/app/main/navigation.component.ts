@@ -91,7 +91,8 @@ import { UpliftersService } from '../uplifters/uplifters.service';
   `,
   styles: `
     button {
-      border-radius: 0px;
+      border-radius: 0;
+      transition: opacity 0.15s ease;
     }
     .nav-div {
       display: flex;
