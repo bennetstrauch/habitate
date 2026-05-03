@@ -7,7 +7,7 @@ import {
 import { StandardResponse } from '@backend/types/standardResponse';
 import { environment } from 'frontend/src/environments/environment';
 import { GoalsService } from '../goals/goals.service';
-import { calculateStartAndEndDate, formatDateRangeToDisplay } from '../utils/utils';
+import { calculateStartAndEndDate, formatDateRangeToDisplay, formatMonthToDisplay } from '../utils/utils';
 import { ProgressPeriod } from './progress-period.enum';
 
 @Injectable({
@@ -25,10 +25,12 @@ export class StatsService {
     calculateStartAndEndDate(this.$period(), this.$statsTimeStep())
   );
 
-  $dateRangeToShow = computed(() => formatDateRangeToDisplay(
-    this.$progressDateRange().startDate,
-    this.$progressDateRange().endDate
-  ));
+  $dateRangeToShow = computed(() => {
+    const { startDate, endDate } = this.$progressDateRange();
+    return this.$period() === ProgressPeriod.Month
+      ? formatMonthToDisplay(startDate)
+      : formatDateRangeToDisplay(startDate, endDate);
+  });
 
   $progressStatsMap = signal<Map<string, StatBase>>(new Map());
 

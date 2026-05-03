@@ -46,6 +46,17 @@ export const calculateStartAndEndDate = (
 };
 
 
+export function formatMonthToDisplay(date: Date): string {
+  const isCurrentYear = date.getFullYear() === new Date().getFullYear();
+  if (isCurrentYear) {
+    return `<b>${date.toLocaleDateString('en-US', { month: 'long' })}</b>`;
+  }
+  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const year = date.getFullYear().toString().slice(2);
+  return `<b>${month} ${year}</b>`;
+}
+
+
 export function getRandomElement<T>(options: T[]): T {
   return options[Math.floor(Math.random() * options.length)];
 }

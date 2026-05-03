@@ -8,55 +8,45 @@ import { ProgressPeriod } from '../progress-period.enum';
   selector: 'app-date-header-with-timestep',
   imports: [MatIconModule, MatButtonToggleModule],
   template: `
-    <div class="header-block">
-      <div class="flex-row">
-        <div class="nav-btn-wrapper">
-          <button
-            class="change-day"
-            [disabled]="$currentTimeStep() <= minStep()"
-            (click)="$currentTimeStep.set($currentTimeStep() - 1)"
-          >
-            <mat-icon>navigate_before</mat-icon>
-          </button>
-          @if ($hasUnseenBefore()) {
-            <mat-icon class="unseen-badge">chat_bubble</mat-icon>
-          }
-        </div>
-
-        <div class="card head-card">
-          <span [innerHTML]="$dateOrDateRangeToShow()"></span>
-        </div>
-
+    <div class="flex-row">
+      <div class="nav-btn-wrapper">
         <button
           class="change-day"
-          [disabled]="$currentTimeStep() >= maxStep()"
-          (click)="$currentTimeStep.set($currentTimeStep() + 1)"
+          [disabled]="$currentTimeStep() <= minStep()"
+          (click)="$currentTimeStep.set($currentTimeStep() - 1)"
         >
-          <mat-icon>navigate_next</mat-icon>
+          <mat-icon>navigate_before</mat-icon>
         </button>
+        @if ($hasUnseenBefore()) {
+          <mat-icon class="unseen-badge">chat_bubble</mat-icon>
+        }
       </div>
 
-      @if ($period) {
-        <mat-button-toggle-group
-          class="period-toggle"
-          [value]="$period()"
-          (change)="onPeriodChange($event)"
-          hideSingleSelectionIndicator
-        >
-          <mat-button-toggle [value]="ProgressPeriod.Week">Week</mat-button-toggle>
-          <mat-button-toggle [value]="ProgressPeriod.Month">Month</mat-button-toggle>
-        </mat-button-toggle-group>
-      }
+      <div class="card head-card">
+        <span [innerHTML]="$dateOrDateRangeToShow()"></span>
+        @if ($period) {
+          <mat-button-toggle-group
+            class="period-toggle"
+            [value]="$period()"
+            (change)="onPeriodChange($event)"
+            hideSingleSelectionIndicator
+          >
+            <mat-button-toggle [value]="ProgressPeriod.Week">Week</mat-button-toggle>
+            <mat-button-toggle [value]="ProgressPeriod.Month">Month</mat-button-toggle>
+          </mat-button-toggle-group>
+        }
+      </div>
+
+      <button
+        class="change-day"
+        [disabled]="$currentTimeStep() >= maxStep()"
+        (click)="$currentTimeStep.set($currentTimeStep() + 1)"
+      >
+        <mat-icon>navigate_next</mat-icon>
+      </button>
     </div>
   `,
   styles: `
-    .header-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
     .change-day {
       background-color: transparent;
       color: blue;
@@ -74,17 +64,19 @@ import { ProgressPeriod } from '../progress-period.enum';
     .flex-row {
       display: flex;
       margin-top: 1px;
-      margin-bottom: 0;
+      margin-bottom: 1px;
       padding: 0;
       justify-content: center;
       align-items: center;
     }
 
     .head-card {
-      flex-direction: row;
-      gap: 4px;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
       justify-content: center;
       margin: 0;
+      padding: 8px 16px;
     }
 
     .nav-btn-wrapper {
@@ -106,21 +98,21 @@ import { ProgressPeriod } from '../progress-period.enum';
     }
 
     .period-toggle {
-      height: 24px;
-      border-radius: 12px;
+      height: 22px;
+      border-radius: 11px;
       overflow: hidden;
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .period-toggle ::ng-deep .mat-button-toggle-button {
-      height: 24px;
-      line-height: 24px;
+      height: 22px;
+      line-height: 22px;
     }
 
     .period-toggle ::ng-deep .mat-button-toggle-label-content {
-      line-height: 24px;
-      padding: 0 10px;
-      font-size: 0.68rem;
+      line-height: 22px;
+      padding: 0 9px;
+      font-size: 0.67rem;
       font-weight: 500;
       letter-spacing: 0.06em;
       text-transform: uppercase;
