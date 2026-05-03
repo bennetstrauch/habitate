@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DisplayGoalWithLinkComponent } from '../../goals/display-goal-with-link.component';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { GoalsService } from '../../goals/goals.service';
@@ -7,7 +7,6 @@ import { MatButton } from '@angular/material/button';
 import { DateHeaderWithTimestepComponent } from './date-header-with-timestep.component';
 import { StatsService } from '../stats.service';
 import { ReflectionsService } from '../../reflections/reflections.service';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ProgressPeriod } from '../progress-period.enum';
 
 @Component({
@@ -18,13 +17,13 @@ import { ProgressPeriod } from '../progress-period.enum';
     NgTemplateOutlet,
     MatButton,
     DateHeaderWithTimestepComponent,
-    MatButtonToggleModule,
   ],
   template: `
-    <!-- dateheader, timestep, dateRange -->
     <app-date-header-with-timestep
       [$currentTimeStep]="statsService.$statsTimeStep"
       [$dateOrDateRangeToShow]="statsService.$dateRangeToShow()"
+      [$period]="statsService.$period"
+      [minStep]="statsService.$minStep()"
     ></app-date-header-with-timestep>
 
     <div class="center-viewport">
@@ -32,22 +31,22 @@ import { ProgressPeriod } from '../progress-period.enum';
 
         <div class="stats-goals">
           @for (goal of goalsService.$goals(); track $index) {
-          <div class="goal-section">
-            <app-display-goal-with-link
-              [goalId]="goal._id"
-              [goalName]="goal.name"
-            />
+            <div class="goal-section">
+              <app-display-goal-with-link [goalId]="goal._id" [goalName]="goal.name" />
 
-            <div class="container">
-              @for (habit of goal.habits; track habit._id) {
-                @let progress = progressService.$progressMap().get(habit._id);
-                <div class="habit-div" [ngClass]="{ 'completed-habit': progress?.completed }">
-                  <ng-container *ngTemplateOutlet="ring; context: { done: getDone(habit._id), total: habit.frequency ?? 7 }"></ng-container>
-                  <span class="habit-text">{{ habit.name }}</span>
-                </div>
-              }
+              <div class="container">
+                @for (habit of goal.habits; track habit._id) {
+                  @let progress = progressService.$progressMap().get(habit._id);
+                  <div class="habit-div" [ngClass]="{ 'completed-habit': progress?.completed }">
+                    <ng-container *ngTemplateOutlet="ring; context: {
+                      done: getDone(habit._id),
+                      total: isMonth() ? getTotal(habit._id) : (habit.frequency ?? 7)
+                    }"></ng-container>
+                    <span class="habit-text">{{ habit.name }}</span>
+                  </div>
+                }
+              </div>
             </div>
-          </div>
           }
 
           <div class="goal-section reflection-section">
@@ -55,7 +54,10 @@ import { ProgressPeriod } from '../progress-period.enum';
               class="habit-div"
               [ngClass]="{ 'completed-habit': reflectionsService.$reflection()?.completed }"
             >
-              <ng-container *ngTemplateOutlet="ring; context: { done: getReflDone(), total: 7 }"></ng-container>
+              <ng-container *ngTemplateOutlet="ring; context: {
+                done: getReflDone(),
+                total: isMonth() ? (reflectionsService.$reflectionStats()?.total ?? 0) : 7
+              }"></ng-container>
               <span class="habit-text"><strong>Daily Reflection</strong></span>
             </div>
           </div>
@@ -85,7 +87,7 @@ import { ProgressPeriod } from '../progress-period.enum';
         @let intentions = intentionsWithDate();
         @if (intentions.length > 0) {
           <div class="intentions-panel">
-            <p class="intentions-label">Intentions this week</p>
+            <p class="intentions-label">{{ isMonth() ? 'Intentions this month' : 'Intentions this week' }}</p>
             @for (item of visibleIntentions(); track item.date) {
               <div class="intention-row">
                 <span class="intention-date">{{ item.dateLabel }}</span>
@@ -194,9 +196,10 @@ export class ProgressStatsComponent {
   reflectionsService = inject(ReflectionsService);
   statsService = inject(StatsService);
 
-  period: ProgressPeriod = ProgressPeriod.Week;
   readonly INTENTIONS_PREVIEW = 3;
   $intentionsExpanded = signal(false);
+
+  isMonth = computed(() => this.statsService.$period() === ProgressPeriod.Month);
 
   intentionsWithDate = computed(() =>
     this.reflectionsService.$weeklyReflections()
@@ -213,9 +216,10 @@ export class ProgressStatsComponent {
     return this.$intentionsExpanded() ? all : all.slice(0, this.INTENTIONS_PREVIEW);
   });
 
-  readonly C = 2 * Math.PI * 14; // circumference for r=14
+  readonly C = 2 * Math.PI * 14;
 
   getDone(habitId: string): number { return this.statsService.$progressStatsMap().get(habitId)?.completed ?? 0; }
+  getTotal(habitId: string): number { return this.statsService.$progressStatsMap().get(habitId)?.total ?? 0; }
   getReflDone(): number { return this.reflectionsService.$reflectionStats()?.completed ?? 0; }
 
   dashOffset(done: number, total: number): number {
@@ -225,14 +229,7 @@ export class ProgressStatsComponent {
 
   arcColor(done: number, total: number): string {
     if (done === 0 || total === 0) return '#ccc';
-    const hue = Math.round((done / total) * 120); // 0=red-ish → 120=green
+    const hue = Math.round((done / total) * 120);
     return `hsl(${hue}, 52%, 50%)`;
   }
-
-  setPeriod(period: ProgressPeriod) {
-    this.period = period;
-    //  ##
-  }
-
-  constructor() {}
 }
