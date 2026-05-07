@@ -10,4 +10,6 @@ export type Comment = {
   seen: boolean;
 };
 
+export type UnseenDateEntry = { date: string; from: string[] };
+
 export const MAX_COMMENT_LENGTH = 120;

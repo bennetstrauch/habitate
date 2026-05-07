@@ -3,7 +3,7 @@ import { CommentModel, UserModel } from "../database/schemas";
 import { StandardResponse } from "../types/standardResponse";
 import { ErrorWithStatus } from "../utils/error.class";
 import { requireFriendship } from "../utils/friendship";
-import { Comment, MAX_COMMENT_LENGTH } from "./comments.types";
+import { Comment, MAX_COMMENT_LENGTH, UnseenDateEntry } from "./comments.types";
 import { idToObjectId } from "../utils/functionsAndVariables";
 import moment from "moment-timezone";
 import { sendPushToUser } from "../utils/push";
@@ -117,17 +117,26 @@ export const markCommentsSeen: RequestHandler<
 
 export const getUnseenDates: RequestHandler<
   unknown,
-  StandardResponse<string[]>
+  StandardResponse<UnseenDateEntry[]>
 > = async (req, res, next) => {
   try {
     if (!req.userId) throw new ErrorWithStatus("Unauthorized", 401);
     const sevenDaysAgo = moment.utc().subtract(7, "days").startOf("day").toDate();
     const unseenComments = await CommentModel.find(
       { to_user_id: idToObjectId(req.userId), seen: { $ne: true }, date: { $gte: sevenDaysAgo } },
-      { date: 1 }
+      { date: 1, from_user_name: 1 }
     );
-    const dates = [...new Set(unseenComments.map((c) => moment.utc(c.date).format("YYYY-MM-DD")))];
-    res.json({ success: true, data: dates });
+    const byDate: Record<string, Set<string>> = {};
+    for (const c of unseenComments) {
+      const d = moment.utc(c.date).format("YYYY-MM-DD");
+      if (!byDate[d]) byDate[d] = new Set();
+      byDate[d].add(c.from_user_name);
+    }
+    const data: UnseenDateEntry[] = Object.entries(byDate).map(([date, names]) => ({
+      date,
+      from: [...names],
+    }));
+    res.json({ success: true, data });
   } catch (err) {
     next(err);
   }

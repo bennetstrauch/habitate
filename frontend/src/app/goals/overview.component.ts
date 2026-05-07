@@ -1,42 +1,33 @@
 import { Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { GoalsService } from './goals.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { HabitProgress } from '@backend/progresses/progress.types';
-import { CommonModule, NgClass } from '@angular/common';
 import { ProgressService } from '../progresses/progresses.service';
 import { ReflectionsService } from '../reflections/reflections.service';
 import { DailyProgressComponent } from '../progresses/display/daily-progress.component';
 import { ProgressStatsComponent } from '../progresses/display/progress-stats.component';
 import { DateHeaderWithTimestepComponent } from '../progresses/display/date-header-with-timestep.component';
 import { UpliftersService } from '../uplifters/uplifters.service';
-import { CommentsService, Comment } from '../comments/comments.service';
-import { toLocalDateString } from '../utils/utils';
+import { CommentsService } from '../comments/comments.service';
+import { CommentInboxBarComponent } from '../comments/comment-inbox-bar.component';
 
-// ## wrap every component in div or matcard with card class?
-// test
 @Component({
   selector: 'app-goals',
   imports: [
     MatIconModule,
     MatButtonModule,
-    CommonModule,
     DailyProgressComponent,
     ProgressStatsComponent,
     DateHeaderWithTimestepComponent,
+    CommentInboxBarComponent,
   ],
   template: `
-
-    @if ($spotlightActive()) {
-      <div class="spotlight-overlay"></div>
-    }
-
     @if (progressService.$displayDailyProgress()) {
+      <app-comment-inbox-bar [accentColor]="todayAccentColor" />
       <app-date-header-with-timestep
         [$currentTimeStep]="progressService.$dailyProgressTimeStep"
         [$dateOrDateRangeToShow]="progressService.$dateToShow()"
-        [$hasUnseenBefore]="$hasUnseenBefore()"
       ></app-date-header-with-timestep>
     }
 
@@ -64,15 +55,15 @@ import { toLocalDateString } from '../utils/utils';
 
       <div #left id="left-side">
         @if (commentsService.$comments().length > 0 && !upliftersService.$isViewingUplifter()) {
-          <div class="comments-left" [class.spotlight-raised]="$spotlightActive()">
-            @for (comment of $visibleComments(); track comment._id) {
-              <div class="comment-card" [attr.data-comment-id]="comment._id" [style.color]="todayAccentColor">
-                <div class="comment-from">
-                {{ comment.from_user_name }}
-                @if (!comment.seen) {
-                  <mat-icon class="comment-new-icon">chat_bubble</mat-icon>
-                }
-              </div>
+          <div class="comments-left">
+            @for (comment of commentsService.$comments(); track comment._id) {
+              <div
+                class="comment-card"
+                [class.comment-new]="!comment.seen"
+                [attr.data-comment-id]="comment._id"
+                [style.color]="todayAccentColor"
+              >
+                <div class="comment-from">{{ comment.from_user_name }}</div>
                 <div class="comment-text" (click)="toggleComment(comment._id)">
                   @if (expandedCommentId() === comment._id) {
                     {{ comment.text }}
@@ -83,25 +74,23 @@ import { toLocalDateString } from '../utils/utils';
                 <button class="comment-delete" (click)="deleteComment(comment._id)" title="Remove">×</button>
               </div>
             }
-            @if (commentsService.$comments().length > $maxVisibleComments() && !showAllComments()) {
-              <button class="show-all-btn" [style.color]="todayAccentColor" (click)="showAllComments.set(true)">Show all sweet comments</button>
-            }
-            @if (showAllComments()) {
-              <button class="show-all-btn" [style.color]="todayAccentColor" (click)="hideAllComments()">Hide all comments</button>
-            }
           </div>
         }
       </div>
 
       @if (progressService.$displayDailyProgress()) {
-      <app-daily-progress [mobileIntention]="reflectionsService.$displayedIntention() ?? ''" [class.spotlight-dim]="$dimContent()" [class.tour-highlight]="$upliftersTourStep() === 'activity'"></app-daily-progress>
+        <app-daily-progress
+          [mobileIntention]="reflectionsService.$displayedIntention() ?? ''"
+          [class.spotlight-dim]="$dimContent()"
+          [class.tour-highlight]="$upliftersTourStep() === 'activity'"
+        ></app-daily-progress>
       }
 
       @if (progressService.$displayStats()) {
-      <app-progress-stats [class.spotlight-dim]="$dimContent()"></app-progress-stats>
+        <app-progress-stats [class.spotlight-dim]="$dimContent()"></app-progress-stats>
       }
 
-      <div #right id="right-side" [class.spotlight-dim]="$dimOther()">{{reflectionsService.$displayedIntention()}}</div>
+      <div #right id="right-side" [class.spotlight-dim]="$dimOther()">{{ reflectionsService.$displayedIntention() }}</div>
 
       <svg class="arrows-overlay" aria-hidden="true" [class.spotlight-dim]="$dimOther()">
         @for (path of $arrowPaths(); track $index) {
@@ -110,269 +99,194 @@ import { toLocalDateString } from '../utils/utils';
         }
       </svg>
     </div>
-
-    <!-- <div style="text-align: center;">
-    <p style="color: lightgray; font-size: 0.9em;">
-      <i>Author's note: </i> <br>
-      To edit Goal & Habits, <br> 
-      tap on golden goal name.
-      <br> <br>
-      Click on habit to mark as done.
-    </p>
-    </div> -->
   `,
   styles: `
-  .completed-habit {
-    color: darkgreen;
-  }
+    .flex-row {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      margin-top: 1px;
+      margin-bottom: 1px;
+      padding: 0;
+    }
 
-  .change-day {
-    background-color: transparent; /* Removes the background color */
-    color: blue;       /* Sets the text color to grey */
-    border: none;
-    cursor: pointer;
-    opacity: 0.8;
-  }
+    .arrows-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
 
-  .change-day[disabled] {
-  opacity: 0.2; /* 90% transparent */
-  cursor: not-allowed; /* change cursor to indicate it's not clickable */
-  pointer-events: none;
-}
+    #left-side,
+    #right-side {
+      transition: width 0.2s ease;
+    }
 
-  .flex-row {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    padding: 0px;
-  }
+    #left-side {
+      align-self: stretch;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
 
-  .arrows-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    overflow: visible;
-  }
+    .profile-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      padding-right: 16px;
+      padding-top: 8px;
+    }
 
-  .habit-div {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    gap: 7px;
-  }
+    .profile-btn {
+      background: none;
+      border: none;
+      border-right: 2px solid transparent;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 3px 8px;
+      text-align: right;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      opacity: 0.38;
+    }
 
-  .head-card {
-    flex-direction: row;
-    gap: 4px;
-    justify-content: center;
-    margin-top: 0px;
-    margin-bottom: 0px;
-  
-  }
+    .profile-btn:hover { opacity: 0.65; }
 
-  .hover-div {
-    padding: 10 px;
-      font-size: 18px;
-      cursor: pointer; /* Changes mouse icon to hand */
-  }
+    .profile-btn.active {
+      font-weight: 600;
+      border-right: 2px solid;
+      opacity: 1;
+    }
 
-  .progress-display {
-  padding: 2px 4px;
-  margin: 0;
-  line-height: 1; /* Remove extra line height spacing */
-  height: auto; /* Ensure no extra height */
-  }
+    #right-side {
+      font-family: 'Caveat', cursive;
+      font-size: 1.5rem;
+      transform: rotate(-10deg);
+      white-space: pre-wrap;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  #left-side,
-#right-side {
-  transition: width 0.2s ease;
-}
+    .comments-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      padding-right: 16px;
+      padding-top: 16px;
+    }
 
-.profile-nav {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  padding-right: 16px;
-  padding-top: 8px;
-}
+    .comment-card {
+      position: relative;
+      font-family: 'Caveat', cursive;
+      font-size: 1.15rem;
+      transform: rotate(8deg);
+      text-align: right;
+      max-width: 140px;
+      line-height: 1.3;
+    }
 
-.profile-btn {
-  background: none;
-  border: none;
-  border-right: 2px solid transparent;
-  cursor: pointer;
-  font-size: 0.85rem;
-  padding: 3px 8px;
-  text-align: right;
-  transition: opacity 0.15s;
-  white-space: nowrap;
-  opacity: 0.38;
-}
+    @keyframes comment-glow {
+      0%   { filter: drop-shadow(0 0 0px currentColor); }
+      30%  { filter: drop-shadow(0 0 7px currentColor); }
+      100% { filter: drop-shadow(0 0 0px currentColor); }
+    }
 
-.profile-btn:hover { opacity: 0.65; }
+    .comment-new {
+      animation: comment-glow 4.5s ease-out 1 forwards;
+    }
 
-.profile-btn.active {
-  font-weight: 600;
-  border-right: 2px solid;
-  opacity: 1;
-}
+    .comment-from {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      font-family: inherit;
+      margin-bottom: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
 
-#right-side {
-  font-family: 'Caveat', cursive;
-  font-size: 1.5rem;
-  transform: rotate(-10deg);
-  white-space: pre-wrap;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .comment-text {
+      cursor: pointer;
+      word-break: break-word;
+    }
 
-.comments-left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  padding-right: 16px;
-  padding-top: 16px;
-}
+    .comment-delete {
+      position: absolute;
+      top: -4px;
+      right: -12px;
+      background: none;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+    }
 
-.comment-card {
-  position: relative;
-  font-family: 'Caveat', cursive;
-  font-size: 1.15rem;
-  transform: rotate(8deg);
-  text-align: right;
-  max-width: 140px;
-  line-height: 1.3;
-}
+    .comment-delete:hover { color: #e57373; }
 
-.comment-from {
-  font-size: 0.75rem;
-  opacity: 0.6;
-  font-family: inherit;
-  margin-bottom: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 3px;
-}
+    .profile-nav-wrapper, .profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
+      transition: filter 0.8s ease, box-shadow 0.4s ease;
+    }
 
-.comment-new-icon {
-  font-size: 9px !important;
-  width: 9px !important;
-  height: 9px !important;
-  opacity: 0.8;
-  line-height: 1;
-  flex-shrink: 0;
-}
+    .spotlight-dim { filter: brightness(0.45); }
 
-.comment-text {
-  cursor: pointer;
-  word-break: break-word;
-}
+    .tour-highlight {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 0 20px rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+    }
 
-.comment-delete {
-  position: absolute;
-  top: -4px;
-  right: -12px;
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-  padding: 0;
-}
+    @media (max-width: 600px) {
+      .flex-row {
+        flex-direction: column;
+        padding-bottom: 80px;
+      }
 
-.comment-delete:hover { color: #e57373; }
+      .profile-nav-wrapper { order: 0; width: 100%; }
+      app-daily-progress,
+      app-progress-stats { order: 1; width: 100%; }
+      #left-side {
+        order: 2;
+        width: 100% !important;
+        display: flex;
+        flex-direction: column;
+        max-height: none;
+      }
+      #right-side { display: none; }
+      .arrows-overlay { display: none; }
 
-.show-all-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  padding: 2px 0;
-  text-align: right;
-  font-family: 'Caveat', cursive;
-}
-.show-all-btn:hover { opacity: 1; }
+      .comments-left {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 8px 16px;
+        gap: 8px;
+      }
+      .comment-card { transform: none; text-align: center; }
 
-.spotlight-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 100;
-  pointer-events: none;
-  animation: fadeIn 0.8s ease forwards;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.spotlight-raised {
-  position: relative;
-  z-index: 101;
-}
-
-.profile-nav-wrapper, .profile-nav, app-daily-progress, app-progress-stats, #right-side, .arrows-overlay {
-  transition: filter 0.8s ease, box-shadow 0.4s ease;
-}
-.spotlight-dim {
-  filter: brightness(0.45);
-}
-.tour-highlight {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 0 20px rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-}
-
-@media (max-width: 600px) {
-  .flex-row { flex-direction: column; }
-
-  .profile-nav-wrapper { order: 0; width: 100%; } /* above everything */
-  app-daily-progress,
-  app-progress-stats { order: 1; width: 100%; }
-  #left-side { order: 2; width: 100% !important; display: flex; flex-direction: column; }
-  #right-side { display: none; }
-  .arrows-overlay { display: none; }
-
-  .comments-left {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 8px 16px;
-    gap: 8px;
-  }
-  .comment-card { transform: none; text-align: center; }
-
-  .profile-nav {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 16px;
-    gap: 4px;
-  }
-  .profile-btn {
-    border-right: none !important;
-    border-bottom: 2px solid transparent;
-    padding: 4px 12px;
-    text-align: center;
-  }
-  .profile-btn.active { border-right: none !important; border-bottom: 2px solid; }
-
-  .show-all-btn { text-align: center; width: 100%; }
-}
-
+      .profile-nav {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 16px;
+        gap: 4px;
+      }
+      .profile-btn {
+        border-right: none !important;
+        border-bottom: 2px solid transparent;
+        padding: 4px 12px;
+        text-align: center;
+      }
+      .profile-btn.active { border-right: none !important; border-bottom: 2px solid; }
+    }
   `,
 })
 export class OverviewComponent {
-  hello = 'world';
   #router = inject(Router);
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
@@ -381,8 +295,6 @@ export class OverviewComponent {
   readonly commentsService = inject(CommentsService);
 
   #refreshInterval: ReturnType<typeof setInterval> | null = null;
-  $spotlightActive = signal(false);
-  #spotlightTimer: ReturnType<typeof setTimeout> | null = null;
   $upliftersTourStep = signal<'switcher' | 'activity' | null>(null);
   #upliftersTourTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -390,17 +302,7 @@ export class OverviewComponent {
   $dimContent    = computed(() => this.$upliftersTourStep() === 'switcher');
   $dimOther      = computed(() => this.$upliftersTourStep() !== null);
 
-  $hasUnseenBefore = computed(() => {
-    const currentDate = toLocalDateString(this.progressService.$dailyProgressDate());
-    return this.commentsService.$datesWithUnseenComments().some(d => d < currentDate);
-  });
-
   expandedCommentId = signal<string | null>(null);
-  showAllComments = signal(false);
-  $maxVisibleComments = signal(100);
-  $visibleComments = computed(() =>
-    this.showAllComments() ? this.commentsService.$comments() : this.commentsService.$comments().slice(0, this.$maxVisibleComments())
-  );
   $arrowPaths = signal<{ curve: string; endX: number; endY: number }[]>([]);
 
   @ViewChild('left') leftDivRef!: ElementRef;
@@ -410,15 +312,10 @@ export class OverviewComponent {
   private resizeObserver!: ResizeObserver;
 
   ngAfterViewInit(): void {
-    this.setupResizeObserver();
-  }
-
-setupResizeObserver(): void {
     this.resizeObserver = new ResizeObserver(() => this.syncWidths());
     this.resizeObserver.observe(this.leftDivRef.nativeElement);
     this.resizeObserver.observe(this.rightDivRef.nativeElement);
-
-    this.syncWidths(); // initial sync
+    this.syncWidths();
   }
 
   syncWidths(): void {
@@ -433,41 +330,6 @@ setupResizeObserver(): void {
     rightEl.style.width = `${maxWidth}px`;
 
     this.computeArrows();
-    this.computeMaxVisibleComments();
-  }
-
-  private _computingCommentLimit = false;
-
-  computeMaxVisibleComments(): void {
-    if (this.showAllComments() || this._computingCommentLimit) return;
-
-    const progressEl = document.querySelector('app-daily-progress');
-    const leftEl = this.leftDivRef?.nativeElement;
-    if (!progressEl || !leftEl) return;
-
-    const availableHeight = progressEl.getBoundingClientRect().height;
-    const profileNavEl = leftEl.querySelector('.profile-nav');
-    const profileNavHeight = profileNavEl ? profileNavEl.getBoundingClientRect().height : 0;
-    const commentsEl: HTMLElement | null = leftEl.querySelector('.comments-left');
-    if (!commentsEl) return;
-
-    const availableForComments = availableHeight - profileNavHeight - 24;
-    const cards = Array.from(commentsEl.querySelectorAll('.comment-card')) as HTMLElement[];
-
-    let totalH = 0;
-    let count = 0;
-    for (const card of cards) {
-      totalH += card.getBoundingClientRect().height + 10;
-      if (totalH <= availableForComments) count++;
-      else break;
-    }
-
-    const newLimit = Math.max(1, count);
-    if (newLimit < this.$maxVisibleComments()) {
-      this._computingCommentLimit = true;
-      this.$maxVisibleComments.set(newLimit);
-      setTimeout(() => { this._computingCommentLimit = false; }, 200);
-    }
   }
 
   computeArrows(): void {
@@ -478,12 +340,11 @@ setupResizeObserver(): void {
     }
 
     const cr = container.getBoundingClientRect();
-    const paths: { curve: string; endX: number; endY: number }[] = [];
-
-    // Fixed x: just inside the left edge of the daily-progress card
     const progressEl = document.querySelector('app-daily-progress');
     if (!progressEl) return;
+
     const cardX = progressEl.getBoundingClientRect().left - cr.left + 8;
+    const paths: { curve: string; endX: number; endY: number }[] = [];
 
     for (const comment of this.commentsService.$comments()) {
       const commentEl: Element | null = container.querySelector(`[data-comment-id="${comment._id}"]`);
@@ -499,11 +360,8 @@ setupResizeObserver(): void {
       const y2 = hRect.top + hRect.height / 2 - cr.top;
 
       const cp = Math.abs(x2 - x1) * 0.45;
-      const cx1 = x1 + cp;
-      const cx2 = x2 - cp;
-
       paths.push({
-        curve: `M ${x1} ${y1} C ${cx1} ${y1} ${cx2} ${y2} ${x2} ${y2}`,
+        curve: `M ${x1} ${y1} C ${x1 + cp} ${y1} ${x2 - cp} ${y2} ${x2} ${y2}`,
         endX: x2,
         endY: y2,
       });
@@ -515,26 +373,18 @@ setupResizeObserver(): void {
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
     if (this.#refreshInterval) clearInterval(this.#refreshInterval);
-    if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
     if (this.#upliftersTourTimer) clearTimeout(this.#upliftersTourTimer);
   }
 
-
-  // ## currentTimeStep and we need another one for DayStep or different components?
-  $currentTimeStep = this.progressService.$dailyProgressTimeStep;
-
-  // ####ideax: methods like this: if(condition)navigateTo(path), or findAll(objects)with(condition)
-  // signature const function if(condition : boolean)navigateTo(path: string){}
-
-  private dayAccentColorMap: Record<number, string> = {
-    0: 'rgb(160, 110, 20)',   // Sunday
-    2: 'rgb(120, 45, 0)',     // Tuesday
-    3: 'rgb(75, 100, 0)',     // Wednesday
-    4: 'rgb(180, 55, 0)',     // Thursday
-    5: 'rgb(0, 110, 116)',    // Friday
-    6: 'rgb(10, 70, 150)',    // Saturday
+  private readonly dayAccentColorMap: Record<number, string> = {
+    0: 'rgb(160, 110, 20)',
+    2: 'rgb(120, 45, 0)',
+    3: 'rgb(75, 100, 0)',
+    4: 'rgb(180, 55, 0)',
+    5: 'rgb(0, 110, 116)',
+    6: 'rgb(10, 70, 150)',
   };
-  todayAccentColor = this.dayAccentColorMap[new Date().getDay()] ?? '#222';
+  readonly todayAccentColor = this.dayAccentColorMap[new Date().getDay()] ?? '#222';
 
   switchProfile(userId: string) {
     if (this.$upliftersTourStep() === 'switcher' && userId !== '') {
@@ -558,18 +408,11 @@ setupResizeObserver(): void {
     this.commentsService.deleteComment(id).subscribe(r => {
       if (r.success) {
         this.commentsService.$comments.update(cs => cs.filter(c => c._id !== id));
-        this.$maxVisibleComments.set(100);
       }
     });
   }
 
-  hideAllComments() {
-    this.showAllComments.set(false);
-    this.$maxVisibleComments.set(100);
-  }
-
   constructor() {
-    // Auto-refresh every 60 s while viewing an uplifter's board.
     effect(() => {
       const isViewing = this.upliftersService.$isViewingUplifter();
       this.upliftersService.$activeProfileId();
@@ -600,18 +443,6 @@ setupResizeObserver(): void {
       setTimeout(() => this.computeArrows(), 80);
     });
 
-    // Spotlight: dim surrounding content when unseen comments are present
-    // ## only if on that page unseen comments are present
-    effect(() => {
-      const hasUnseen = this.commentsService.$comments().some(c => !c.seen);
-      if (hasUnseen) {
-        this.$spotlightActive.set(true);
-        if (this.#spotlightTimer) clearTimeout(this.#spotlightTimer);
-        this.#spotlightTimer = setTimeout(() => this.$spotlightActive.set(false), 5000);
-      }
-    });
-
-    // Uplifters tour: highlight switcher bar the first time connections appear
     effect(() => {
       const connections = this.upliftersService.$connections();
       if (connections.length > 0 && !this.upliftersService.$upliftersTourSeen()) {
@@ -620,5 +451,3 @@ setupResizeObserver(): void {
     });
   }
 }
-
-// if user does not have a reflectionTrigger (stored in mongo) redirect to setup
