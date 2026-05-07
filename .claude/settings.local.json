@@ -17,7 +17,13 @@
       "Bash(magick --version)",
       "Bash(convert --version)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\strau\\\\OneDrive\\\\Tech\\\\MyWorkOnGit\\\\FreeTime\\\\habitate\" -Recurse -Directory)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git *)",
+      "Bash(npx tsc *)",
+      "Bash(npx ng *)",
+      "PowerShell(git *)"
     ]
   }
 }
