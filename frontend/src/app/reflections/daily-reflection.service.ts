@@ -23,8 +23,8 @@ export class DailyReflectionService {
   readonly goalsService = inject(GoalsService);
   readonly progressService = inject(ProgressService);
   $currentStep = signal('start');
-
-  // compute habits, and add to map with key same as currentStepIdentifiert (goal-1, etc.)
+  $backgroundSceneHtml = signal<string | null>(null);
+  $backgroundActive = signal(false);
 
   incompleteHabit: HabitWithGoal | null = null;
 
@@ -54,6 +54,8 @@ export class DailyReflectionService {
   initDailyReflection() {
     this.intitStepComponentMap();
 
+    this.$backgroundSceneHtml.set(null);
+    this.$backgroundActive.set(false);
     this.selectedHabitsWithGoal = [];
     this.selectedHabitsForGoal.clear();
     this.stepsMappedToHabitOrGoal.clear();

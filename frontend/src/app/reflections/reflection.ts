@@ -15,6 +15,7 @@ import { StateService } from '../state.service';
 import { NgComponentOutlet } from '@angular/common';
 import { DailyReflectionService } from './daily-reflection.service';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-reflection',
@@ -37,6 +38,9 @@ import { animate, style, transition, trigger } from '@angular/animations';
     ]),
   ],
   template: `
+    @if ($persistedScene()) {
+      <div class="scene-bg" [innerHTML]="$persistedScene()"></div>
+    }
     @for (step of [$currentStep()]; track step) {
       <div @stepFade class="step-host">
         <ng-container *ngComponentOutlet="$currentComponent()"></ng-container>
@@ -59,6 +63,24 @@ import { animate, style, transition, trigger } from '@angular/animations';
       width: 100%;
     }
 
+    .scene-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      animation: scene-dim-in 600ms ease forwards;
+    }
+
+    .scene-bg ::ng-deep * {
+      animation-play-state: paused !important;
+    }
+
+    @keyframes scene-dim-in {
+      from { opacity: 0; }
+      to   { opacity: 0.35; }
+    }
+
     ::ng-deep .mat-horizontal-stepper-header-container {
       display: none !important;
     }
@@ -66,6 +88,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 })
 export class ReflectionComponent {
   readonly #router = inject(Router);
+  readonly #sanitizer = inject(DomSanitizer);
   readonly goalsService = inject(GoalsService);
   readonly reflectionsService = inject(ReflectionsService);
   readonly dailyReflectionService = inject(DailyReflectionService);
@@ -78,6 +101,13 @@ export class ReflectionComponent {
     return this.dailyReflectionService.stepComponentMap.get(
       this.dailyReflectionService.$currentStep()
     ) ?? null;
+  });
+
+  $persistedScene = computed<SafeHtml | null>(() => {
+    const html = this.dailyReflectionService.$backgroundSceneHtml();
+    if (!html || !this.dailyReflectionService.$backgroundActive()) return null;
+    if (this.$currentStep() === 'settle-down') return null;
+    return this.#sanitizer.bypassSecurityTrustHtml(html);
   });
 
   constructor(private route: ActivatedRoute) {}

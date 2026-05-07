@@ -207,36 +207,35 @@ const SCENES: string[] = [
     <ellipse cx="598" cy="52" rx="4.5" ry="2" fill="#f06292" class="ch-p6" transform="rotate(12 598 52)"/>
   </svg>`,
 
-  // 7 – Desert Night
+  // 7 – Desert Twilight
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
     <style>
-      .ds-s{animation:ds-tw 2.2s ease-in-out infinite}
-      @keyframes ds-tw{0%,100%{opacity:.3}50%{opacity:1}}
-      .ds-sh{animation:ds-shoot 4s ease-in infinite;animation-delay:-2s}
-      @keyframes ds-shoot{0%{transform:translate(0,0);opacity:1}100%{transform:translate(90px,90px);opacity:0}}
+      .dt-s{animation:dt-tw 2.2s ease-in-out infinite}
+      @keyframes dt-tw{0%,100%{opacity:.35}50%{opacity:1}}
+      .dt-sh{animation:dt-shoot 5s ease-in infinite;animation-delay:-1.5s}
+      @keyframes dt-shoot{0%{transform:translate(0,0);opacity:.9}100%{transform:translate(80px,80px);opacity:0}}
     </style>
-    <defs><linearGradient id="ds-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0b1622"/><stop offset="100%" stop-color="#1b2d3e"/></linearGradient></defs>
-    <rect x="0" y="0" width="800" height="300" fill="url(#ds-sky)"/>
-    <circle cx="672" cy="58" r="30" fill="#f5f5dc"/>
-    <circle cx="688" cy="47" r="26" fill="#1b2d3e"/>
-    <circle cx="78" cy="32" r="2" fill="white" class="ds-s" style="animation-delay:0s"/>
-    <circle cx="195" cy="54" r="1.5" fill="white" class="ds-s" style="animation-delay:.35s"/>
-    <circle cx="318" cy="26" r="2" fill="white" class="ds-s" style="animation-delay:.7s"/>
-    <circle cx="432" cy="48" r="1.5" fill="white" class="ds-s" style="animation-delay:1.1s"/>
-    <circle cx="545" cy="30" r="2" fill="white" class="ds-s" style="animation-delay:.55s"/>
-    <circle cx="148" cy="68" r="1.5" fill="white" class="ds-s" style="animation-delay:.2s"/>
-    <circle cx="380" cy="74" r="1.5" fill="white" class="ds-s" style="animation-delay:.9s"/>
-    <line x1="270" y1="42" x2="332" y2="88" stroke="white" stroke-width="1.5" opacity=".65" class="ds-sh"/>
-    <path d="M0,242 Q150,205 300,238 Q450,222 600,242 Q700,230 800,240 L800,300 L0,300 Z" fill="#c2955a"/>
-    <path d="M0,262 Q100,248 220,258 Q360,248 500,262 Q650,252 800,260 L800,300 L0,300 Z" fill="#a0785a"/>
-    <rect x="143" y="172" width="14" height="90" rx="7" fill="#2e7d32"/>
-    <rect x="118" y="192" width="30" height="10" rx="5" fill="#2e7d32"/>
-    <rect x="104" y="172" width="14" height="42" rx="7" fill="#2e7d32"/>
-    <rect x="157" y="195" width="30" height="10" rx="5" fill="#2e7d32"/>
-    <rect x="171" y="176" width="14" height="38" rx="7" fill="#2e7d32"/>
-    <rect x="578" y="178" width="12" height="84" rx="6" fill="#2e7d32"/>
-    <rect x="555" y="198" width="28" height="9" rx="4.5" fill="#2e7d32"/>
-    <rect x="543" y="180" width="12" height="36" rx="6" fill="#2e7d32"/>
+    <defs><linearGradient id="dt-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a0533"/><stop offset="45%" stop-color="#7b1fa2"/><stop offset="75%" stop-color="#e64a19"/><stop offset="100%" stop-color="#ffa000"/></linearGradient></defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#dt-sky)"/>
+    <circle cx="672" cy="52" r="30" fill="#fff8e1" opacity="0.95"/>
+    <circle cx="689" cy="41" r="26" fill="#7b1fa2"/>
+    <circle cx="78" cy="28" r="2" fill="white" class="dt-s" style="animation-delay:0s"/>
+    <circle cx="195" cy="50" r="1.5" fill="white" class="dt-s" style="animation-delay:.35s"/>
+    <circle cx="318" cy="22" r="2" fill="white" class="dt-s" style="animation-delay:.7s"/>
+    <circle cx="432" cy="44" r="1.5" fill="white" class="dt-s" style="animation-delay:1.1s"/>
+    <circle cx="148" cy="64" r="1.5" fill="white" class="dt-s" style="animation-delay:.2s"/>
+    <circle cx="380" cy="70" r="1.5" fill="white" class="dt-s" style="animation-delay:.9s"/>
+    <line x1="270" y1="38" x2="332" y2="84" stroke="white" stroke-width="1.5" opacity=".7" class="dt-sh"/>
+    <path d="M0,238 Q150,200 300,234 Q450,218 600,238 Q700,226 800,236 L800,300 L0,300 Z" fill="#e65c00"/>
+    <path d="M0,258 Q100,244 220,254 Q360,244 500,258 Q650,248 800,256 L800,300 L0,300 Z" fill="#bf360c"/>
+    <rect x="143" y="168" width="14" height="90" rx="7" fill="#1b5e20"/>
+    <rect x="118" y="188" width="30" height="10" rx="5" fill="#1b5e20"/>
+    <rect x="104" y="168" width="14" height="42" rx="7" fill="#1b5e20"/>
+    <rect x="157" y="191" width="30" height="10" rx="5" fill="#1b5e20"/>
+    <rect x="171" y="172" width="14" height="38" rx="7" fill="#1b5e20"/>
+    <rect x="578" y="174" width="12" height="84" rx="6" fill="#1b5e20"/>
+    <rect x="555" y="194" width="28" height="9" rx="4.5" fill="#1b5e20"/>
+    <rect x="543" y="176" width="12" height="36" rx="6" fill="#1b5e20"/>
   </svg>`,
 
   // 8 – Campfire
@@ -358,6 +357,193 @@ const SCENES: string[] = [
     <ellipse cx="478" cy="197" rx="28" ry="7" fill="white" opacity="0.55"/>
     <ellipse cx="728" cy="196" rx="36" ry="9" fill="white" opacity="0.55"/>
     <path d="M0,268 Q200,258 400,268 Q600,278 800,264 L800,300 L0,300 Z" fill="white" opacity="0.45"/>
+  </svg>`,
+
+  // 11 – Sunrise over Ocean
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes so-wave{0%,100%{transform:translateX(0)}50%{transform:translateX(-48px)}}
+      .so-w1{animation:so-wave 7s ease-in-out infinite}
+      .so-w2{animation:so-wave 9s ease-in-out infinite;animation-delay:-4s}
+    </style>
+    <defs>
+      <linearGradient id="so-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a237e"/><stop offset="55%" stop-color="#e64a19"/><stop offset="100%" stop-color="#ffd54f"/></linearGradient>
+      <linearGradient id="so-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1565c0"/><stop offset="100%" stop-color="#0d47a1"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#so-sky)"/>
+    <circle cx="400" cy="192" r="48" fill="#ffca28" opacity="0.92"/>
+    <rect x="0" y="192" width="800" height="108" fill="url(#so-sea)"/>
+    <rect x="375" y="192" width="50" height="108" fill="#ffca28" opacity="0.18"/>
+    <g class="so-w1">
+      <path d="M-50,210 Q50,200 150,210 Q250,220 350,210 Q450,200 550,210 Q650,220 750,210 Q850,200 950,210 L950,235 L-50,235 Z" fill="#1976d2" opacity="0.55"/>
+    </g>
+    <g class="so-w2">
+      <path d="M-50,228 Q70,218 170,228 Q270,238 370,228 Q470,218 570,228 Q670,238 770,228 Q870,218 970,228 L970,300 L-50,300 Z" fill="#0d47a1" opacity="0.75"/>
+    </g>
+  </svg>`,
+
+  // 12 – Sunrise Mountain Lake
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes sl-mist{0%,100%{transform:translateX(0);opacity:.42}50%{transform:translateX(30px);opacity:.62}}
+      .sl-m1{animation:sl-mist 9s ease-in-out infinite}
+      .sl-m2{animation:sl-mist 12s ease-in-out infinite;animation-delay:-5s}
+    </style>
+    <defs>
+      <linearGradient id="sl-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#880e4f"/><stop offset="45%" stop-color="#e91e63"/><stop offset="75%" stop-color="#ff8f00"/><stop offset="100%" stop-color="#ffe082"/></linearGradient>
+      <linearGradient id="sl-lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff8a65"/><stop offset="100%" stop-color="#4a148c"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#sl-sky)"/>
+    <circle cx="400" cy="196" r="36" fill="#fff176" opacity="0.88"/>
+    <polygon points="0,196 120,82 240,196" fill="#311b92" opacity="0.9"/>
+    <polygon points="100,196 230,65 360,196" fill="#4527a0" opacity="0.85"/>
+    <polygon points="280,196 420,52 560,196" fill="#311b92" opacity="0.9"/>
+    <polygon points="460,196 590,70 720,196" fill="#4527a0" opacity="0.85"/>
+    <polygon points="640,196 760,88 880,196" fill="#311b92" opacity="0.9"/>
+    <polygon points="230,65 250,90 210,90" fill="#fff176" opacity="0.55"/>
+    <polygon points="420,52 442,80 398,80" fill="#fff176" opacity="0.55"/>
+    <rect x="0" y="196" width="800" height="104" fill="url(#sl-lake)"/>
+    <rect x="384" y="196" width="32" height="104" fill="#fff176" opacity="0.2"/>
+    <path d="M0,196 Q200,190 400,196 Q600,202 800,196" stroke="#ffcc02" stroke-width="1.5" fill="none" opacity="0.45"/>
+    <ellipse cx="260" cy="182" rx="190" ry="16" fill="#ffccbc" opacity="0.42" class="sl-m1"/>
+    <ellipse cx="560" cy="175" rx="155" ry="13" fill="#ffccbc" opacity="0.35" class="sl-m2"/>
+    <path d="M0,218 Q200,212 400,218 Q600,224 800,218" stroke="#ffcc02" stroke-width="1" fill="none" opacity="0.2"/>
+  </svg>`,
+
+  // 13 – Autumn Forest
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes af-fall{from{transform:translate(0,0) rotate(0deg);opacity:.85}to{transform:translate(35px,310px) rotate(540deg);opacity:0}}
+      .af-l1{animation:af-fall 5s ease-in infinite}
+      .af-l2{animation:af-fall 6.5s ease-in infinite;animation-delay:-2s}
+      .af-l3{animation:af-fall 4.8s ease-in infinite;animation-delay:-1.5s}
+      .af-l4{animation:af-fall 7s ease-in infinite;animation-delay:-3.5s}
+      .af-l5{animation:af-fall 5.5s ease-in infinite;animation-delay:-.8s}
+    </style>
+    <defs><linearGradient id="af-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bf360c"/><stop offset="50%" stop-color="#e65100"/><stop offset="100%" stop-color="#ffcc80"/></linearGradient></defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#af-sky)"/>
+    <polygon points="40,300 78,148 116,300" fill="#1b0000" opacity="0.82"/>
+    <polygon points="88,300 130,122 172,300" fill="#260800" opacity="0.88"/>
+    <polygon points="195,300 238,108 281,300" fill="#1b0000" opacity="0.82"/>
+    <polygon points="348,300 395,95 442,300" fill="#260800" opacity="0.88"/>
+    <polygon points="508,300 552,115 596,300" fill="#1b0000" opacity="0.82"/>
+    <polygon points="638,300 678,130 718,300" fill="#260800" opacity="0.88"/>
+    <polygon points="720,300 758,142 796,300" fill="#1b0000" opacity="0.82"/>
+    <path d="M0,268 Q200,255 400,268 Q600,280 800,265 L800,300 L0,300 Z" fill="#3e1200" opacity="0.9"/>
+    <ellipse cx="148" cy="48" rx="6" ry="3" fill="#e65100" class="af-l1" transform="rotate(-25 148 48)"/>
+    <ellipse cx="262" cy="36" rx="5" ry="2.5" fill="#d84315" class="af-l2" transform="rotate(18 262 36)"/>
+    <ellipse cx="388" cy="52" rx="6" ry="3" fill="#f57c00" class="af-l3" transform="rotate(-12 388 52)"/>
+    <ellipse cx="502" cy="30" rx="5" ry="2.5" fill="#bf360c" class="af-l4" transform="rotate(30 502 30)"/>
+    <ellipse cx="622" cy="44" rx="6" ry="3" fill="#e65100" class="af-l5" transform="rotate(-20 622 44)"/>
+  </svg>`,
+
+  // 14 – Tropical Beach
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes tb-palm{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+      @keyframes tb-wave{0%,100%{transform:translateX(0)}50%{transform:translateX(-42px)}}
+      .tb-p{animation:tb-palm 4s ease-in-out infinite alternate;transform-origin:bottom center}
+      .tb-p2{animation:tb-palm 5s ease-in-out infinite alternate-reverse;transform-origin:bottom center}
+      .tb-w1{animation:tb-wave 6s ease-in-out infinite}
+      .tb-w2{animation:tb-wave 8s ease-in-out infinite;animation-delay:-3.5s}
+    </style>
+    <defs>
+      <linearGradient id="tb-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#40c4ff"/><stop offset="100%" stop-color="#b3e5fc"/></linearGradient>
+      <linearGradient id="tb-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00acc1"/><stop offset="100%" stop-color="#00838f"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#tb-sky)"/>
+    <circle cx="680" cy="58" r="36" fill="#fff176" opacity="0.9"/>
+    <ellipse cx="145" cy="62" rx="58" ry="18" fill="white" opacity="0.7"/>
+    <ellipse cx="420" cy="48" rx="68" ry="16" fill="white" opacity="0.6"/>
+    <rect x="0" y="185" width="800" height="115" fill="url(#tb-sea)"/>
+    <path d="M0,232 Q200,220 400,232 Q600,244 800,230 L800,300 L0,300 Z" fill="#f5f0c8" opacity="0.92"/>
+    <g class="tb-w1">
+      <path d="M-50,196 Q50,186 150,196 Q250,206 350,196 Q450,186 550,196 Q650,206 750,196 Q850,186 950,196 L950,220 L-50,220 Z" fill="#26c6da" opacity="0.5"/>
+    </g>
+    <g class="tb-w2">
+      <path d="M-50,212 Q70,204 170,212 Q270,220 370,212 Q470,204 570,212 Q670,220 770,212 Q870,204 970,212 L970,240 L-50,240 Z" fill="#00838f" opacity="0.45"/>
+    </g>
+    <g class="tb-p" transform="translate(118,235)">
+      <rect x="-5" y="-95" width="10" height="95" rx="5" fill="#5d4037"/>
+      <ellipse cx="-28" cy="-90" rx="38" ry="11" fill="#388e3c" transform="rotate(-28 -28 -90)"/>
+      <ellipse cx="0" cy="-102" rx="40" ry="11" fill="#43a047" transform="rotate(4 0 -102)"/>
+      <ellipse cx="30" cy="-92" rx="36" ry="10" fill="#388e3c" transform="rotate(26 30 -92)"/>
+    </g>
+    <g class="tb-p2" transform="translate(668,240)">
+      <rect x="-5" y="-88" width="10" height="88" rx="5" fill="#5d4037"/>
+      <ellipse cx="-25" cy="-84" rx="34" ry="10" fill="#388e3c" transform="rotate(-24 -25 -84)"/>
+      <ellipse cx="0" cy="-96" rx="36" ry="10" fill="#43a047" transform="rotate(6 0 -96)"/>
+      <ellipse cx="28" cy="-86" rx="32" ry="9" fill="#388e3c" transform="rotate(22 28 -86)"/>
+    </g>
+  </svg>`,
+
+  // 15 – Fireflies at Dusk
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes ff-glow{0%,100%{opacity:0;transform:translate(0,0)}40%{opacity:.9}60%{opacity:.9}100%{opacity:0;transform:translate(8px,-18px)}}
+      .ff1{animation:ff-glow 2.8s ease-in-out infinite}
+      .ff2{animation:ff-glow 3.4s ease-in-out infinite;animation-delay:-.9s}
+      .ff3{animation:ff-glow 2.5s ease-in-out infinite;animation-delay:-1.7s}
+      .ff4{animation:ff-glow 3.8s ease-in-out infinite;animation-delay:-.4s}
+      .ff5{animation:ff-glow 2.2s ease-in-out infinite;animation-delay:-2.1s}
+      .ff6{animation:ff-glow 3.1s ease-in-out infinite;animation-delay:-1.3s}
+      .ff7{animation:ff-glow 2.9s ease-in-out infinite;animation-delay:-.7s}
+      .ff8{animation:ff-glow 3.6s ease-in-out infinite;animation-delay:-2.4s}
+    </style>
+    <defs><linearGradient id="ff-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a0533"/><stop offset="55%" stop-color="#4a148c"/><stop offset="100%" stop-color="#e65100"/></linearGradient></defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#ff-sky)"/>
+    <circle cx="88" cy="42" r="1.5" fill="white" opacity="0.5"/>
+    <circle cx="220" cy="28" r="1.8" fill="white" opacity="0.45"/>
+    <circle cx="380" cy="48" r="1.2" fill="white" opacity="0.4"/>
+    <circle cx="540" cy="22" r="1.8" fill="white" opacity="0.5"/>
+    <circle cx="688" cy="38" r="1.5" fill="white" opacity="0.45"/>
+    <path d="M0,218 Q100,202 200,215 Q300,205 400,218 Q500,208 600,218 Q700,208 800,215 L800,300 L0,300 Z" fill="#0a0015" opacity="0.95"/>
+    <polygon points="55,218 88,148 121,218" fill="#06000f"/>
+    <polygon points="105,218 142,132 179,218" fill="#080012"/>
+    <polygon points="210,218 252,142 294,218" fill="#06000f"/>
+    <polygon points="388,218 428,138 468,218" fill="#080012"/>
+    <polygon points="548,218 586,145 624,218" fill="#06000f"/>
+    <polygon points="662,218 698,150 734,218" fill="#080012"/>
+    <circle cx="168" cy="188" r="3.5" fill="#ccff00" filter="url(#ff-blur)" class="ff1"/>
+    <circle cx="284" cy="172" r="3" fill="#aaff00" class="ff2"/>
+    <circle cx="356" cy="195" r="3.5" fill="#ccff00" class="ff3"/>
+    <circle cx="448" cy="168" r="3" fill="#aaff00" class="ff4"/>
+    <circle cx="528" cy="188" r="3.5" fill="#ccff00" class="ff5"/>
+    <circle cx="612" cy="175" r="3" fill="#aaff00" class="ff6"/>
+    <circle cx="236" cy="158" r="2.5" fill="#ccff00" class="ff7"/>
+    <circle cx="492" cy="155" r="2.5" fill="#aaff00" class="ff8"/>
+  </svg>`,
+
+  // 16 – Rainforest at Dawn
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+    <style>
+      @keyframes rf-mist{0%,100%{transform:translateX(0);opacity:.3}50%{transform:translateX(28px);opacity:.48}}
+      @keyframes rf-ray{0%,100%{opacity:.08}50%{opacity:.18}}
+      .rf-m1{animation:rf-mist 10s ease-in-out infinite}
+      .rf-m2{animation:rf-mist 13s ease-in-out infinite;animation-delay:-6s}
+      .rf-r{animation:rf-ray 5s ease-in-out infinite}
+    </style>
+    <defs>
+      <linearGradient id="rf-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1b5e20"/><stop offset="45%" stop-color="#2e7d32"/><stop offset="100%" stop-color="#388e3c"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="800" height="300" fill="url(#rf-sky)"/>
+    <polygon points="0,208 60,88 120,208" fill="#0a2e0a"/>
+    <polygon points="55,208 125,62 195,208" fill="#0d3610"/>
+    <polygon points="145,208 222,48 299,208" fill="#0a2e0a"/>
+    <polygon points="255,208 332,72 409,208" fill="#0d3610"/>
+    <polygon points="388,208 462,55 536,208" fill="#0a2e0a"/>
+    <polygon points="512,208 585,68 658,208" fill="#0d3610"/>
+    <polygon points="640,208 712,78 784,208" fill="#0a2e0a"/>
+    <polygon points="720,208 790,92 860,208" fill="#0d3610"/>
+    <polygon points="222,62 244,92 200,92" fill="#fffde7" opacity="0.06" class="rf-r"/>
+    <polygon points="332,72 355,105 309,105" fill="#fffde7" opacity="0.06" class="rf-r" style="animation-delay:-2s"/>
+    <polygon points="462,55 486,92 438,92" fill="#fffde7" opacity="0.06" class="rf-r" style="animation-delay:-3.5s"/>
+    <path d="M150,85 L180,300" stroke="#fffde7" stroke-width="18" opacity="0.06" class="rf-r"/>
+    <path d="M340,70 L365,300" stroke="#fffde7" stroke-width="14" opacity="0.06" class="rf-r" style="animation-delay:-1.8s"/>
+    <path d="M470,58 L492,300" stroke="#fffde7" stroke-width="16" opacity="0.06" class="rf-r" style="animation-delay:-3.2s"/>
+    <path d="M0,238 Q200,225 400,238 Q600,250 800,236 L800,300 L0,300 Z" fill="#071507" opacity="0.95"/>
+    <ellipse cx="220" cy="230" rx="180" ry="16" fill="white" opacity="0.3" class="rf-m1"/>
+    <ellipse cx="580" cy="222" rx="150" ry="12" fill="white" opacity="0.25" class="rf-m2"/>
   </svg>`,
 ];
 
@@ -563,10 +749,14 @@ export class R2SettleDownComponent implements OnDestroy {
   ];
 
   constructor() {
-    this.safeScene = this.sanitizer.bypassSecurityTrustHtml(
-      SCENES[Math.floor(Math.random() * SCENES.length)]
-    );
-    this.intervalId = setInterval(() => this.remainingSeconds.update(n => n - 1), 1000);
+    const scene = SCENES[Math.floor(Math.random() * SCENES.length)];
+    this.dailyReflectionService.$backgroundSceneHtml.set(scene);
+    this.safeScene = this.sanitizer.bypassSecurityTrustHtml(scene);
+    this.intervalId = setInterval(() => {
+      const next = this.remainingSeconds() - 1;
+      this.remainingSeconds.set(next);
+      if (next === 0) this.dailyReflectionService.$backgroundActive.set(true);
+    }, 1000);
   }
 
   ngOnDestroy() {
