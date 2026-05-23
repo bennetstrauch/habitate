@@ -32,7 +32,9 @@ export class UpliftersService {
 
   constructor() {
     effect(() => {
-      if (!this.#stateService.$state()._id) {
+      if (this.#stateService.$state()._id) {
+        this.loadConnections().subscribe();
+      } else {
         this.$connections.set([]);
         this.$activeProfileId.set('');
       }

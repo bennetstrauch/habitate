@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { StateService } from '../state.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatButton } from '@angular/material/button';
@@ -102,7 +102,7 @@ import { UpliftersService } from '../uplifters/uplifters.service';
     }
   `,
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent {
   readonly stateService = inject(StateService);
   readonly progressService = inject(ProgressService);
   readonly goalsService = inject(GoalsService);
@@ -110,12 +110,6 @@ export class NavigationComponent implements OnInit {
   validationRulesGoals = validationRulesGoals;
 
   router = inject(Router);
-
-  ngOnInit() {
-    if (this.stateService.isLoggedIn()) {
-      this.upliftersService.loadConnections().subscribe();
-    }
-  }
 
   toggleStatsButton() {
     this.progressService.$displayStats.set(

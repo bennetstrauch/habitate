@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { UpliftersService } from './uplifters.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -110,7 +110,7 @@ import { GoalsService } from '../goals/goals.service';
     .confirm-remove { display: flex; align-items: center; gap: 2px; font-size: 0.85rem; color: #c62828; }
   `
 })
-export class UpliftersComponent implements OnInit {
+export class UpliftersComponent {
   upliftersService = inject(UpliftersService);
   #goalsService = inject(GoalsService);
 
@@ -120,10 +120,6 @@ export class UpliftersComponent implements OnInit {
   connectCode = '';
   connectError = '';
   connectSuccess = '';
-
-  ngOnInit() {
-    this.upliftersService.loadConnections().subscribe();
-  }
 
   loadCode() {
     this.upliftersService.getInviteCode().subscribe(r => {
