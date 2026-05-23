@@ -9,7 +9,7 @@ import { toLocalDateString } from '../utils/utils';
   template: `
     @if (commentsService.$datesWithUnseenComments().length > 0) {
       <div class="inbox-bar" [style.color]="accentColor()">
-        <button class="inbox-toggle" (click)="$expanded.update(e => !e)">
+        <button class="inbox-toggle" (click)="$expanded.set(!$expanded())">
           <span class="inbox-label">✦ New comments</span>
           <span class="inbox-count">{{ commentsService.$datesWithUnseenComments().length }}</span>
           <span class="inbox-chevron">{{ $expanded() ? '▲' : '▼' }}</span>
